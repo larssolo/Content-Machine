@@ -50,10 +50,18 @@ import {
   Sun,
   Moon,
   Download,
-  Loader2
+  Loader2,
+  Clock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ProjectBrief, BrandSurfaceOutput, PresetBrief, HumanizerResult } from './types';
+import { buildMarkdown, downloadTextFile, slugify } from './lib/exportMarkdown';
+import { downloadHtmlFile } from './lib/exportHtml';
+import { downloadDocx } from './lib/exportDocx';
+import { ImageGenCard } from './components/ImageGenCard';
+import { DirectUsableBar } from './components/DirectUsableBar';
+import { saveSession, loadSession } from './lib/session';
+import { loadHistory, pushHistory, clearHistory, type HistoryItem } from './lib/history';
 
 const PRESETS: PresetBrief[] = [
   {
@@ -116,6 +124,10 @@ export default function App() {
 
   const [activeTab, setActiveTab] = useState<string>('case'); // Tab keys matching commands
   const [output, setOutput] = useState<BrandSurfaceOutput | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>(() => loadHistory());
+  const [historyOpen, setHistoryOpen] = useState<boolean>(false);
+  const [variants, setVariants] = useState<{ key: string; options: string[] } | null>(null);
+  const [isVariating, setIsVariating] = useState<boolean>(false);
   
   // Loading states
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
@@ -177,8 +189,19 @@ export default function App() {
     return PRESETS;
   });
 
-  // Set default preset on first load for a great out-of-the-box experience
+  // On mount: restore the saved working session, or fall back to the default preset
   useEffect(() => {
+    const saved = loadSession();
+    if (saved && (saved.output || saved.brief?.client)) {
+      if (saved.brief) setBrief(saved.brief);
+      if (saved.output) setOutput(saved.output);
+      if (saved.revisions) setRevisions(saved.revisions);
+      if (saved.activeCompareIndex) setActiveCompareIndex(saved.activeCompareIndex);
+      if (saved.generatedImages) setGeneratedImages(prev => ({ ...prev, ...(saved.generatedImages as any) }));
+      if (saved.cviFileName !== undefined) setCviFileName(saved.cviFileName ?? null);
+      if (saved.activeTab) setActiveTab(saved.activeTab);
+      return;
+    }
     if (customPresets && customPresets.length > 0) {
       handleLoadPreset(customPresets[0]);
     } else {
@@ -197,6 +220,12 @@ export default function App() {
       });
     }
   }, []);
+
+  // Auto-save the working session so nothing is lost on refresh
+  useEffect(() => {
+    if (!output && !brief.client) return; // undgå at overskrive med tom start-tilstand
+    saveSession({ brief, output, revisions, activeCompareIndex, generatedImages, cviFileName, activeTab });
+  }, [brief, output, revisions, activeCompareIndex, generatedImages, cviFileName, activeTab]);
 
   // Handler to clear all presets
   const handleClearPresets = () => {
@@ -250,7 +279,7 @@ export default function App() {
       })
       .catch(err => {
         console.error("CVI error:", err);
-        setErrorMsg(`Scanning mislykkedes: ${err.message || 'Den parrede Gemini-model kunne ikke afkode filen.'}`);
+        setErrorMsg(`Scanning mislykkedes: ${err.message || 'AI-modellen kunne ikke afkode filen.'}`);
         setCviFileName(null);
       })
       .finally(() => {
@@ -373,6 +402,147 @@ export default function App() {
     }, 150);
   };
 
+  // Export the full content package as Markdown (download or clipboard)
+  const handleExportMarkdown = () => {
+    if (!output) return;
+    const md = buildMarkdown(output, brief);
+    downloadTextFile(`${slugify(brief.client || 'brand-surface')}-case.md`, md);
+  };
+
+  const handleCopyAllMarkdown = () => {
+    if (!output) return;
+    handleCopyToClipboard(buildMarkdown(output, brief), 'export_all_md');
+  };
+
+  const handleExportHtml = () => {
+    if (!output) return;
+    downloadHtmlFile(output, brief);
+  };
+
+  const handleExportDocx = async () => {
+    if (!output) return;
+    try {
+      await downloadDocx(`${slugify(brief.client || 'brand-surface')}-case.docx`, output, brief);
+    } catch (e: any) {
+      setErrorMsg(e.message || 'Kunne ikke generere Word-dokument.');
+    }
+  };
+
+  // Reload a previous generation from the local history
+  const handleLoadHistory = (item: HistoryItem) => {
+    setBrief(item.brief);
+    setOutput(item.output);
+    setRevisions({
+      shortCaseText: [item.output.shortCaseText],
+      longCaseText: [item.output.longCaseText],
+      linkedinPost: [item.output.linkedinPost],
+      creativeNewsletterSection: item.output.production?.newsletterSection
+        ? [item.output.production.newsletterSection]
+        : []
+    });
+    setActiveCompareIndex({ shortCaseText: null, longCaseText: null, linkedinPost: null, creativeNewsletterSection: null });
+    setRefinementHistory([]);
+    setCviFileName(item.brief.cviManual ? 'Aktive CVI retningslinjer' : null);
+    setActiveTab('case');
+    setErrorMsg(null);
+  };
+
+  const handleClearHistory = () => {
+    setHistory(clearHistory());
+  };
+
+  // A/B variants for the main text blocks
+  const resolveMainText = (key: string): string => {
+    if (!output) return '';
+    if (key === 'shortCaseText') return output.shortCaseText;
+    if (key === 'longCaseText') return output.longCaseText;
+    if (key === 'linkedinPost') return output.linkedinPost;
+    return '';
+  };
+
+  const handleGenerateVariants = async (targetKey: string) => {
+    const text = resolveMainText(targetKey);
+    if (!text) return;
+    setIsVariating(true);
+    setErrorMsg(null);
+    setVariants({ key: targetKey, options: [] });
+    try {
+      const res = await fetch('/api/variants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, count: 2, brief })
+      });
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}));
+        throw new Error(e.error || `Serveren svarede med status ${res.status}`);
+      }
+      const data = await res.json();
+      setVariants({ key: targetKey, options: data.variants || [] });
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Kunne ikke generere varianter.');
+      setVariants(null);
+    } finally {
+      setIsVariating(false);
+    }
+  };
+
+  const handleApplyVariant = (targetKey: string, value: string) => {
+    const original = resolveMainText(targetKey);
+    setRefinementHistory(prev => [...prev, { key: targetKey, original }]);
+    setRevisions(prev => {
+      const list = [...(prev[targetKey] || [])];
+      if (list.length === 0) list.push(original);
+      if (list[list.length - 1] !== value) list.push(value);
+      return { ...prev, [targetKey]: list };
+    });
+    setActiveCompareIndex(prev => ({ ...prev, [targetKey]: null }));
+    setOutput(prev => {
+      if (!prev) return null;
+      const u: BrandSurfaceOutput = { ...prev };
+      if (targetKey === 'shortCaseText') u.shortCaseText = value;
+      else if (targetKey === 'longCaseText') u.longCaseText = value;
+      else if (targetKey === 'linkedinPost') u.linkedinPost = value;
+      if (targetKey === 'shortCaseText' && u.directUsable) {
+        u.directUsable = { ...u.directUsable, bestShortText: value };
+      }
+      return u;
+    });
+    setVariants(null);
+  };
+
+  const renderVariants = (targetKey: string) => {
+    if (!variants || variants.key !== targetKey) return null;
+    return (
+      <div className="mt-3 bg-slate-950/80 rounded-xl p-4 border border-amber-800/40 space-y-2 shadow-inner">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-amber-500 font-bold">A/B Varianter</span>
+          <button onClick={() => setVariants(null)} className="text-[10px] text-slate-500 hover:text-white font-mono">Luk</button>
+        </div>
+        {isVariating && variants.options.length === 0 && (
+          <div className="text-[11px] text-slate-400 flex items-center space-x-2">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <span>Genererer varianter...</span>
+          </div>
+        )}
+        {variants.options.map((opt, i) => (
+          <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-lg p-3">
+            <div className="text-[9px] font-mono text-slate-500 uppercase mb-1">Variant {String.fromCharCode(65 + i)}</div>
+            <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-wrap">{opt}</p>
+            <div className="mt-2 flex justify-end">
+              <button
+                onClick={() => handleApplyVariant(targetKey, opt)}
+                className="px-2 py-1 text-[10px] bg-brand-orange-600/20 text-brand-orange-400 border border-brand-orange-500/30 rounded hover:bg-brand-orange-600/30 font-mono"
+              >
+                Brug denne
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   // Run the whole generator
   const handleGenerateAll = async () => {
     if (!brief.client || !brief.project || !brief.description) {
@@ -420,6 +590,7 @@ export default function App() {
 
       const data: BrandSurfaceOutput = await response.json();
       setOutput(data);
+      setHistory(prev => pushHistory(prev, brief, data));
       if (data) {
         setRevisions({
           shortCaseText: [data.shortCaseText],
@@ -569,12 +740,75 @@ export default function App() {
         })
       });
 
-      if (!response.ok) {
-        throw new Error(`Serveren svarede med fejlkode ${response.status}`);
+      if (!response.ok || !response.body) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Serveren svarede med fejlkode ${response.status}`);
       }
 
-      const data = await response.json();
-      const refinedText = data.refinedText;
+      // Live-update helper: skriv den streamede tekst ind i det rigtige output-felt
+      const applyLiveText = (value: string) => {
+        setOutput(prev => {
+          if (!prev) return null;
+          const u: BrandSurfaceOutput = {
+            ...prev,
+            english: prev.english ? { ...prev.english } : prev.english,
+            production: prev.production ? { ...prev.production } : prev.production,
+            directUsable: prev.directUsable ? { ...prev.directUsable } : prev.directUsable,
+          };
+          if (targetKey === 'shortCaseText') u.shortCaseText = value;
+          else if (targetKey === 'longCaseText') u.longCaseText = value;
+          else if (targetKey === 'linkedinPost') u.linkedinPost = value;
+          else if (isEnglishObj && u.english) {
+            if (targetKey === 'englishShortCaseText') u.english.shortCaseText = value;
+            if (targetKey === 'englishLongCaseText') u.english.longCaseText = value;
+            if (targetKey === 'englishLinkedinPost') u.english.linkedinPost = value;
+          } else if (isProductionObj && u.production) {
+            if (targetKey === 'creativeHeroVisual') u.production.heroVisual = value;
+            if (targetKey === 'creativeSomeFormat') u.production.someFormat = value;
+            if (targetKey === 'creativeNewsletterSection') u.production.newsletterSection = value;
+          }
+          if (targetKey === 'shortCaseText' && u.directUsable) u.directUsable.bestShortText = value;
+          return u;
+        });
+      };
+
+      // Consume the Server-Sent Events stream from /api/refine
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let acc = '';
+      let streamErr: string | null = null;
+
+      while (true) {
+        const { value, done: rdDone } = await reader.read();
+        if (rdDone) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() || '';
+        for (const part of parts) {
+          const dataLine = part.split('\n').find(l => l.startsWith('data: '));
+          const isErrEvent = part.includes('event: error');
+          if (!dataLine) continue;
+          const payload = dataLine.slice(6);
+          if (payload === '[DONE]') continue;
+          try {
+            const evt = JSON.parse(payload);
+            if (isErrEvent && evt.error) {
+              streamErr = evt.error;
+            } else if (typeof evt.delta === 'string') {
+              acc += evt.delta;
+              applyLiveText(acc);
+            } else if (evt.done && typeof evt.refinedText === 'string') {
+              acc = evt.refinedText;
+            }
+          } catch {
+            /* ignorér ukomplette/uventede linjer */
+          }
+        }
+      }
+
+      if (streamErr) throw new Error(streamErr);
+      const refinedText = (acc || textToRefine).trim();
 
       // Store history for UNDO ability
       setRefinementHistory(prev => [...prev, { key: targetKey, original: textToRefine }]);
@@ -680,7 +914,7 @@ export default function App() {
     });
   };
 
-  // Generate actual image via express API using top-tier Imagen model
+  // Generate actual image via express API using the configured image provider (default: Flux/fal.ai)
   const handleGenerateImage = async (key: 'hero' | 'detail' | 'abstract', promptText: string) => {
     setGeneratedImages(prev => ({
       ...prev,
@@ -1538,101 +1772,18 @@ export default function App() {
               >
                 
                 {/* 1. SECTION: KAN BRUGES DIREKTE (PINNED HIGHLIGHTS) */}
-                <div id="dir_usable_panel" className="bg-gradient-to-br from-slate-950/40 via-slate-950/20 to-transparent border border-slate-850/60 rounded-xl p-7 shadow-xl relative overflow-hidden backdrop-blur-sm transition-all duration-300">
-                  
-                  {/* Decorative faint layout banner background lines */}
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-brand-orange-500/5 rounded-bl-full pointer-events-none"></div>
-
-                  <div className="flex items-center justify-between border-b border-slate-800/60 pb-3.5 mb-7">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-brand-orange-500 animate-ping"></div>
-                      <span className="font-display font-medium text-sm text-slate-100 flex items-center space-x-2">
-                        <Rocket className="w-4 h-4 text-brand-orange-500 shrink-0" />
-                        <span>Kan bruges direkte</span>
-                      </span>
-                    </div>
-                    <span className="text-[10px] font-mono text-amber-500/90 font-bold bg-amber-500/10 py-0.5 px-2.5 rounded-full uppercase tracking-wider">Bedst nominerede elementer</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    
-                    {/* Bedste overskrift */}
-                    <div className="bg-slate-900/40 rounded-xl p-6 border border-slate-805/50 relative hover:bg-slate-900/60 transition-colors duration-250">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase mb-3 font-bold tracking-wide">
-                        <span>Bedste overskrift</span>
-                        <button 
-                          onClick={() => handleCopyToClipboard(output.directUsable.bestHeadline, 'bestHeadline')}
-                          className="text-slate-500 hover:text-white transition-colors"
-                          title="Kopier"
-                        >
-                          {copiedKey === 'bestHeadline' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                      <div className="text-white text-xs font-bold leading-relaxed font-display font-medium tracking-tight pr-5">
-                        "{output.directUsable.bestHeadline}"
-                      </div>
-                    </div>
-
-                    {/* Bedste CTA */}
-                    <div className="bg-slate-900/40 rounded-xl p-6 border border-slate-805/50 relative hover:bg-slate-900/60 transition-colors duration-250">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase mb-3 font-bold tracking-wide">
-                        <span>Bedste Call to Action</span>
-                        <button 
-                          onClick={() => handleCopyToClipboard(output.directUsable.bestCta, 'bestCta')}
-                          className="text-slate-500 hover:text-white transition-colors"
-                          title="Kopier"
-                        >
-                          {copiedKey === 'bestCta' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                      <div className="text-orange-400 font-mono text-xs font-semibold pr-5">
-                        {output.directUsable.bestCta}
-                      </div>
-                    </div>
-
-                    {/* Bedste korte tekst */}
-                    <div className="bg-slate-900/40 rounded-xl p-6 border border-slate-805/50 md:col-span-2 space-y-3 hover:bg-slate-900/60 transition-colors duration-250">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase mb-2 font-bold tracking-wide">
-                        <span>Bedste korte pitch / case-introduktion</span>
-                        <button 
-                          onClick={() => handleCopyToClipboard(output.directUsable.bestShortText, 'bestShortText')}
-                          className="text-slate-500 hover:text-white transition-colors"
-                          title="Kopier"
-                        >
-                          {copiedKey === 'bestShortText' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                      <p className="text-slate-300 text-xs leading-relaxed pr-6">
-                        {output.directUsable.bestShortText}
-                      </p>
-                    </div>
-
-                    {/* Bedste linkedin start */}
-                    <div className="bg-slate-900/40 rounded-xl p-6 border border-slate-805/50 md:col-span-2 space-y-3 hover:bg-slate-900/60 transition-colors duration-250">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase mb-2 font-bold tracking-wide">
-                        <span>Bedste LinkedIn Hook (Krog)</span>
-                        <button 
-                          onClick={() => handleCopyToClipboard(output.directUsable.bestLinkedinStart, 'bestLinkedinStart')}
-                          className="text-slate-500 hover:text-white transition-colors"
-                          title="Kopier"
-                        >
-                          {copiedKey === 'bestLinkedinStart' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                      <div className="text-xs text-white leading-relaxed font-medium italic border-l-2 border-brand-orange-500 pl-2.5">
-                        "{output.directUsable.bestLinkedinStart}"
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
+                <DirectUsableBar
+                  directUsable={output.directUsable}
+                  copiedKey={copiedKey}
+                  onCopy={handleCopyToClipboard}
+                />
 
                 {/* MAIN RICH OUTPUT WORKSPACE WITH NAVIGATION TAB SHEETS */}
                 <div className="bg-slate-950 rounded-xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col">
                   
                   {/* TAB SWITCHERS BAR */}
                   <div className="bg-slate-950/90 border-b border-slate-800 px-2 pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 sm:pb-0">
-                    <div className="flex flex-wrap gap-1 flex-1">
+                    <div className="flex gap-1 flex-1 overflow-x-auto sm:flex-wrap sm:overflow-x-visible">
                       {[
                         { id: 'case', label: 'Case-tekst', icon: FileText },
                         { id: 'linkedin', label: 'LinkedIn Opslag', icon: Linkedin },
@@ -1653,7 +1804,7 @@ export default function App() {
                             onClick={() => {
                               setActiveTab(tab.id);
                             }}
-                            className={`flex items-center space-x-1.5 px-3 py-2.5 text-xs font-semibold rounded-t-lg transition-all border-t-2 cursor-pointer ${
+                            className={`flex items-center space-x-1.5 px-3 py-2.5 text-xs font-semibold rounded-t-lg transition-all border-t-2 cursor-pointer shrink-0 whitespace-nowrap ${
                               active 
                                 ? 'bg-slate-900 border-brand-orange-500 text-white shadow-md' 
                                 : 'bg-transparent border-transparent text-slate-400 hover:bg-slate-900/40 hover:text-slate-200'
@@ -1664,6 +1815,48 @@ export default function App() {
                           </button>
                         );
                       })}
+                    </div>
+
+                    {/* Project history (saved locally) */}
+                    <div className="relative mb-2 sm:mb-0 mr-2">
+                      <button
+                        type="button"
+                        onClick={() => setHistoryOpen(o => !o)}
+                        className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 text-[11px] font-bold font-mono rounded-lg transition-all active:scale-95"
+                        title="Tidligere genereringer (gemt lokalt i din browser)"
+                      >
+                        <Clock className="w-3.5 h-3.5 text-amber-500" />
+                        <span>HISTORIK ({history.length})</span>
+                        <ChevronDown className="w-3 h-3" />
+                      </button>
+                      {historyOpen && (
+                        <div className="absolute right-0 top-full mt-1.5 bg-slate-950 border border-slate-800 rounded-lg shadow-2xl z-30 w-72 p-1 text-left font-mono max-h-80 overflow-y-auto">
+                          <div className="flex items-center justify-between px-2.5 py-1 bg-slate-900/40 rounded border-b border-slate-900/60 mb-1">
+                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Tidligere genereringer</span>
+                            {history.length > 0 && (
+                              <button
+                                onClick={handleClearHistory}
+                                className="text-[9px] text-red-400 hover:text-red-300 flex items-center space-x-1"
+                                title="Ryd historik"
+                              >
+                                <Trash2 className="w-3 h-3" /><span>Ryd</span>
+                              </button>
+                            )}
+                          </div>
+                          {history.length === 0 ? (
+                            <div className="px-2.5 py-3 text-[10px] text-slate-500">Ingen gemte genereringer endnu.</div>
+                          ) : history.map(item => (
+                            <button
+                              key={item.id}
+                              onClick={() => { handleLoadHistory(item); setHistoryOpen(false); }}
+                              className="w-full text-left px-2.5 py-2 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors border-t border-slate-900/60 first:border-t-0"
+                            >
+                              <div className="font-bold text-slate-200 truncate">{item.client} — {item.project}</div>
+                              <div className="text-[9px] text-slate-500">{new Date(item.ts).toLocaleString('da-DK')}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     {/* PDF Export Action Button & Template Selection Aligned Right */}
@@ -1716,6 +1909,52 @@ export default function App() {
                           >
                             <BookOpen className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                             <span>Kun Case-tekster</span>
+                          </button>
+
+                          <div className="px-2.5 py-1 bg-slate-900/40 rounded border-y border-slate-900/60 my-1">
+                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest block">Markdown</span>
+                          </div>
+
+                          <button
+                            onClick={handleExportMarkdown}
+                            className="w-full text-left px-2.5 py-1.5 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                            <span>Download som Markdown (.md)</span>
+                          </button>
+
+                          <button
+                            onClick={handleCopyAllMarkdown}
+                            className="w-full text-left px-2.5 py-1.5 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2 border-t border-slate-900"
+                          >
+                            {copiedKey === 'export_all_md'
+                              ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                              : <Copy className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
+                            <span>Kopiér alt (Markdown)</span>
+                          </button>
+
+                          <div className="px-2.5 py-1 bg-slate-900/40 rounded border-y border-slate-900/60 my-1">
+                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest block">HTML</span>
+                          </div>
+
+                          <button
+                            onClick={handleExportHtml}
+                            className="w-full text-left px-2.5 py-1.5 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
+                          >
+                            <Globe className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                            <span>Download som HTML (.html)</span>
+                          </button>
+
+                          <div className="px-2.5 py-1 bg-slate-900/40 rounded border-y border-slate-900/60 my-1">
+                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest block">Word</span>
+                          </div>
+
+                          <button
+                            onClick={handleExportDocx}
+                            className="w-full text-left px-2.5 py-1.5 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
+                          >
+                            <Download className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                            <span>Download som Word (.docx)</span>
                           </button>
                         </div>
                       </div>
@@ -1805,12 +2044,21 @@ export default function App() {
                                 >
                                   /more-business
                                 </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleGenerateVariants('shortCaseText'); }}
+                                  disabled={isVariating}
+                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
+                                  title="Generer 2 A/B-varianter"
+                                >
+                                  /variant
+                                </button>
                               </div>
                               <span className="text-[10px] text-slate-500 font-mono">Genereret uden marketingfloskler</span>
                             </div>
 
                             {/* Revision history comparison selector */}
                             {renderRevisionSelector('shortCaseText', output.shortCaseText)}
+                            {renderVariants('shortCaseText')}
                           </div>
 
                           {/* Segment 2: Længere case-tekst */}
@@ -1879,12 +2127,21 @@ export default function App() {
                                 >
                                   /more-business
                                 </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleGenerateVariants('longCaseText'); }}
+                                  disabled={isVariating}
+                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
+                                  title="Generer 2 A/B-varianter"
+                                >
+                                  /variant
+                                </button>
                               </div>
                               <span className="text-[10px] text-slate-500 font-mono">Udførlig design documentation</span>
                             </div>
 
                             {/* Revision history comparison selector */}
                             {renderRevisionSelector('longCaseText', output.longCaseText)}
+                            {renderVariants('longCaseText')}
                           </div>
                         </motion.div>
                       )}
@@ -1964,12 +2221,21 @@ export default function App() {
                                 >
                                   /more-business
                                 </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleGenerateVariants('linkedinPost'); }}
+                                  disabled={isVariating}
+                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
+                                  title="Generer 2 A/B-varianter"
+                                >
+                                  /variant
+                                </button>
                               </div>
                               <span className="text-[10px] text-slate-500 font-mono">Inkluderer krog, krop, keywords</span>
                             </div>
 
                             {/* Revision history comparison selector */}
                             {renderRevisionSelector('linkedinPost', output.linkedinPost)}
+                            {renderVariants('linkedinPost')}
                           </div>
                         </motion.div>
                       )}
@@ -2168,338 +2434,56 @@ export default function App() {
                           className="space-y-4 font-sans"
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">8. AI-billedprompts (Imagen Generator Integreret)</span>
+                            <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">8. AI-billedprompts (AI Billedmotor integreret)</span>
                             <span className="text-[9px] text-slate-500 font-mono">Skal altid være på engelsk</span>
                           </div>
 
                           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             
                             {/* Prompt 1: Hero */}
-                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between space-y-4 shadow-xl">
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[10px] font-mono text-orange-400 font-bold uppercase tracking-wide">1. Hero Image Prompt</span>
-                                  <button
-                                    onClick={() => handleCopyToClipboard(output.imagePrompts.hero, 'prompt_hero')}
-                                    className="text-slate-500 hover:text-white transition-colors"
-                                  >
-                                    {copiedKey === 'prompt_hero' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                                  </button>
-                                </div>
-                                <p className="text-slate-300 text-[11px] leading-relaxed italic border-l border-slate-700 pl-2">
-                                  "{output.imagePrompts.hero}"
-                                </p>
-                              </div>
-
-                              {/* Interactive Generation Section */}
-                              <div className="mt-2 pt-3 border-t border-slate-800/80 space-y-3">
-                                <div className="flex items-center justify-between text-[11px]">
-                                  <span className="text-slate-400 font-mono">Billedformat:</span>
-                                  <div className="flex bg-slate-950 p-0.5 rounded border border-slate-800 space-x-1">
-                                    {['16:9', '1:1', '4:3', '9:16'].map((r) => (
-                                      <button
-                                        key={r}
-                                        onClick={() => handleAspectChange('hero', r)}
-                                        className={`px-2 py-0.5 text-[9px] font-mono font-bold rounded transition-colors ${
-                                          generatedImages.hero.aspectRatio === r
-                                            ? 'bg-orange-500 text-white shadow-sm'
-                                            : 'text-slate-400 hover:text-slate-200'
-                                        }`}
-                                      >
-                                        {r}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {generatedImages.hero.loading ? (
-                                  <div className="bg-slate-950 border border-slate-850 rounded-lg p-8 flex flex-col items-center justify-center space-y-3 min-h-[140px] animate-pulse">
-                                    <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
-                                    <span className="text-[10px] text-slate-400 font-mono">Genererer med Imagen...</span>
-                                  </div>
-                                ) : generatedImages.hero.error ? (
-                                  <div className="bg-red-950/40 border border-red-900/40 text-red-400 rounded-lg p-3 text-[11px] space-y-2">
-                                    <div className="flex items-start space-x-1.5">
-                                      <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
-                                      <span className="leading-tight">{generatedImages.hero.error}</span>
-                                    </div>
-                                    <button
-                                      onClick={() => handleGenerateImage('hero', output.imagePrompts.hero)}
-                                      className="w-full py-1 text-[10px] bg-red-900/60 hover:bg-red-900/80 border border-red-700/50 rounded font-medium text-white transition-all"
-                                    >
-                                      Prøv igen
-                                    </button>
-                                  </div>
-                                ) : generatedImages.hero.url ? (
-                                  <div className="space-y-2">
-                                    <div className="relative group rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shadow-inner">
-                                      <img
-                                        src={generatedImages.hero.url}
-                                        alt="AI generated hero concept"
-                                        referrerPolicy="no-referrer"
-                                        className="w-full h-auto object-cover max-h-[180px] rounded-lg transition-transform duration-300 group-hover:scale-105"
-                                      />
-                                      <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
-                                        <a
-                                          href={generatedImages.hero.url}
-                                          download={`${brief.client.replace(/\s+/g, '_')}_hero_${generatedImages.hero.aspectRatio.replace(':', 'x')}.jpg`}
-                                          className="p-2.5 bg-zinc-900 text-white rounded-full hover:bg-orange-500 hover:scale-110 transition-all shadow-md"
-                                          title="Download i fuld opløsning"
-                                        >
-                                          <Download className="w-4 h-4" />
-                                        </a>
-                                        <button
-                                          onClick={() => handleGenerateImage('hero', output.imagePrompts.hero)}
-                                          className="p-2.5 bg-zinc-900 text-white rounded-full hover:bg-orange-500 hover:scale-110 transition-all shadow-md"
-                                          title="Generer nyt billede"
-                                        >
-                                          <RotateCcw className="w-4 h-4" />
-                                        </button>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center justify-between text-[10px] text-zinc-400 px-1">
-                                      <span className="font-mono bg-slate-950 px-1.5 py-0.5 rounded text-zinc-500">Format: {generatedImages.hero.aspectRatio}</span>
-                                      <a
-                                        href={generatedImages.hero.url}
-                                        download={`${brief.client.replace(/\s+/g, '_')}_hero.jpg`}
-                                        className="text-orange-400 hover:text-orange-300 font-medium flex items-center space-x-1"
-                                      >
-                                        <Download className="w-3 h-3" />
-                                        <span>Download</span>
-                                      </a>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={() => handleGenerateImage('hero', output.imagePrompts.hero)}
-                                    className="w-full py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-550 hover:to-amber-550 border border-orange-500 rounded-lg text-white font-medium text-[11px] shadow-md hover:shadow-lg hover:scale-[1.01] transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
-                                  >
-                                    <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" />
-                                    <span>Generer Billede</span>
-                                  </button>
-                                )}
-                              </div>
-
-                              <div className="text-[9px] text-slate-500 font-mono mt-3 pt-2 border-t border-slate-800/60 uppercase">High Production Value</div>
-                            </div>
+                            <ImageGenCard
+                              label="1. Hero Image Prompt"
+                              footer="High Production Value"
+                              alt="AI generated hero concept"
+                              ratios={['16:9', '1:1', '4:3', '9:16']}
+                              promptText={output.imagePrompts.hero}
+                              image={generatedImages.hero}
+                              downloadBase={`${(brief.client || '').replace(/\s+/g, '_')}_hero`}
+                              copied={copiedKey === 'prompt_hero'}
+                              onCopy={() => handleCopyToClipboard(output.imagePrompts.hero, 'prompt_hero')}
+                              onAspectChange={(r) => handleAspectChange('hero', r)}
+                              onGenerate={() => handleGenerateImage('hero', output.imagePrompts.hero)}
+                            />
 
                             {/* Prompt 2: Detail */}
-                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between space-y-4 shadow-xl">
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[10px] font-mono text-orange-400 font-bold uppercase tracking-wide">2. Detail / Close-up Prompt</span>
-                                  <button
-                                    onClick={() => handleCopyToClipboard(output.imagePrompts.detail, 'prompt_detail')}
-                                    className="text-slate-500 hover:text-white transition-colors"
-                                  >
-                                    {copiedKey === 'prompt_detail' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                                  </button>
-                                </div>
-                                <p className="text-slate-300 text-[11px] leading-relaxed italic border-l border-slate-700 pl-2">
-                                  "{output.imagePrompts.detail}"
-                                </p>
-                              </div>
-
-                              {/* Interactive Generation Section */}
-                              <div className="mt-2 pt-3 border-t border-slate-800/80 space-y-3">
-                                <div className="flex items-center justify-between text-[11px]">
-                                  <span className="text-slate-400 font-mono">Billedformat:</span>
-                                  <div className="flex bg-slate-950 p-0.5 rounded border border-slate-800 space-x-1">
-                                    {['1:1', '4:3', '16:9', '9:16'].map((r) => (
-                                      <button
-                                        key={r}
-                                        onClick={() => handleAspectChange('detail', r)}
-                                        className={`px-2 py-0.5 text-[9px] font-mono font-bold rounded transition-colors ${
-                                          generatedImages.detail.aspectRatio === r
-                                            ? 'bg-orange-500 text-white shadow-sm'
-                                            : 'text-slate-400 hover:text-slate-200'
-                                        }`}
-                                      >
-                                        {r}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {generatedImages.detail.loading ? (
-                                  <div className="bg-slate-950 border border-slate-850 rounded-lg p-8 flex flex-col items-center justify-center space-y-3 min-h-[140px] animate-pulse">
-                                    <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
-                                    <span className="text-[10px] text-slate-400 font-mono">Genererer med Imagen...</span>
-                                  </div>
-                                ) : generatedImages.detail.error ? (
-                                  <div className="bg-red-950/40 border border-red-900/40 text-red-400 rounded-lg p-3 text-[11px] space-y-2">
-                                    <div className="flex items-start space-x-1.5">
-                                      <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
-                                      <span className="leading-tight">{generatedImages.detail.error}</span>
-                                    </div>
-                                    <button
-                                      onClick={() => handleGenerateImage('detail', output.imagePrompts.detail)}
-                                      className="w-full py-1 text-[10px] bg-red-900/60 hover:bg-red-900/80 border border-red-700/50 rounded font-medium text-white transition-all"
-                                    >
-                                      Prøv igen
-                                    </button>
-                                  </div>
-                                ) : generatedImages.detail.url ? (
-                                  <div className="space-y-2">
-                                    <div className="relative group rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shadow-inner">
-                                      <img
-                                        src={generatedImages.detail.url}
-                                        alt="AI generated closeup concept"
-                                        referrerPolicy="no-referrer"
-                                        className="w-full h-auto object-cover max-h-[180px] rounded-lg transition-transform duration-300 group-hover:scale-105"
-                                      />
-                                      <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
-                                        <a
-                                          href={generatedImages.detail.url}
-                                          download={`${brief.client.replace(/\s+/g, '_')}_detail_${generatedImages.detail.aspectRatio.replace(':', 'x')}.jpg`}
-                                          className="p-2.5 bg-zinc-900 text-white rounded-full hover:bg-orange-500 hover:scale-110 transition-all shadow-md"
-                                          title="Download i fuld opløsning"
-                                        >
-                                          <Download className="w-4 h-4" />
-                                        </a>
-                                        <button
-                                          onClick={() => handleGenerateImage('detail', output.imagePrompts.detail)}
-                                          className="p-2.5 bg-zinc-900 text-white rounded-full hover:bg-orange-500 hover:scale-110 transition-all shadow-md"
-                                          title="Generer nyt billede"
-                                        >
-                                          <RotateCcw className="w-4 h-4" />
-                                        </button>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center justify-between text-[10px] text-zinc-400 px-1">
-                                      <span className="font-mono bg-slate-950 px-1.5 py-0.5 rounded text-zinc-500">Format: {generatedImages.detail.aspectRatio}</span>
-                                      <a
-                                        href={generatedImages.detail.url}
-                                        download={`${brief.client.replace(/\s+/g, '_')}_detail.jpg`}
-                                        className="text-orange-400 hover:text-orange-300 font-medium flex items-center space-x-1"
-                                      >
-                                        <Download className="w-3 h-3" />
-                                        <span>Download</span>
-                                      </a>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={() => handleGenerateImage('detail', output.imagePrompts.detail)}
-                                    className="w-full py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-550 hover:to-amber-550 border border-orange-500 rounded-lg text-white font-medium text-[11px] shadow-md hover:shadow-lg hover:scale-[1.01] transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
-                                  >
-                                    <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" />
-                                    <span>Generer Billede</span>
-                                  </button>
-                                )}
-                              </div>
-
-                              <div className="text-[9px] text-slate-500 font-mono mt-3 pt-2 border-t border-slate-800/60 uppercase">Macro / Technical texture</div>
-                            </div>
+                            <ImageGenCard
+                              label="2. Detail / Close-up Prompt"
+                              footer="Macro / Technical texture"
+                              alt="AI generated closeup concept"
+                              ratios={['1:1', '4:3', '16:9', '9:16']}
+                              promptText={output.imagePrompts.detail}
+                              image={generatedImages.detail}
+                              downloadBase={`${(brief.client || '').replace(/\s+/g, '_')}_detail`}
+                              copied={copiedKey === 'prompt_detail'}
+                              onCopy={() => handleCopyToClipboard(output.imagePrompts.detail, 'prompt_detail')}
+                              onAspectChange={(r) => handleAspectChange('detail', r)}
+                              onGenerate={() => handleGenerateImage('detail', output.imagePrompts.detail)}
+                            />
 
                             {/* Prompt 3: Abstract */}
-                            <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between space-y-4 shadow-xl">
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-[10px] font-mono text-orange-400 font-bold uppercase tracking-wide">3. Abstract Background</span>
-                                  <button
-                                    onClick={() => handleCopyToClipboard(output.imagePrompts.abstract, 'prompt_abstract')}
-                                    className="text-slate-500 hover:text-white transition-colors"
-                                  >
-                                    {copiedKey === 'prompt_abstract' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                                  </button>
-                                </div>
-                                <p className="text-slate-300 text-[11px] leading-relaxed italic border-l border-slate-700 pl-2">
-                                  "{output.imagePrompts.abstract}"
-                                </p>
-                              </div>
-
-                              {/* Interactive Generation Section */}
-                              <div className="mt-2 pt-3 border-t border-slate-800/80 space-y-3">
-                                <div className="flex items-center justify-between text-[11px]">
-                                  <span className="text-slate-400 font-mono">Billedformat:</span>
-                                  <div className="flex bg-slate-950 p-0.5 rounded border border-slate-800 space-x-1">
-                                    {['16:9', '1:1', '4:3', '9:16'].map((r) => (
-                                      <button
-                                        key={r}
-                                        onClick={() => handleAspectChange('abstract', r)}
-                                        className={`px-2 py-0.5 text-[9px] font-mono font-bold rounded transition-colors ${
-                                          generatedImages.abstract.aspectRatio === r
-                                            ? 'bg-orange-500 text-white shadow-sm'
-                                            : 'text-slate-400 hover:text-slate-200'
-                                        }`}
-                                      >
-                                        {r}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {generatedImages.abstract.loading ? (
-                                  <div className="bg-slate-950 border border-slate-850 rounded-lg p-8 flex flex-col items-center justify-center space-y-3 min-h-[140px] animate-pulse">
-                                    <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
-                                    <span className="text-[10px] text-slate-400 font-mono">Genererer med Imagen...</span>
-                                  </div>
-                                ) : generatedImages.abstract.error ? (
-                                  <div className="bg-red-950/40 border border-red-900/40 text-red-400 rounded-lg p-3 text-[11px] space-y-2">
-                                    <div className="flex items-start space-x-1.5">
-                                      <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
-                                      <span className="leading-tight">{generatedImages.abstract.error}</span>
-                                    </div>
-                                    <button
-                                      onClick={() => handleGenerateImage('abstract', output.imagePrompts.abstract)}
-                                      className="w-full py-1 text-[10px] bg-red-900/60 hover:bg-red-900/80 border border-red-700/50 rounded font-medium text-white transition-all"
-                                    >
-                                      Prøv igen
-                                    </button>
-                                  </div>
-                                ) : generatedImages.abstract.url ? (
-                                  <div className="space-y-2">
-                                    <div className="relative group rounded-lg overflow-hidden border border-slate-800 bg-slate-950 shadow-inner">
-                                      <img
-                                        src={generatedImages.abstract.url}
-                                        alt="AI generated abstract background concept"
-                                        referrerPolicy="no-referrer"
-                                        className="w-full h-auto object-cover max-h-[180px] rounded-lg transition-transform duration-300 group-hover:scale-105"
-                                      />
-                                      <div className="absolute inset-0 bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
-                                        <a
-                                          href={generatedImages.abstract.url}
-                                          download={`${brief.client.replace(/\s+/g, '_')}_abstract_${generatedImages.abstract.aspectRatio.replace(':', 'x')}.jpg`}
-                                          className="p-2.5 bg-zinc-900 text-white rounded-full hover:bg-orange-500 hover:scale-110 transition-all shadow-md"
-                                          title="Download i fuld opløsning"
-                                        >
-                                          <Download className="w-4 h-4" />
-                                        </a>
-                                        <button
-                                          onClick={() => handleGenerateImage('abstract', output.imagePrompts.abstract)}
-                                          className="p-2.5 bg-zinc-900 text-white rounded-full hover:bg-orange-500 hover:scale-110 transition-all shadow-md"
-                                          title="Generer nyt billede"
-                                        >
-                                          <RotateCcw className="w-4 h-4" />
-                                        </button>
-                                      </div>
-                                    </div>
-                                    <div className="flex items-center justify-between text-[10px] text-zinc-400 px-1">
-                                      <span className="font-mono bg-slate-950 px-1.5 py-0.5 rounded text-zinc-500">Format: {generatedImages.abstract.aspectRatio}</span>
-                                      <a
-                                        href={generatedImages.abstract.url}
-                                        download={`${brief.client.replace(/\s+/g, '_')}_abstract.jpg`}
-                                        className="text-orange-400 hover:text-orange-300 font-medium flex items-center space-x-1"
-                                      >
-                                        <Download className="w-3 h-3" />
-                                        <span>Download</span>
-                                      </a>
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={() => handleGenerateImage('abstract', output.imagePrompts.abstract)}
-                                    className="w-full py-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-550 hover:to-amber-550 border border-orange-500 rounded-lg text-white font-medium text-[11px] shadow-md hover:shadow-lg hover:scale-[1.01] transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
-                                  >
-                                    <Sparkles className="w-3.5 h-3.5 text-white animate-pulse" />
-                                    <span>Generer Billede</span>
-                                  </button>
-                                )}
-                              </div>
-
-                              <div className="text-[9px] text-slate-500 font-mono mt-3 pt-2 border-t border-slate-800/60 uppercase">Visual Atmosphere textures</div>
-                            </div>
+                            <ImageGenCard
+                              label="3. Abstract Background"
+                              footer="Visual Atmosphere textures"
+                              alt="AI generated abstract background concept"
+                              ratios={['16:9', '1:1', '4:3', '9:16']}
+                              promptText={output.imagePrompts.abstract}
+                              image={generatedImages.abstract}
+                              downloadBase={`${(brief.client || '').replace(/\s+/g, '_')}_abstract`}
+                              copied={copiedKey === 'prompt_abstract'}
+                              onCopy={() => handleCopyToClipboard(output.imagePrompts.abstract, 'prompt_abstract')}
+                              onAspectChange={(r) => handleAspectChange('abstract', r)}
+                              onGenerate={() => handleGenerateImage('abstract', output.imagePrompts.abstract)}
+                            />
 
                           </div>
                         </motion.div>

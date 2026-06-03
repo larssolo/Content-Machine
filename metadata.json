@@ -1,6 +1,5 @@
 {
   "name": "Brand Surface Content Machine",
   "description": "Intelligent assistent til Brand Surface, der genererer case-tekster, SoMe-opslag, nyhedsbreve og AI-billedprompts ud fra briefs.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "requestFramePermissions": []
 }
