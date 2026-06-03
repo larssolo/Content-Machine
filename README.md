@@ -1,20 +1,42 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Brand Surface Content Machine
 
-# Run and deploy your AI Studio app
+AI-drevet content-værktøj, der genererer marketing-indhold (case-tekster, LinkedIn,
+nyhedsbrev, overskrifter, keywords, CVI-analyse, AI-humanizer og billeder) ud fra en
+projekt-brief.
 
-This contains everything you need to run your app locally.
+Tekst og analyse kører på **Anthropic Claude** (standardmodel Opus 4.8), og billeder
+genereres via **Flux 1.1 Pro (fal.ai)**.
 
-View your app in AI Studio: https://ai.studio/apps/63d758d5-8315-4eeb-907b-29b98d5ffae1
+## Stack
 
-## Run Locally
+- Frontend: React 19 + Vite 6 + Tailwind 4 + Motion
+- Backend: Express 4 + TypeScript (`server.ts` + `server/` AI-lag)
+- AI: `@anthropic-ai/sdk` (struktureret output via tool use, prompt-caching, streaming refine)
+- Billeder: `@fal-ai/client` (pluggbart udbyder-lag i `server/image/`)
 
-**Prerequisites:**  Node.js
+## Kør lokalt
 
+**Forudsætninger:** Node.js 20+
 
-1. Install dependencies:
+1. Installer afhængigheder:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+2. Opret `.env.local` (se `.env.example`) og sæt mindst:
+   - `ANTHROPIC_API_KEY` — API-nøgle fra https://console.anthropic.com (forbrugs-faktureret;
+     ikke det samme som et Claude Pro/Max-abonnement)
+   - `FAL_KEY` — fal.ai-nøgle fra https://fal.ai/dashboard/keys (kun nødvendig for billedgenerering)
+3. Kør appen:
+   `npm run dev` → http://localhost:3000
+
+## Kommandoer
+
+- `npm run dev` — udviklingsserver (Vite + Express)
+- `npm run build` — byg frontend + backend til `dist/`
+- `npm start` — kør produktionsbygget
+- `npm run lint` — TypeScript type-check
+- `npm test` — kør testsuiten (Vitest)
+
+## Konfiguration
+
+Se `.env.example` for alle variabler (`ANTHROPIC_MODEL`, `ANTHROPIC_FAST_MODEL`,
+`ANTHROPIC_MAX_TOKENS`, `IMAGE_PROVIDER`, `FAL_KEY`). Billed-udbyderen vælges med
+`IMAGE_PROVIDER` (`fal` som standard; `openai`/`stability` er forberedte stubs).
