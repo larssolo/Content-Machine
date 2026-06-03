@@ -252,6 +252,30 @@ REGLER FOR HUMANISERING:
 
 Analyser først den originale tekst, identificer clichérne/robot-vendingerne, giv et estimat over, hvor sandsynligt det er at en AI-detektor vil flage den (før og efter), og lever til sidst den helt nye, omskrevne menneskelige tekst samt en liste over de forbedringer, du foretog. Aflever resultatet via det angivne værktøj. Al feedback skal være på Dansk.`;
 
+// ---------------------------------------------------------------------------
+// /api/variants (A/B-varianter)
+// ---------------------------------------------------------------------------
+
+export const VARIANTS_SYSTEM_ROLE = `Du er en Brand Surface tekstforfatter, der laver flere skarpe, distinkte alternative versioner af en given tekst.
+Hver variant skal bevare det faktuelle indhold men variere vinkel, struktur og formulering markant. Undgå floskler, brug konkret sprog, og lad hver variant kunne stå helt alene. Aflever via det angivne værktøj.`;
+
+export function buildVariants(
+  text: string,
+  count: number,
+  brief?: Brief,
+): { system: Anthropic.TextBlockParam[]; user: string } {
+  const contextLang = brief?.language || 'Dansk';
+  const contextTone = brief?.tone || 'professionel, menneskelig, kreativ';
+  const user = `GIVEN TEKST:
+"""
+${text}
+"""
+
+Lav præcis ${count} markant forskellige alternative versioner af teksten ovenfor.
+Tone: ${contextTone}. Sprog: ${contextLang}. Returnér versionerne via værktøjet.`;
+  return { system: cacheableSystem([VARIANTS_SYSTEM_ROLE]), user };
+}
+
 export function buildHumanize(text: string): {
   system: Anthropic.TextBlockParam[];
   user: string;

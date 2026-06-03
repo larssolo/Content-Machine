@@ -122,6 +122,8 @@ export default function App() {
   const [output, setOutput] = useState<BrandSurfaceOutput | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>(() => loadHistory());
   const [historyOpen, setHistoryOpen] = useState<boolean>(false);
+  const [variants, setVariants] = useState<{ key: string; options: string[] } | null>(null);
+  const [isVariating, setIsVariating] = useState<boolean>(false);
   
   // Loading states
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
@@ -429,6 +431,98 @@ export default function App() {
 
   const handleClearHistory = () => {
     setHistory(clearHistory());
+  };
+
+  // A/B variants for the main text blocks
+  const resolveMainText = (key: string): string => {
+    if (!output) return '';
+    if (key === 'shortCaseText') return output.shortCaseText;
+    if (key === 'longCaseText') return output.longCaseText;
+    if (key === 'linkedinPost') return output.linkedinPost;
+    return '';
+  };
+
+  const handleGenerateVariants = async (targetKey: string) => {
+    const text = resolveMainText(targetKey);
+    if (!text) return;
+    setIsVariating(true);
+    setErrorMsg(null);
+    setVariants({ key: targetKey, options: [] });
+    try {
+      const res = await fetch('/api/variants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, count: 2, brief })
+      });
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}));
+        throw new Error(e.error || `Serveren svarede med status ${res.status}`);
+      }
+      const data = await res.json();
+      setVariants({ key: targetKey, options: data.variants || [] });
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Kunne ikke generere varianter.');
+      setVariants(null);
+    } finally {
+      setIsVariating(false);
+    }
+  };
+
+  const handleApplyVariant = (targetKey: string, value: string) => {
+    const original = resolveMainText(targetKey);
+    setRefinementHistory(prev => [...prev, { key: targetKey, original }]);
+    setRevisions(prev => {
+      const list = [...(prev[targetKey] || [])];
+      if (list.length === 0) list.push(original);
+      if (list[list.length - 1] !== value) list.push(value);
+      return { ...prev, [targetKey]: list };
+    });
+    setActiveCompareIndex(prev => ({ ...prev, [targetKey]: null }));
+    setOutput(prev => {
+      if (!prev) return null;
+      const u: BrandSurfaceOutput = { ...prev };
+      if (targetKey === 'shortCaseText') u.shortCaseText = value;
+      else if (targetKey === 'longCaseText') u.longCaseText = value;
+      else if (targetKey === 'linkedinPost') u.linkedinPost = value;
+      if (targetKey === 'shortCaseText' && u.directUsable) {
+        u.directUsable = { ...u.directUsable, bestShortText: value };
+      }
+      return u;
+    });
+    setVariants(null);
+  };
+
+  const renderVariants = (targetKey: string) => {
+    if (!variants || variants.key !== targetKey) return null;
+    return (
+      <div className="mt-3 bg-slate-950/80 rounded-xl p-4 border border-amber-800/40 space-y-2 shadow-inner">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-amber-500 font-bold">A/B Varianter</span>
+          <button onClick={() => setVariants(null)} className="text-[10px] text-slate-500 hover:text-white font-mono">Luk</button>
+        </div>
+        {isVariating && variants.options.length === 0 && (
+          <div className="text-[11px] text-slate-400 flex items-center space-x-2">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            <span>Genererer varianter...</span>
+          </div>
+        )}
+        {variants.options.map((opt, i) => (
+          <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-lg p-3">
+            <div className="text-[9px] font-mono text-slate-500 uppercase mb-1">Variant {String.fromCharCode(65 + i)}</div>
+            <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-wrap">{opt}</p>
+            <div className="mt-2 flex justify-end">
+              <button
+                onClick={() => handleApplyVariant(targetKey, opt)}
+                className="px-2 py-1 text-[10px] bg-brand-orange-600/20 text-brand-orange-400 border border-brand-orange-500/30 rounded hover:bg-brand-orange-600/30 font-mono"
+              >
+                Brug denne
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   // Run the whole generator
@@ -1991,12 +2085,21 @@ export default function App() {
                                 >
                                   /more-business
                                 </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleGenerateVariants('shortCaseText'); }}
+                                  disabled={isVariating}
+                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
+                                  title="Generer 2 A/B-varianter"
+                                >
+                                  /variant
+                                </button>
                               </div>
                               <span className="text-[10px] text-slate-500 font-mono">Genereret uden marketingfloskler</span>
                             </div>
 
                             {/* Revision history comparison selector */}
                             {renderRevisionSelector('shortCaseText', output.shortCaseText)}
+                            {renderVariants('shortCaseText')}
                           </div>
 
                           {/* Segment 2: Længere case-tekst */}
@@ -2065,12 +2168,21 @@ export default function App() {
                                 >
                                   /more-business
                                 </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleGenerateVariants('longCaseText'); }}
+                                  disabled={isVariating}
+                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
+                                  title="Generer 2 A/B-varianter"
+                                >
+                                  /variant
+                                </button>
                               </div>
                               <span className="text-[10px] text-slate-500 font-mono">Udførlig design documentation</span>
                             </div>
 
                             {/* Revision history comparison selector */}
                             {renderRevisionSelector('longCaseText', output.longCaseText)}
+                            {renderVariants('longCaseText')}
                           </div>
                         </motion.div>
                       )}
@@ -2150,12 +2262,21 @@ export default function App() {
                                 >
                                   /more-business
                                 </button>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); handleGenerateVariants('linkedinPost'); }}
+                                  disabled={isVariating}
+                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
+                                  title="Generer 2 A/B-varianter"
+                                >
+                                  /variant
+                                </button>
                               </div>
                               <span className="text-[10px] text-slate-500 font-mono">Inkluderer krog, krop, keywords</span>
                             </div>
 
                             {/* Revision history comparison selector */}
                             {renderRevisionSelector('linkedinPost', output.linkedinPost)}
+                            {renderVariants('linkedinPost')}
                           </div>
                         </motion.div>
                       )}

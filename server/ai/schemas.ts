@@ -388,6 +388,24 @@ export const analyzeCviTool: Anthropic.Tool = {
   },
 };
 
+// --- /api/variants -----------------------------------------------------------
+
+export const variantsTool: Anthropic.Tool = {
+  name: 'submit_variants',
+  description: 'Aflever de alternative tekstversioner som struktureret data.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      variants: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'De alternative, distinkte versioner af teksten.',
+      },
+    },
+    required: ['variants'],
+  },
+};
+
 // --- /api/humanize -----------------------------------------------------------
 
 export const humanizeTool: Anthropic.Tool = {

@@ -16,6 +16,7 @@ import {
   buildAnalyze,
   buildHumanize,
   buildRefine,
+  buildVariants,
   ANALYZE_CVI_SYSTEM_ROLE,
   cacheableSystem,
 } from './server/ai/prompts';
@@ -24,6 +25,7 @@ import {
   analyzeTool,
   analyzeCviTool,
   humanizeTool,
+  variantsTool,
 } from './server/ai/schemas';
 import { getImageProvider } from './server/image/provider';
 
@@ -113,6 +115,28 @@ async function startServer() {
         res.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
         res.end();
       }
+    }
+  });
+
+  // A/B variants endpoint
+  app.post('/api/variants', async (req, res) => {
+    try {
+      const { text, count, brief } = req.body;
+      if (!text) {
+        return res.status(400).json({ error: 'Text er påkrævet.' });
+      }
+      const n = Math.min(Math.max(Number(count) || 2, 2), 4);
+      const { system, user } = buildVariants(text, n, brief);
+      const parsed = await generateStructured<{ variants: string[] }>({
+        system,
+        userContent: [{ type: 'text', text: user }],
+        tool: variantsTool,
+        maxTokens: 4096,
+      });
+      res.json({ variants: (parsed.variants || []).slice(0, n) });
+    } catch (error: any) {
+      console.error('Fejl under variant-generering:', error);
+      res.status(500).json({ error: error.message || 'Kunne ikke generere varianter.' });
     }
   });
 

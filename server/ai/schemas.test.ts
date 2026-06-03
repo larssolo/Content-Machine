@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateTool, analyzeTool, analyzeCviTool, humanizeTool } from './schemas';
+import { generateTool, analyzeTool, analyzeCviTool, humanizeTool, variantsTool } from './schemas';
 
 describe('generateTool', () => {
   it('requires all 14 top-level fields (matches the old Gemini schema)', () => {
@@ -60,5 +60,14 @@ describe('humanizeTool', () => {
       'humanizedAiScore',
       'improvements',
     ]);
+  });
+});
+
+describe('variantsTool', () => {
+  it('requires a string array of variants', () => {
+    const props = (variantsTool.input_schema as any).properties;
+    expect(props.variants.type).toBe('array');
+    expect(props.variants.items.type).toBe('string');
+    expect((variantsTool.input_schema as any).required).toEqual(['variants']);
   });
 });

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   buildGenerate,
   buildRefine,
+  buildVariants,
   refineInstruction,
   cacheableSystem,
 } from './prompts';
@@ -59,6 +60,16 @@ describe('buildRefine', () => {
     expect(system[0].text).toContain('tekstforfatter');
     expect(user).toContain('Hej verden');
     expect(user).toContain('kortere');
+    expect(user).toContain('Dansk');
+  });
+});
+
+describe('buildVariants', () => {
+  it('asks for the requested count and embeds the text + language', () => {
+    const { system, user } = buildVariants('Original tekst', 2, { language: 'Dansk' });
+    expect(system[0].text).toContain('alternative versioner');
+    expect(user).toContain('præcis 2');
+    expect(user).toContain('Original tekst');
     expect(user).toContain('Dansk');
   });
 });
