@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-orange-50: #fffaf0;
+  --color-brand-orange-500: #f26522;
+  --color-brand-orange-600: #e04f0d;
+}
+
+/* HIGH-CONTRAST LIGHT THEME SUPPORT */
+/* Redefines base Slate & Zinc ranges to deliver clean, crisp accessibility under high ambient lighting */
+.light-mode {
+  --color-slate-955: #fdfdfd;
+  --color-slate-950: #ffffff;
+  --color-slate-900: #f8fafc;
+  --color-slate-855: #cbd5e1;
+  --color-slate-850: #f1f5f9;
+  --color-slate-805: #cbd5e1;
+  --color-slate-800: #cbd5e1;
+  --color-slate-705: #475569;
+  --color-slate-605: #64748b;
+  --color-slate-100: #0f172a;
+  --color-slate-200: #1e293b;
+  --color-slate-205: #334155;
+  --color-slate-250: #334155;
+  --color-slate-300: #334155;
+  --color-slate-350: #475569;
+  --color-slate-400: #475569;
+  --color-slate-500: #64748b;
+  --color-slate-550: #64748b;
+  --color-slate-600: #475569;
+
+  --color-zinc-800: #f1f5f9;
+  --color-zinc-350: #334155;
+}
+
+/* Optional styling refinements for light mode elements */
+.light-mode input::placeholder,
+.light-mode textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.light-mode .text-slate-350 {
+  color: #475569 !important;
+}
+.light-mode .text-white {
+  /* Guard text-white inside buttons which have white text on brand colored background */
+}
+.light-mode button.text-slate-350:hover,
+.light-mode button.text-slate-400:hover {
+  color: #0f172a !important;
+}
+
