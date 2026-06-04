@@ -5,7 +5,6 @@
 
 import express from 'express';
 import path from 'path';
-import { createServer as createViteServer } from 'vite';
 
 import { config } from './server/ai/config';
 import { anthropic } from './server/ai/anthropic';
@@ -35,7 +34,7 @@ async function startServer() {
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   // API health check
   app.get('/api/health', (req, res) => {
@@ -285,6 +284,8 @@ async function startServer() {
 
   // Serve static assets
   if (process.env.NODE_ENV !== 'production') {
+    // Vite indlæses kun i udvikling (holdes helt ude af produktions-bundtet).
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
@@ -299,7 +300,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server kører på http://localhost:${PORT}`);
+    console.log(`Server lytter på port ${PORT}`);
   });
 }
 

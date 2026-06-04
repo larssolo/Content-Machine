@@ -1,0 +1,20 @@
+# Render Blueprint — deployer Content Machine som én web-service (frontend + API).
+# Brug: Render Dashboard → New → Blueprint → peg på dette repo og denne branch.
+# Render læser denne fil og beder dig udfylde de hemmelige nøgler (sync: false).
+services:
+  - type: web
+    name: content-machine
+    runtime: node
+    plan: free # skift til "starter" (~$7/md) for altid-vågen uden cold start
+    region: frankfurt # tættest på DK; kan ændres (oregon/virginia/singapore m.fl.)
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true # genudruller automatisk ved push til branchen
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ANTHROPIC_API_KEY
+        sync: false # udfyldes i Render-dashboardet (ikke committet)
+      - key: FAL_KEY
+        sync: false # kun nødvendig for billedgenerering

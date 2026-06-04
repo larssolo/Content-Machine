@@ -40,3 +40,28 @@ genereres via **Flux 1.1 Pro (fal.ai)**.
 Se `.env.example` for alle variabler (`ANTHROPIC_MODEL`, `ANTHROPIC_FAST_MODEL`,
 `ANTHROPIC_MAX_TOKENS`, `IMAGE_PROVIDER`, `FAL_KEY`). Billed-udbyderen vælges med
 `IMAGE_PROVIDER` (`fal` som standard; `openai`/`stability` er forberedte stubs).
+
+## Deploy (Render)
+
+Appen er **én kørende Node-server** (Express i `server.ts`), der serverer både
+frontend og `/api/*`. Den kan derfor **ikke** deployes som et rent statisk site
+(fx Vercel uden serverless-funktioner) — så ville alle `/api/*`-kald give **404**.
+Brug en vært, der kører en vedvarende Node-proces. Repoet indeholder en
+`render.yaml` (Blueprint) til [Render](https://render.com):
+
+1. Push repoet til GitHub (allerede på Git).
+2. Render Dashboard → **New → Blueprint** → vælg dette repo + branch. Render
+   læser `render.yaml` automatisk.
+3. Udfyld de hemmelige nøgler når du bliver bedt om det:
+   - `ANTHROPIC_API_KEY`
+   - `FAL_KEY` (kun nødvendig for billeder)
+4. Klik **Apply** → Render kører `npm run build` og derefter `npm start`.
+   Health-check rammer `/api/health`.
+
+**Uden Blueprint:** New → **Web Service** → vælg repo → Build:
+`npm install && npm run build`, Start: `npm start`, og sæt `NODE_ENV=production`
+plus de to nøgler.
+
+> **Gratis-plan:** servicen "sover" efter 15 min inaktivitet; første kald derefter
+> tager ~½–1 min at vække. Vil du undgå det, så skift `plan: free` → `starter`
+> (~$7/md) i `render.yaml` eller i service-indstillingerne.
