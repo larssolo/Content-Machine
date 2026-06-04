@@ -394,3 +394,142 @@ Producér en FORBEDRET, samlet udgave af HELE pakken via værktøjet. Den skal v
     user,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Visuel redaktion (art direction): Art Director + Visuel kritiker + Chefdesigner
+// ---------------------------------------------------------------------------
+
+/** Kompakt brief-kontekst til den visuelle redaktion. */
+export function visualBriefText(brief: Brief): string {
+  return `PROJEKT BRIEF (visuel udvikling):
+- Kunde: ${brief.client || 'N/A'}
+- Projekt: ${brief.project || 'N/A'}
+- Hvad handler det om: ${brief.description || 'N/A'}
+- Særlige detaljer: ${brief.details || 'N/A'}
+- Målgruppe: ${brief.audience || 'N/A'}
+- Tone/stemning: ${brief.tone || 'Professionel, menneskelig, kreativ'}
+- Sprog (til konceptteksten): ${brief.language || 'Dansk'}
+
+Lav ÉT bærende visuelt koncept og TRE konkrete billedprompts (hero, detail, abstract). Konceptteksten skrives på ${brief.language || 'Dansk'}; de tre prompts skrives på ENGELSK.`;
+}
+
+/** Render et visuelt koncept som tekst-input til kritik/push/syntese. */
+function visualConceptAsText(c: any): string {
+  const mood = (c?.moodKeywords || []).join(', ');
+  return `VISUELT KONCEPT:
+${c?.visualConcept || ''}
+
+BILLEDPROMPTS:
+- Hero: ${c?.imagePrompts?.hero || ''}
+- Detail: ${c?.imagePrompts?.detail || ''}
+- Abstract: ${c?.imagePrompts?.abstract || ''}
+
+MOOD/STIKORD: ${mood || 'N/A'}`;
+}
+
+export const VISUAL_DRAFT_SYSTEM_ROLE = `Du er en prisvindende Art Director og visuel konceptudvikler for Content Machine.
+Din opgave er at oversætte en projekt-brief til ÉT stærkt, sammenhængende visuelt koncept og TRE konkrete billedprompts (hero, detail, abstract) på ENGELSK, klar til Midjourney/Flux/Firefly.
+
+Retningslinjer:
+1. Undgå generiske stock-foto-klichéer (håndtryk, lyspærer, generiske kontorer, jubel-medarbejdere).
+2. Vær konkret: beskriv lys, komposition, kameravinkel/linse, farvepalet, materiale, stemning og motiv.
+3. Hvis der er angivet CVI/brandfarver og billedstil, så indarbejd dem direkte i prompterne.
+4. De tre prompts skal hænge sammen som én visuel fortælling, men dække tre forskellige vinkler.
+Konceptteksten (visualConcept) skrives på det angivne sprog; de tre prompts skrives på engelsk. Aflever via det angivne værktøj.`;
+
+/** Art Director: visuelt førsteudkast (koncept + 3 prompts) ud fra briefet. */
+export function buildVisualDraft(brief: Brief): {
+  system: Anthropic.TextBlockParam[];
+  user: string;
+} {
+  return {
+    system: cacheableSystem([VISUAL_DRAFT_SYSTEM_ROLE, cviSectionText(brief)]),
+    user: visualBriefText(brief),
+  };
+}
+
+export const VISUAL_CRITIQUE_SYSTEM_ROLE = `Du er en kritisk, uvildig Art Director, der laver en saglig visuel revision.
+Vurder hvor on-brand, konkret og originalt det visuelle koncept og de tre prompts er. Find generiske klichéer og manglende specificitet (lys, komposition, linse, farve, motiv).
+Giv tre scorer fra 0 til 100 (on-brand, konkrethed, originalitet), list konkrete svagheder, og formulér en kort, ærlig dom på dansk. Aflever via det angivne værktøj.`;
+
+/** Visuel kritiker: vurderer udkastet (on-brand / konkrethed / originalitet). */
+export function buildVisualCritique(
+  concept: any,
+  brief?: Brief,
+): { system: Anthropic.TextBlockParam[]; user: string } {
+  const colors = (brief?.cviManual?.brandColors || []).join(', ') || 'ingen angivet';
+  const style = brief?.cviManual?.imageStyleGuidelines || 'ingen angivet';
+  const user = `${visualConceptAsText(concept)}
+
+BRAND-KONTEKST (til on-brand-vurdering):
+- Brandfarver: ${colors}
+- Billedstil/CVI: ${style}
+- Tone/stemning: ${brief?.tone || 'N/A'}
+
+Vurder konceptet og de tre prompts. Aflever scorer, svagheder og en samlet dom via værktøjet.`;
+  return { system: cacheableSystem([VISUAL_CRITIQUE_SYSTEM_ROLE]), user };
+}
+
+export const VISUAL_PUSH_SYSTEM_ROLE = `Du er en dristig Kreativ Direktør for det visuelle.
+Du leverer skarpe, dristigere ALTERNATIVE visuelle retninger — motiver, lys/farve og kompositioner — ikke færdige prompts. Pres originaliteten op uden at miste det on-brand eller fabrikere noget. Undgå klichéer. Aflever via det angivne værktøj.`;
+
+/** Kreativ visuel direktør: dristigere visuelle retninger ud fra udkast + kritik. */
+export function buildVisualPush(
+  concept: any,
+  critique: any,
+  brief?: Brief,
+): { system: Anthropic.TextBlockParam[]; user: string } {
+  const weaknesses = (critique?.weaknesses || []).join(', ') || 'ingen registreret';
+  const user = `NUVÆRENDE VISUELLE UDKAST:
+${visualConceptAsText(concept)}
+
+KRITIKKENS SVAGHEDER (skal løftes):
+${weaknesses}
+Samlet dom: ${critique?.overallReview || 'N/A'}
+
+Tone/stemning: ${brief?.tone || 'N/A'}. Foreslå markant dristigere visuelle retninger via værktøjet.`;
+  return { system: cacheableSystem([VISUAL_PUSH_SYSTEM_ROLE]), user };
+}
+
+export const VISUAL_SYNTHESIZE_SYSTEM_ROLE = `Du er Chefdesigner / ledende Art Director for Content Machine.
+Du modtager (1) et visuelt udkast, (2) en uvildig visuel kritik, og (3) dristige alternative retninger fra en kreativ direktør.
+Din opgave er at producere ÉT FORBEDRET visuelt koncept og TRE forfinede billedprompts (hero, detail, abstract): fjern klichéerne fra kritikken, indarbejd de stærkeste dristige retninger, og hæv konkretheden (lys, komposition, linse, farve, materiale, motiv). Hold dig on-brand ift. CVI. Aflever HELE pakken via det angivne værktøj, præcis som skemaet kræver.`;
+
+/** Chefdesigner: syntetiserer udkast + kritik + dristige retninger til forfinet visuel pakke. */
+export function buildVisualSynthesize(
+  concept: any,
+  critique: any,
+  directions: any,
+  brief: Brief,
+): { system: Anthropic.TextBlockParam[]; user: string } {
+  const weaknesses = (critique?.weaknesses || []).join(', ') || 'ingen';
+  const boldVisuals = (directions?.boldVisuals || []).map((d: string) => `- ${d}`).join('\n');
+  const lightingAndColor = (directions?.lightingAndColor || []).map((d: string) => `- ${d}`).join('\n');
+  const compositions = (directions?.compositions || []).map((d: string) => `- ${d}`).join('\n');
+
+  const user = `${visualBriefText(brief)}
+
+=== VISUELT FØRSTEUDKAST (skal forbedres, ikke gentages ordret) ===
+${visualConceptAsText(concept)}
+
+=== VISUEL KRITIK (skal adresseres) ===
+Svagheder/klichéer der SKAL løftes: ${weaknesses}
+Scorer — on-brand: ${critique?.onBrandScore ?? 'N/A'}/100, konkrethed: ${critique?.specificityScore ?? 'N/A'}/100, originalitet: ${critique?.originalityScore ?? 'N/A'}/100
+Samlet dom: ${critique?.overallReview || 'N/A'}
+
+=== DRISTIGE VISUELLE RETNINGER (vælg og forfin de stærkeste) ===
+Dristige motiver:
+${boldVisuals || '- ingen'}
+Lys & farve:
+${lightingAndColor || '- ingen'}
+Kompositioner:
+${compositions || '- ingen'}
+
+OPGAVE:
+Producér ÉT forbedret visuelt koncept + TRE forfinede engelske billedprompts via værktøjet. Mere originalt OG mere konkret end udkastet, fri for klichéerne, on-brand ift. CVI.`;
+
+  return {
+    system: cacheableSystem([VISUAL_SYNTHESIZE_SYSTEM_ROLE, VISUAL_DRAFT_SYSTEM_ROLE, cviSectionText(brief)]),
+    user,
+  };
+}

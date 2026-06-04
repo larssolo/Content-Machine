@@ -54,13 +54,15 @@ import {
   Users
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ProjectBrief, BrandSurfaceOutput, PresetBrief, HumanizerResult, ToneAnalysis } from './types';
+import { ProjectBrief, BrandSurfaceOutput, PresetBrief, HumanizerResult, ToneAnalysis, VisualDevResult } from './types';
 import { buildMarkdown, downloadTextFile, slugify } from './lib/exportMarkdown';
 import { downloadHtmlFile } from './lib/exportHtml';
 import { downloadDocx } from './lib/exportDocx';
 import { ImageGenCard } from './components/ImageGenCard';
 import { DirectUsableBar } from './components/DirectUsableBar';
 import { DeliberationTimeline } from './components/DeliberationTimeline';
+import { WorkingOverlay } from './components/WorkingOverlay';
+import { VisualDevPanel } from './components/VisualDevPanel';
 import { saveSession, loadSession } from './lib/session';
 import { loadHistory, pushHistory, clearHistory, type HistoryItem } from './lib/history';
 
@@ -157,7 +159,9 @@ export default function App() {
     earlyStopped?: boolean;
     synthesisTruncated?: boolean;
   } | null>(null);
-  
+  const [isVisualDeveloping, setIsVisualDeveloping] = useState<boolean>(false);
+  const [visualResult, setVisualResult] = useState<VisualDevResult | null>(null);
+
   // Refinement states
   const [selectedTextKey, setSelectedTextKey] = useState<string>('shortCaseText'); // which property in BrandSurfaceOutput is chosen for refinement
   const [customRefinementPrompt, setCustomRefinementPrompt] = useState<string>('');
@@ -741,6 +745,78 @@ export default function App() {
     }
   };
 
+  // Visuel redaktion: art direction-deliberation via SSE (kun visuelle/billed-idéer)
+  const handleVisualDevelop = async () => {
+    setIsVisualDeveloping(true);
+    setErrorMsg(null);
+    setVisualResult(null);
+    setGenerationStep('Starter visuel udvikling …');
+
+    try {
+      const response = await fetch('/api/visual-deep', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brief })
+      });
+
+      if (!response.ok || !response.body) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(httpErrorMessage(response.status, errData.error));
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let streamErr: string | null = null;
+      let finalEvt: any = null;
+
+      while (true) {
+        const { value, done: rdDone } = await reader.read();
+        if (rdDone) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() || '';
+        for (const part of parts) {
+          const dataLine = part.split('\n').find(l => l.startsWith('data: '));
+          const isErrEvent = part.includes('event: error');
+          if (!dataLine) continue;
+          const payload = dataLine.slice(6);
+          if (payload === '[DONE]') continue;
+          try {
+            const evt = JSON.parse(payload);
+            if (isErrEvent && evt.error) {
+              streamErr = evt.error;
+            } else if (evt.done && evt.output) {
+              finalEvt = evt;
+            } else if (evt.phase && typeof evt.label === 'string') {
+              setGenerationStep(evt.label);
+            }
+          } catch {
+            /* ignorér ukomplette linjer */
+          }
+        }
+      }
+
+      if (streamErr) throw new Error(streamErr);
+      if (!finalEvt || !finalEvt.output) {
+        throw new Error('Den visuelle redaktion returnerede intet resultat.');
+      }
+
+      setVisualResult({
+        concept: finalEvt.output,
+        critiqueBefore: finalEvt.critiqueBefore,
+        critiqueAfter: finalEvt.critiqueAfter ?? null,
+        earlyStopped: !!finalEvt.earlyStopped,
+        synthesisTruncated: !!finalEvt.synthesisTruncated
+      });
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Der skete en fejl under den visuelle udvikling.');
+    } finally {
+      setIsVisualDeveloping(false);
+    }
+  };
+
   const handleTriggerAnalysis = async () => {
     if (!output) return;
     setIsAnalyzing(true);
@@ -1321,6 +1397,12 @@ export default function App() {
       {/* SCREEN INTERFACE (HIDDEN WHEN PRINTING) */}
       <div className="print:hidden flex flex-col min-h-screen w-full flex-1">
       
+      <WorkingOverlay
+        show={isGenerating || isVisualDeveloping || isHumanizing}
+        title={isVisualDeveloping ? 'Visuel udvikling' : isHumanizing ? 'Humaniserer' : deepMode ? 'Redaktionsmøde' : 'Genererer'}
+        step={isHumanizing ? 'Omformulerer og gør teksten mere menneskelig …' : generationStep}
+      />
+
       {/* BRAND HEADER */}
       <header id="header_section" className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -1332,7 +1414,7 @@ export default function App() {
               Content Machine
             </span>
             <div className="flex items-center text-[11px] text-slate-500 font-mono mt-0.5">
-              <span>v1.2.1</span>
+              <span>v1.3.0</span>
             </div>
           </div>
         </div>
@@ -1783,6 +1865,18 @@ export default function App() {
               )}
             </button>
 
+            {/* VISUAL DEVELOPMENT BUTTON (visuel redaktion) */}
+            <button
+              type="button"
+              onClick={handleVisualDevelop}
+              disabled={isGenerating || isVisualDeveloping}
+              className="w-full py-2.5 px-4 rounded-lg bg-violet-600/10 border border-violet-500/40 hover:bg-violet-600/20 text-violet-200 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              title="Lad art director-redaktionen udvikle de visuelle idéer og billedprompts ud fra briefet"
+            >
+              <Palette className="w-4 h-4 text-violet-300 shrink-0" />
+              <span>Visuel udvikling · Redaktion</span>
+            </button>
+
             {/* PIN TO PRESETS BUTTON */}
             <button
               onClick={handlePinCurrentBrief}
@@ -1873,6 +1967,20 @@ export default function App() {
               ))}
             </div>
           </div>
+
+          {/* VISUAL DEVELOPMENT RESULT (visuel redaktion) */}
+          {visualResult && (
+            <VisualDevPanel
+              result={visualResult}
+              images={generatedImages}
+              copiedKey={copiedKey}
+              clientName={brief.client}
+              onCopyPrompt={handleCopyToClipboard}
+              onAspectChange={handleAspectChange}
+              onGenerateImage={handleGenerateImage}
+              onClose={() => setVisualResult(null)}
+            />
+          )}
 
           {/* IF NO OUTPUT YET: BLANK STATE INSTRUCTIONS */}
           <AnimatePresence mode="wait">
@@ -3407,7 +3515,7 @@ export default function App() {
             <span>
               Content Machine by{' '}
               <a href="https://www.larssohl.dk" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 transition-colors">larssohl.dk</a>
-              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.2.1
+              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.3.0
             </span>
             <span>Konkret. Autentisk. Kreativt.</span>
           </div>

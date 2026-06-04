@@ -27,6 +27,7 @@ import {
   variantsTool,
 } from './server/ai/schemas';
 import { runDeliberation } from './server/ai/deliberate';
+import { runVisualDeliberation } from './server/ai/deliberateVisual';
 import { getImageProvider } from './server/image/provider';
 
 async function startServer() {
@@ -160,6 +161,55 @@ async function startServer() {
       console.error('Fejl under dyb generering:', error);
       if (!res.headersSent) {
         res.status(500).json({ error: error.message || 'Kunne ikke gennemføre redaktionsmødet.' });
+      } else if (!res.writableEnded) {
+        res.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
+      }
+    } finally {
+      clearInterval(heartbeat);
+      if (!res.writableEnded) res.end();
+    }
+  });
+
+  // Visuel redaktion: art direction-deliberation (streaming via SSE)
+  app.post('/api/visual-deep', async (req, res) => {
+    const { brief } = req.body;
+    if (!brief) {
+      return res.status(400).json({ error: 'Brief er påkrævet.' });
+    }
+
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders?.();
+
+    const ac = new AbortController();
+    req.on('close', () => ac.abort());
+
+    const heartbeat = setInterval(() => {
+      if (!res.writableEnded) res.write(': keep-alive\n\n');
+    }, 15000);
+
+    try {
+      const result = await runVisualDeliberation({ brief, signal: ac.signal }, (e) => {
+        if (!res.writableEnded) res.write(`data: ${JSON.stringify(e)}\n\n`);
+      });
+
+      res.write(
+        `data: ${JSON.stringify({
+          done: true,
+          output: result.output,
+          draft: result.draft,
+          critiqueBefore: result.critiqueBefore,
+          critiqueAfter: result.critiqueAfter,
+          earlyStopped: result.earlyStopped,
+          synthesisTruncated: result.synthesisTruncated,
+        })}\n\n`,
+      );
+      res.write('data: [DONE]\n\n');
+    } catch (error: any) {
+      console.error('Fejl under visuel redaktion:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: error.message || 'Kunne ikke gennemføre den visuelle redaktion.' });
       } else if (!res.writableEnded) {
         res.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
       }

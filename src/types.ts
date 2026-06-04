@@ -124,3 +124,27 @@ export interface HumanizerResult {
   improvements: string[];
 }
 
+// --- Visuel redaktion (art direction-deliberation) ---------------------------
+
+export interface VisualConcept {
+  visualConcept: string;
+  imagePrompts: ImagePrompts;
+  moodKeywords: string[];
+}
+
+export interface VisualCritique {
+  onBrandScore: number;
+  specificityScore: number;
+  originalityScore: number;
+  weaknesses: string[];
+  overallReview: string;
+}
+
+export interface VisualDevResult {
+  concept: VisualConcept;
+  critiqueBefore: VisualCritique;
+  critiqueAfter?: VisualCritique | null;
+  earlyStopped?: boolean;
+  synthesisTruncated?: boolean;
+}
+

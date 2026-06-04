@@ -1,5 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { generateTool, analyzeTool, analyzeCviTool, humanizeTool, variantsTool, creativeTool } from './schemas';
+import {
+  generateTool,
+  analyzeTool,
+  analyzeCviTool,
+  humanizeTool,
+  variantsTool,
+  creativeTool,
+  visualConceptTool,
+  visualCritiqueTool,
+  visualDirectionsTool,
+} from './schemas';
 
 describe('generateTool', () => {
   it('requires all 14 top-level fields (matches the old Gemini schema)', () => {
@@ -84,5 +94,40 @@ describe('creativeTool', () => {
       expect(props[key].type).toBe('array');
       expect(props[key].items.type).toBe('string');
     }
+  });
+});
+
+describe('visual tools', () => {
+  it('visualConceptTool returns concept + imagePrompts + moodKeywords', () => {
+    expect(visualConceptTool.name).toBe('submit_visual_concept');
+    const schema = visualConceptTool.input_schema as any;
+    expect(schema.required).toEqual(['visualConcept', 'imagePrompts', 'moodKeywords']);
+    expect(schema.properties.imagePrompts.required).toEqual(['hero', 'detail', 'abstract']);
+    expect(schema.properties.moodKeywords.items.type).toBe('string');
+  });
+
+  it('visualCritiqueTool exposes the three visual scores', () => {
+    expect(visualCritiqueTool.name).toBe('submit_visual_critique');
+    expect((visualCritiqueTool.input_schema as any).required).toEqual([
+      'onBrandScore',
+      'specificityScore',
+      'originalityScore',
+      'weaknesses',
+      'overallReview',
+    ]);
+  });
+
+  it('visualDirectionsTool requires the three idea arrays', () => {
+    expect(visualDirectionsTool.name).toBe('submit_visual_directions');
+    const props = (visualDirectionsTool.input_schema as any).properties;
+    for (const key of ['boldVisuals', 'lightingAndColor', 'compositions']) {
+      expect(props[key].type).toBe('array');
+      expect(props[key].items.type).toBe('string');
+    }
+    expect((visualDirectionsTool.input_schema as any).required).toEqual([
+      'boldVisuals',
+      'lightingAndColor',
+      'compositions',
+    ]);
   });
 });

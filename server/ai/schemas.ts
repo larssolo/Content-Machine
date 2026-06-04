@@ -466,3 +466,113 @@ export const humanizeTool: Anthropic.Tool = {
     required: ['originalAiScore', 'clichesDetected', 'humanizedText', 'humanizedAiScore', 'improvements'],
   },
 };
+
+// --- visuel redaktion (art direction-deliberation) ---------------------------
+
+// Genbrugt billedprompt-skema (engelske prompts til Midjourney/Flux/Firefly).
+const imagePromptsSchema = {
+  type: 'object',
+  properties: {
+    hero: {
+      type: 'string',
+      description:
+        'Hero image prompt (English). High production value, lighting, visual style, camera angle, mood.',
+    },
+    detail: {
+      type: 'string',
+      description:
+        'Detail/close-up prompt (English). Macro or detailed view, focus on mechanics, design details, texture, lighting.',
+    },
+    abstract: {
+      type: 'string',
+      description:
+        'Abstract background prompt (English). Colors, motion, lighting, textures representing the event/brand spirit.',
+    },
+  },
+  required: ['hero', 'detail', 'abstract'],
+} as const;
+
+// Udkast + syntese i den visuelle redaktion afleverer denne pakke.
+export const visualConceptTool: Anthropic.Tool = {
+  name: 'submit_visual_concept',
+  description: 'Aflever det visuelle koncept og de tre forfinede billedprompts som struktureret data.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      visualConcept: {
+        type: 'string',
+        description:
+          'Kort, skarpt visuelt koncept / art direction på dansk (ca. 40-80 ord): den bærende idé, stemning, lys, farve og billedsprog der binder de tre prompts sammen.',
+      },
+      imagePrompts: imagePromptsSchema,
+      moodKeywords: {
+        type: 'array',
+        items: { type: 'string' },
+        description:
+          '5-8 stikord der fanger stemning, lys, farvepalet og stil (fx "volumetric lighting", "muted teal palette", "editorial minimalism").',
+      },
+    },
+    required: ['visualConcept', 'imagePrompts', 'moodKeywords'],
+  },
+};
+
+// Den visuelle kritiker (art director) afleverer denne vurdering.
+export const visualCritiqueTool: Anthropic.Tool = {
+  name: 'submit_visual_critique',
+  description: 'Aflever den visuelle kritik (scorer + svagheder) som struktureret data.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      onBrandScore: {
+        type: 'integer',
+        description: 'Score 0-100 for hvor godt det visuelle koncept rammer brandets CVI (farver, stil, stemning).',
+      },
+      specificityScore: {
+        type: 'integer',
+        description:
+          'Score 0-100 for konkrethed: er lys, komposition, linse, farve og motiv specifikt beskrevet frem for generisk stock-foto-snak.',
+      },
+      originalityScore: {
+        type: 'integer',
+        description: 'Score 0-100 for originalitet: undgår klichéer (håndtryk, generiske kontorer, lyspærer) og virker friskt.',
+      },
+      weaknesses: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Konkrete visuelle svagheder eller klichéer der bør løftes (tom liste hvis ingen).',
+      },
+      overallReview: {
+        type: 'string',
+        description: 'Samlet visuel dom på dansk (ca. 30-60 ord).',
+      },
+    },
+    required: ['onBrandScore', 'specificityScore', 'originalityScore', 'weaknesses', 'overallReview'],
+  },
+};
+
+// Den kreative visuelle direktør afleverer dristigere retninger.
+export const visualDirectionsTool: Anthropic.Tool = {
+  name: 'submit_visual_directions',
+  description: 'Aflever dristige, alternative visuelle retninger som struktureret data.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      boldVisuals: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Dristige, uventede visuelle koncepter/motiver at forfølge (mindst 3).',
+      },
+      lightingAndColor: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Konkrete idéer til lys og farve der hæver udtrykket (mindst 2).',
+      },
+      compositions: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Idéer til komposition, beskæring og kameravinkel (mindst 2).',
+      },
+    },
+    required: ['boldVisuals', 'lightingAndColor', 'compositions'],
+  },
+};
