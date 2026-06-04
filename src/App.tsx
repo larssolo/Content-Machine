@@ -21,7 +21,6 @@ import {
   ArrowRight, 
   Layers, 
   Send,
-  Terminal,
   ChevronRight,
   Info,
   CheckCircle,
@@ -527,8 +526,8 @@ export default function App() {
     return (
       <div className="mt-3 bg-slate-950/80 rounded-xl p-4 border border-amber-800/40 space-y-2 shadow-inner">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-mono uppercase tracking-wider text-amber-500 font-bold">A/B Varianter</span>
-          <button onClick={() => setVariants(null)} className="text-[10px] text-slate-500 hover:text-white font-mono">Luk</button>
+          <span className="text-[11px] font-mono uppercase tracking-wider text-amber-500 font-bold">A/B Varianter</span>
+          <button onClick={() => setVariants(null)} className="text-[11px] text-slate-500 hover:text-white font-mono">Luk</button>
         </div>
         {isVariating && variants.options.length === 0 && (
           <div className="text-[11px] text-slate-400 flex items-center space-x-2">
@@ -538,12 +537,12 @@ export default function App() {
         )}
         {variants.options.map((opt, i) => (
           <div key={i} className="bg-slate-900/60 border border-slate-800 rounded-lg p-3">
-            <div className="text-[9px] font-mono text-slate-500 uppercase mb-1">Variant {String.fromCharCode(65 + i)}</div>
+            <div className="text-[11px] font-mono text-slate-500 uppercase mb-1">Variant {String.fromCharCode(65 + i)}</div>
             <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-wrap">{opt}</p>
             <div className="mt-2 flex justify-end">
               <button
                 onClick={() => handleApplyVariant(targetKey, opt)}
-                className="px-2 py-1 text-[10px] bg-brand-orange-600/20 text-brand-orange-400 border border-brand-orange-500/30 rounded hover:bg-brand-orange-600/30 font-mono"
+                className="px-2 py-1 text-[11px] bg-brand-orange-600/20 text-brand-orange-400 border border-brand-orange-500/30 rounded hover:bg-brand-orange-600/30 font-mono"
               >
                 Brug denne
               </button>
@@ -1104,7 +1103,7 @@ export default function App() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Sliders className="w-3.5 h-3.5 text-amber-500" />
-            <span className="font-mono text-[10px] uppercase tracking-wider text-slate-400 font-bold">
+            <span className="font-mono text-[11px] uppercase tracking-wider text-slate-400 font-bold">
               AI-Raffinering Historik & Sammenligning ({currentRevisionCount - 1} omskrivninger)
             </span>
           </div>
@@ -1114,7 +1113,7 @@ export default function App() {
               onClick={() => {
                 setActiveCompareIndex(prev => ({ ...prev, [targetKey]: null }));
               }}
-              className="text-[10px] text-brand-orange-500 hover:text-brand-orange-400 font-medium font-mono cursor-pointer"
+              className="text-[11px] text-brand-orange-500 hover:text-brand-orange-400 font-medium font-mono cursor-pointer"
             >
               [Luk Sammenligning]
             </button>
@@ -1124,7 +1123,7 @@ export default function App() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/50 p-2.5 rounded-lg border border-slate-800/40">
           {/* Version badge selectors */}
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[10px] text-slate-500 font-mono">Udgaver:</span>
+            <span className="text-[11px] text-slate-500 font-mono">Udgaver:</span>
             {revs.map((revText, index) => {
               const isCurrent = index === revs.length - 1;
               const isSelected = activeCompareIdx === index || (activeCompareIdx === null && isCurrent);
@@ -1141,7 +1140,7 @@ export default function App() {
                       [targetKey]: isCurrent ? null : index
                     }));
                   }}
-                  className={`px-2.5 py-1 rounded text-[10px] font-mono transition-all cursor-pointer ${
+                  className={`px-2.5 py-1 rounded text-[11px] font-mono transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-brand-orange-500/20 text-brand-orange-400 border border-brand-orange-500/40 font-semibold'
                       : 'bg-slate-950 text-slate-400 border border-slate-850 hover:bg-slate-800 hover:text-slate-200'
@@ -1157,7 +1156,7 @@ export default function App() {
           {/* Range Slider for stepping through chronological versions */}
           {revs.length > 2 && (
             <div className="flex items-center space-x-2.5 flex-1 max-w-[180px] sm:ml-auto">
-              <span className="text-[9px] text-slate-500 font-mono shrink-0">Hurtig-slider:</span>
+              <span className="text-[11px] text-slate-500 font-mono shrink-0">Hurtig-slider:</span>
               <input
                 type="range"
                 min="0"
@@ -1183,9 +1182,9 @@ export default function App() {
             {/* Version selected visually */}
             <div className="p-3.5 bg-slate-900/90 rounded-lg border border-slate-800/80 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between text-[9px] font-mono uppercase text-amber-500 font-bold">
+                <div className="flex items-center justify-between text-[11px] font-mono uppercase text-amber-500 font-bold">
                   <span>HISTORISK UDGAVE: {activeCompareIdx === 0 ? "FØRSTE GENERERING" : `RAF-UDSKRIFT #${activeCompareIdx}`}</span>
-                  <span className="bg-amber-500/10 px-1.5 py-0.5 rounded text-[8px] border border-amber-500/25">Revision Arkiv</span>
+                  <span className="bg-amber-500/10 px-1.5 py-0.5 rounded text-[11px] border border-amber-500/25">Revision Arkiv</span>
                 </div>
                 <div className="text-[11px] text-slate-350 leading-relaxed italic whitespace-pre-wrap mt-2 overflow-y-auto max-h-[160px] font-sans">
                   "{revs[activeCompareIdx]}"
@@ -1225,7 +1224,7 @@ export default function App() {
                     setActiveCompareIndex(prev => ({ ...prev, [targetKey]: null }));
                     setErrorMsg(`Gendannede udgave "${activeCompareIdx === 0 ? 'Første' : `Ref #${activeCompareIdx}`}" som aktiv tekst til redigering.`);
                   }}
-                  className="px-3 py-1.5 bg-brand-orange-500 hover:bg-brand-orange-600 text-white font-bold font-sans rounded text-[10px] transition-all cursor-pointer shadow-md tracking-wide"
+                  className="px-3 py-1.5 bg-brand-orange-500 hover:bg-brand-orange-600 text-white font-bold font-sans rounded text-[11px] transition-all cursor-pointer shadow-md tracking-wide"
                 >
                   Gør denne udgave aktiv
                 </button>
@@ -1235,15 +1234,15 @@ export default function App() {
             {/* Current active text */}
             <div className="p-3.5 bg-slate-950 rounded-lg border border-slate-800 flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between text-[9px] font-mono uppercase text-emerald-400 font-bold">
+                <div className="flex items-center justify-between text-[11px] font-mono uppercase text-emerald-400 font-bold">
                   <span>NUVÆRENDE AKTIVE UDGAVE INKL. EVENTUELLE MANUELLE RETTELSER</span>
-                  <span className="bg-emerald-500/15 px-1.5 py-0.5 rounded text-[8px] border border-emerald-500/25 font-semibold">Aktiv nu</span>
+                  <span className="bg-emerald-500/15 px-1.5 py-0.5 rounded text-[11px] border border-emerald-500/25 font-semibold">Aktiv nu</span>
                 </div>
                 <div className="text-[11px] text-slate-200 leading-relaxed whitespace-pre-wrap mt-2 overflow-y-auto max-h-[160px] font-sans">
                   "{activeValue || '(Tom tekst)'}"
                 </div>
               </div>
-              <div className="pt-3 border-t border-slate-905 mt-4 text-right text-[10px] font-mono text-slate-500">
+              <div className="pt-3 border-t border-slate-905 mt-4 text-right text-[11px] font-mono text-slate-500">
                 Låst til midlertidig sammenligning
               </div>
             </div>
@@ -1312,17 +1311,15 @@ export default function App() {
       {/* BRAND HEADER */}
       <header id="header_section" className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-brand-orange-600 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-600/20">
-            <Sparkles className="w-5 h-5 text-white animate-pulse" />
+          <div className="w-10 h-10 rounded-lg bg-brand-orange-600 flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
             <span className="font-display font-bold text-xl tracking-tight text-white">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange-500 to-amber-400 font-extrabold">Content Machine</span>
+              Content Machine
             </span>
-            <div className="flex items-center text-[10px] text-slate-400 font-mono space-x-1 tracking-wider uppercase mt-0.5">
-              <span>v1.1.0</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-              <span className="text-slate-500">System Ready</span>
+            <div className="flex items-center text-[11px] text-slate-500 font-mono mt-0.5">
+              <span>v1.2.0</span>
             </div>
           </div>
         </div>
@@ -1347,8 +1344,7 @@ export default function App() {
             )}
           </button>
 
-          <div className="hidden md:flex items-center space-x-2 text-xs bg-slate-850 px-3 py-1.5 rounded-full border border-slate-800 text-slate-350">
-            <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+          <div className="hidden md:flex items-center text-xs bg-slate-850 px-3 py-1.5 rounded-md border border-slate-800 text-slate-350">
             <span>Tone: Autentisk & Konkret</span>
           </div>
           <a
@@ -1369,16 +1365,16 @@ export default function App() {
         <div className="lg:col-span-5 flex flex-col space-y-5">
           
           {/* PRESET CHIPS CARDS */}
-          <div className="bg-slate-950 rounded-xl p-4 border border-slate-800 shadow-xl">
+          <div className="bg-slate-950 rounded-xl p-4 border border-slate-800 shadow-sm">
             <div className="flex items-center justify-between mb-3 text-slate-300">
-              <span className="text-xs font-mono font-bold tracking-wider uppercase flex items-center space-x-1.5">
-                <Compass className="w-3.5 h-3.5 text-orange-500" />
+              <span className="text-xs font-semibold flex items-center space-x-1.5">
+                <Compass className="w-3.5 h-3.5 text-slate-500" />
                 <span>Vælg et projekt-brief</span>
               </span>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={handleRestorePresets}
-                  className="text-[10px] text-slate-400 hover:text-orange-400 font-mono transition-colors flex items-center space-x-1 hover:bg-slate-900 border border-transparent hover:border-slate-800 px-2 py-0.5 rounded cursor-pointer"
+                  className="text-[11px] text-slate-400 hover:text-orange-400 font-mono transition-colors flex items-center space-x-1 hover:bg-slate-900 border border-transparent hover:border-slate-800 px-2 py-0.5 rounded cursor-pointer"
                   title="Gendan standard-skabeloner"
                 >
                   <RotateCcw className="w-2.5 h-2.5" />
@@ -1386,7 +1382,7 @@ export default function App() {
                 </button>
                 <button
                   onClick={handleClearPresets}
-                  className="text-[10px] text-slate-400 hover:text-red-400 font-mono transition-colors flex items-center space-x-1 hover:bg-slate-900 border border-transparent hover:border-slate-800 px-2 py-0.5 rounded cursor-pointer"
+                  className="text-[11px] text-slate-400 hover:text-red-400 font-mono transition-colors flex items-center space-x-1 hover:bg-slate-900 border border-transparent hover:border-slate-800 px-2 py-0.5 rounded cursor-pointer"
                   title="Ryd alle gemte skabeloner"
                 >
                   <Trash2 className="w-2.5 h-2.5 text-red-500" />
@@ -1397,7 +1393,7 @@ export default function App() {
             
             <div className="flex flex-col space-y-2">
               {customPresets.length === 0 ? (
-                <div className="text-center py-4 border border-dashed border-slate-800 rounded-lg bg-slate-900/20 text-slate-500 font-mono text-[10px] space-y-1">
+                <div className="text-center py-4 border border-dashed border-slate-800 rounded-lg bg-slate-900/20 text-slate-500 font-mono text-[11px] space-y-1">
                   <p>Ingen gemte presets / genveje.</p>
                   <p className="text-slate-600">Skriv dit eget brief nedenfor og klik på "Pin" for at gemme det.</p>
                 </div>
@@ -1425,7 +1421,7 @@ export default function App() {
           </div>
 
           {/* BRIEF INPUT FORM */}
-          <div className="bg-gradient-to-b from-slate-950 to-slate-950/90 rounded-xl p-5 border border-slate-800 shadow-2xl space-y-4">
+          <div className="bg-slate-950 rounded-xl p-5 border border-slate-800 shadow-sm space-y-4">
             <div className="border-b border-slate-800 pb-3 flex items-center justify-between">
               <h2 className="font-display font-bold text-lg text-white flex items-center space-x-2">
                 <FileText className="w-5 h-5 text-brand-orange-500" />
@@ -1433,7 +1429,7 @@ export default function App() {
               </h2>
               <button 
                 onClick={() => setBrief({ client: '', project: '', description: '', details: '', audience: '', tone: 'Professionel, menneskelig, kreativ', language: 'Dansk', channels: [], notes: '' })}
-                className="text-[10px] text-slate-400 hover:text-white font-mono flex items-center space-x-1"
+                className="text-[11px] text-slate-400 hover:text-white font-mono flex items-center space-x-1"
                 title="Ryd alle felter"
               >
                 <RotateCcw className="w-3 h-3" />
@@ -1457,7 +1453,7 @@ export default function App() {
                   <span className="text-xs font-bold font-mono tracking-wider text-slate-300 uppercase">CVI & Designmanual Scanner</span>
                 </div>
                 {brief.cviManual && (
-                  <span className="text-[9px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono px-2 py-0.5 rounded-full flex items-center space-x-1 uppercase tracking-wide">
+                  <span className="text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono px-2 py-0.5 rounded-full flex items-center space-x-1 uppercase tracking-wide">
                     <Check className="w-2.5 h-2.5" />
                     <span>Aktiv CVI</span>
                   </span>
@@ -1485,14 +1481,14 @@ export default function App() {
                   {isAnalyzingCvi ? (
                     <div className="flex flex-col items-center space-y-2 py-2">
                       <div className="w-6 h-6 border-2 border-brand-orange-500 border-t-transparent rounded-full animate-spin"></div>
-                      <span className="text-xs font-mono text-brand-orange-400 font-medium animate-pulse">Gemini scanner identitet...</span>
-                      <p className="text-[10px] text-slate-500 tracking-normal text-center max-w-[200px]">Afkoder farvepaletter, fonte, billedstil og logo-regler</p>
+                      <span className="text-xs font-mono text-brand-orange-400 font-medium">Scanner identitet…</span>
+                      <p className="text-[11px] text-slate-500 tracking-normal text-center max-w-[200px]">Afkoder farvepaletter, fonte, billedstil og logo-regler</p>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center space-y-1.5 text-center">
                       <UploadCloud className="w-8 h-8 text-slate-500" />
                       <span className="text-xs font-medium">Klik eller træk CVI-fil herind</span>
-                      <span className="text-[9px] text-slate-600 font-mono uppercase">PDF, Billede eller Tekst</span>
+                      <span className="text-[11px] text-slate-600 font-mono uppercase">PDF, Billede eller Tekst</span>
                     </div>
                   )}
                 </label>
@@ -1506,7 +1502,7 @@ export default function App() {
                     </div>
                     <button 
                       onClick={handleRemoveCvi}
-                      className="text-[9px] font-mono text-red-500 hover:text-red-400 transition-colors flex items-center space-x-1"
+                      className="text-[11px] font-mono text-red-500 hover:text-red-400 transition-colors flex items-center space-x-1"
                     >
                       <Trash2 className="w-3 h-3" />
                       <span>Fjern CVI</span>
@@ -1519,14 +1515,14 @@ export default function App() {
                       {/* Colors */}
                       {brief.cviManual.brandColors && brief.cviManual.brandColors.length > 0 && (
                         <div className="space-y-1.5">
-                          <span className="text-[9px] font-mono uppercase text-slate-500 tracking-wider block">Afkodede Brandfarver</span>
+                          <span className="text-[11px] font-mono uppercase text-slate-500 tracking-wider block">Afkodede Brandfarver</span>
                           <div className="flex flex-wrap gap-2">
                             {brief.cviManual.brandColors.map((colorStr, idx) => {
                               // Try to extract hex code if any
                               const hexMatch = colorStr.match(/#[0-9a-fA-F]{3,6}/);
                               const hex = hexMatch ? hexMatch[0] : null;
                               return (
-                                <div key={idx} className="flex items-center space-x-1.5 bg-slate-900 border border-slate-800 rounded-full px-2 py-0.5 text-[10px]">
+                                <div key={idx} className="flex items-center space-x-1.5 bg-slate-900 border border-slate-800 rounded-full px-2 py-0.5 text-[11px]">
                                   {hex && (
                                     <span 
                                       className="w-2 rounded-full border border-white/20 shrink-0 aspect-square" 
@@ -1545,11 +1541,11 @@ export default function App() {
                       {brief.cviManual.fonts && (
                         <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-900">
                           <div>
-                            <span className="text-[9px] font-mono uppercase text-slate-500 tracking-wider block mb-0.5">Overskrifter</span>
+                            <span className="text-[11px] font-mono uppercase text-slate-500 tracking-wider block mb-0.5">Overskrifter</span>
                             <span className="font-medium text-white text-xs truncate block">{brief.cviManual.fonts.primaryHeadings}</span>
                           </div>
                           <div>
-                            <span className="text-[9px] font-mono uppercase text-slate-500 tracking-wider block mb-0.5">Brødtekst</span>
+                            <span className="text-[11px] font-mono uppercase text-slate-500 tracking-wider block mb-0.5">Brødtekst</span>
                             <span className="font-medium text-white text-xs truncate block">{brief.cviManual.fonts.bodyText}</span>
                           </div>
                         </div>
@@ -1558,8 +1554,8 @@ export default function App() {
                       {/* Photo/Visual style */}
                       {brief.cviManual.imageStyleGuidelines && (
                         <div className="pt-2 border-t border-slate-900 space-y-1">
-                          <span className="text-[9px] font-mono uppercase text-slate-500 tracking-wider block">Afkodet Billedstil & Estetik</span>
-                          <p className="text-[10px] text-slate-400 leading-normal italic bg-slate-900/50 p-2 rounded border border-slate-850 text-left">
+                          <span className="text-[11px] font-mono uppercase text-slate-500 tracking-wider block">Afkodet Billedstil & Estetik</span>
+                          <p className="text-[11px] text-slate-400 leading-normal italic bg-slate-900/50 p-2 rounded border border-slate-850 text-left">
                             "{brief.cviManual.imageStyleGuidelines}"
                           </p>
                         </div>
@@ -1568,8 +1564,8 @@ export default function App() {
                       {/* Graphic/Layout Elements */}
                       {brief.cviManual.graphicElementsRules && (
                         <div className="space-y-1">
-                          <span className="text-[9px] font-mono uppercase text-slate-500 tracking-wider block">Layouts & Grafiske Regler</span>
-                          <p className="text-[10px] text-slate-400 leading-normal bg-slate-900/50 p-2 rounded border border-slate-850 text-left">
+                          <span className="text-[11px] font-mono uppercase text-slate-500 tracking-wider block">Layouts & Grafiske Regler</span>
+                          <p className="text-[11px] text-slate-400 leading-normal bg-slate-900/50 p-2 rounded border border-slate-850 text-left">
                             {brief.cviManual.graphicElementsRules}
                           </p>
                         </div>
@@ -1578,8 +1574,8 @@ export default function App() {
                     </div>
                   ) : (
                     /* Scanning success, building layout */
-                    <div className="py-2 text-center text-slate-500 text-[10px] font-mono animate-pulse">
-                      Parrer visual identity data...
+                    <div className="py-2 text-center text-slate-500 text-[11px] font-mono">
+                      Samler designdata…
                     </div>
                   )}
                 </div>
@@ -1589,7 +1585,7 @@ export default function App() {
             <div className="grid grid-cols-2 gap-3">
               {/* Cliente */}
               <div>
-                <label className="block text-[10px] font-mono tracking-wider text-slate-400 uppercase mb-1">Kunde *</label>
+                <label className="block text-[11px] font-medium text-slate-400 mb-1">Kunde *</label>
                 <input
                   type="text"
                   id="input_client"
@@ -1602,7 +1598,7 @@ export default function App() {
 
               {/* Project name */}
               <div>
-                <label className="block text-[10px] font-mono tracking-wider text-slate-400 uppercase mb-1">Projekt *</label>
+                <label className="block text-[11px] font-medium text-slate-400 mb-1">Projekt *</label>
                 <input
                   type="text"
                   id="input_project"
@@ -1616,7 +1612,7 @@ export default function App() {
 
             {/* What we did / description */}
             <div>
-              <label className="block text-[10px] font-mono tracking-wider text-slate-400 uppercase mb-1">Hvad lavede vi (Leverance) *</label>
+              <label className="block text-[11px] font-medium text-slate-400 mb-1">Hvad lavede vi (Leverance) *</label>
               <textarea
                 id="input_description"
                 rows={4}
@@ -1630,8 +1626,8 @@ export default function App() {
             {/* Special details */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-[10px] font-mono tracking-wider text-slate-400 uppercase">Særlige detaljer / Tal</label>
-                <span className="text-[9px] text-slate-500 font-mono">f.eks. målinger, LED størrelse, 3D maskotter</span>
+                <label className="block text-[11px] font-medium text-slate-400">Særlige detaljer / Tal</label>
+                <span className="text-[11px] text-slate-500 font-mono">f.eks. målinger, LED størrelse, 3D maskotter</span>
               </div>
               <textarea
                 id="input_details"
@@ -1645,7 +1641,7 @@ export default function App() {
 
             {/* Target audience */}
             <div>
-              <label className="block text-[10px] font-mono tracking-wider text-slate-400 uppercase mb-1">Målgruppe</label>
+              <label className="block text-[11px] font-medium text-slate-400 mb-1">Målgruppe</label>
               <input
                 type="text"
                 id="input_audience"
@@ -1659,7 +1655,7 @@ export default function App() {
             {/* Tone of voice & Sprog */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] font-mono tracking-wider text-slate-400 uppercase mb-1">Tone & Stil</label>
+                <label className="block text-[11px] font-medium text-slate-400 mb-1">Tone & Stil</label>
                 <input
                   type="text"
                   id="input_tone"
@@ -1671,7 +1667,7 @@ export default function App() {
               </div>
 
               <div>
-                <label className="block text-[10px] font-mono tracking-wider text-slate-400 uppercase mb-1">Sprog</label>
+                <label className="block text-[11px] font-medium text-slate-400 mb-1">Sprog</label>
                 <input
                   type="text"
                   id="input_language"
@@ -1684,7 +1680,7 @@ export default function App() {
 
             {/* Channels & Extra */}
             <div>
-              <label className="block text-[10px] font-mono tracking-wider text-slate-400 uppercase mb-2">Hvor skal teksten bruges (Kanaler)</label>
+              <label className="block text-[11px] font-medium text-slate-400 mb-2">Hvor skal teksten bruges (Kanaler)</label>
               <div className="flex flex-wrap gap-2">
                 {["Hjemmeside", "LinkedIn", "Nyhedsbrev"].map((ch) => {
                   const active = brief.channels.includes(ch);
@@ -1709,7 +1705,7 @@ export default function App() {
 
             {/* Extra notes */}
             <div>
-              <label className="block text-[10px] font-mono tracking-wider text-slate-400 uppercase mb-1">Ekstra Noter</label>
+              <label className="block text-[11px] font-medium text-slate-400 mb-1">Ekstra Noter</label>
               <textarea
                 id="input_notes"
                 rows={2}
@@ -1737,7 +1733,7 @@ export default function App() {
                 <Users className={`w-4 h-4 shrink-0 ${deepMode ? 'text-brand-orange-500' : 'text-slate-500'}`} />
                 <div className="min-w-0">
                   <span className="block text-[11px] font-mono font-bold text-slate-200">Dyb tilstand · Redaktionsmøde</span>
-                  <span className="block text-[9px] text-slate-500 leading-tight truncate">Flere AI-roller forbedrer hinanden (langsommere, dyrere)</span>
+                  <span className="block text-[11px] text-slate-500 leading-tight truncate">Flere AI-roller forbedrer hinanden (langsommere, dyrere)</span>
                 </div>
               </div>
               <span className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${deepMode ? 'bg-brand-orange-500' : 'bg-slate-700'}`}>
@@ -1750,26 +1746,26 @@ export default function App() {
               onClick={handleGenerateAll}
               disabled={isGenerating}
               id="generate_all_btn"
-              className={`w-full py-3.5 px-4 rounded-xl font-display font-bold text-sm tracking-wide text-white uppercase flex items-center justify-center space-x-2 transition-all relative overflow-hidden group select-none shadow-xl ${
-                isGenerating 
-                  ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-750' 
-                  : 'bg-gradient-to-r from-brand-orange-600 to-amber-500 hover:from-brand-orange-500 hover:to-amber-400 active:scale-[0.98] shadow-orange-600/20 active:shadow-sm cursor-pointer border border-brand-orange-500/50'
+              className={`w-full py-3.5 px-4 rounded-xl font-display font-bold text-sm text-white flex items-center justify-center space-x-2 transition-all relative overflow-hidden group select-none shadow-sm ${
+                isGenerating
+                  ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-750'
+                  : 'bg-brand-orange-600 hover:bg-brand-orange-500 active:scale-[0.98] cursor-pointer'
               }`}
             >
               {isGenerating ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                  <span className="animate-pulse">{generationStep || "Arbejder..."}</span>
+                  <span>{generationStep || "Arbejder..."}</span>
                 </>
               ) : deepMode ? (
                 <>
-                  <Users className="w-5 h-5 text-white animate-pulse" />
-                  <span>KØR REDAKTIONSMØDE</span>
+                  <Users className="w-5 h-5 text-white" />
+                  <span>Kør redaktionsmøde</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-5 h-5 text-white animate-pulse" />
-                  <span>KØR CONTENT MACHINE</span>
+                  <Sparkles className="w-5 h-5 text-white" />
+                  <span>Generér indhold</span>
                 </>
               )}
             </button>
@@ -1787,9 +1783,9 @@ export default function App() {
 
           {/* BRAND VALUES / ANTI-SLOP POLICY ADVICE */}
           <div className="p-4 bg-slate-950 rounded-xl border border-slate-800/80 text-xs text-slate-400 space-y-2">
-            <span className="text-[10px] font-mono tracking-wider text-brand-orange-500 uppercase flex items-center space-x-1">
-              <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
-              <span>Redaktionelle Regler:</span>
+            <span className="text-[11px] font-medium text-slate-400 flex items-center space-x-1">
+              <Lightbulb className="w-3.5 h-3.5 text-slate-500" />
+              <span>Redaktionelle regler</span>
             </span>
             <ul className="list-disc pl-4 space-y-1 text-slate-400 leading-relaxed">
               <li>Ingen unødvendige corporate klichéer (undgå generaliserede floskler).</li>
@@ -1804,37 +1800,36 @@ export default function App() {
         {/* RIGHT COLUMN: PREVIEW & OUTPUT INTERACTION WORKSPACE (7 cols) */}
         <div className="lg:col-span-7 flex flex-col space-y-5">
           
-          {/* TERMINAL / QUICK COMMAND CONSOLE */}
-          <div className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-lg">
-            <div className="bg-slate-950 px-4 py-2 flex items-center justify-between border-b border-slate-800 text-slate-400 font-mono text-xs">
-              <span className="flex items-center space-x-2">
-                <Terminal className="w-4 h-4 text-orange-500" />
-                <span>Content Machine Command Bar</span>
+          {/* TOOLBAR / QUICK COMMANDS */}
+          <div className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-sm">
+            <div className="bg-slate-950 px-4 py-2.5 flex items-center justify-between border-b border-slate-800 text-xs">
+              <span className="flex items-center space-x-2 font-medium text-slate-300">
+                <Sliders className="w-4 h-4 text-slate-500" />
+                <span>Værktøjslinje</span>
               </span>
-              <span className="text-[10px]" title="Skriv en kommando eller navigér">Navi & Raffinering</span>
+              <span className="text-[11px] text-slate-500" title="Skriv en kommando eller navigér mellem faner">Navigér & forfin</span>
             </div>
             
             <form onSubmit={handleExecuteTerminalCommand} className="flex items-center p-2 bg-slate-900">
-              <span className="font-mono text-orange-500 pl-2 pr-1 font-bold select-none text-sm">&gt;</span>
               <input
                 type="text"
                 id="terminal_input"
                 value={terminalCommand}
                 onChange={(e) => setTerminalCommand(e.target.value)}
-                placeholder="Skriv kommando (f.eks /case, /shorten, /more-human) eller tryk på knapperne herunder..."
-                className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-xs font-mono text-white placeholder:text-slate-600 px-2 py-1.5"
+                placeholder="Skriv kommando (f.eks. /case, /shorten, /more-human) eller brug knapperne herunder…"
+                className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-xs font-mono text-white placeholder:text-slate-600 px-3 py-1.5"
               />
-              <button 
-                type="submit" 
-                className="mr-1 p-1 px-3 text-[10px] font-mono bg-slate-800 text-orange-400 hover:text-orange-300 rounded border border-slate-700 transition-colors"
+              <button
+                type="submit"
+                className="mr-1 p-1 px-3 text-[11px] font-mono bg-slate-800 text-slate-300 hover:text-white rounded-md border border-slate-700 transition-colors"
               >
                 Kør
               </button>
             </form>
 
             {/* Quick buttons bar */}
-            <div className="bg-slate-950/70 border-t border-slate-800/80 px-3 py-2 flex flex-wrap gap-1.5 items-center">
-              <span className="text-[9px] font-mono font-bold tracking-wider text-slate-500 uppercase mr-1">Toggles:</span>
+            <div className="bg-slate-950 border-t border-slate-800 px-3 py-2.5 flex flex-wrap gap-1.5 items-center">
+              <span className="text-[11px] text-slate-500 mr-1">Gå til:</span>
               {[
                 { label: "/case", tab: "case" },
                 { label: "/linkedin", tab: "linkedin" },
@@ -1854,9 +1849,9 @@ export default function App() {
                     if (output) setActiveTab(c.tab);
                     else setErrorMsg("Kør venligst maskinen først for at navigere.");
                   }}
-                  className={`px-2 py-1 text-[10px] font-mono rounded border transition-all ${
+                  className={`px-2 py-1 text-[11px] font-mono rounded-md border transition-all ${
                     activeTab === c.tab && output
-                      ? 'bg-orange-500/10 border-orange-500/50 text-orange-400' 
+                      ? 'bg-orange-500/10 border-orange-500/50 text-orange-400'
                       : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
                   }`}
                 >
@@ -1876,15 +1871,15 @@ export default function App() {
                 exit={{ opacity: 0, y: -15 }}
                 className="bg-slate-950 border border-slate-800 rounded-xl p-10 flex flex-col items-center justify-center text-center space-y-6"
               >
-                <div className="w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center border border-slate-800/80">
-                  <Wand2 className="w-8 h-8 text-brand-orange-500 animate-pulse" />
+                <div className="w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center border border-slate-800">
+                  <FileText className="w-8 h-8 text-brand-orange-500" />
                 </div>
 
                 <div className="max-w-md space-y-2">
                   <h3 className="font-display font-medium text-lg text-white">Content Machine klar</h3>
                   <p className="text-xs text-slate-400 leading-relaxed">
                     Indlæs et test-brief fra listen til venstre (Modaxo Move 2026 er klar som standard), redigér eventuelt værdierne, og tryk derefter på 
-                    <span className="font-bold text-orange-400"> "Kør Content Machine" </span> 
+                    <span className="font-bold text-orange-400"> "Generér indhold" </span>
                     for at generere brandindhold, SoMe og produktionsstrategier på ét sekund.
                   </p>
                 </div>
@@ -1900,9 +1895,9 @@ export default function App() {
                   <button
                     onClick={handleGenerateAll}
                     id="btn_blank_generate"
-                    className="px-4 py-2 bg-brand-orange-600 hover:bg-brand-orange-500 rounded-lg text-xs font-semibold text-white flex items-center space-x-1.5 transition-colors shadow-lg shadow-orange-600/10"
+                    className="px-4 py-2 bg-brand-orange-600 hover:bg-brand-orange-500 rounded-lg text-xs font-semibold text-white flex items-center space-x-1.5 transition-colors"
                   >
-                    <span>Kør AI Generering nu</span>
+                    <span>Generér indhold</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -1933,7 +1928,7 @@ export default function App() {
                 />
 
                 {/* MAIN RICH OUTPUT WORKSPACE WITH NAVIGATION TAB SHEETS */}
-                <div className="bg-slate-950 rounded-xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col">
+                <div className="bg-slate-950 rounded-xl border border-slate-800 shadow-sm overflow-hidden flex flex-col">
                   
                   {/* TAB SWITCHERS BAR */}
                   <div className="bg-slate-950/90 border-b border-slate-800 px-2 pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 sm:pb-0">
@@ -1984,13 +1979,13 @@ export default function App() {
                         <ChevronDown className="w-3 h-3" />
                       </button>
                       {historyOpen && (
-                        <div className="absolute right-0 top-full mt-1.5 bg-slate-950 border border-slate-800 rounded-lg shadow-2xl z-30 w-72 p-1 text-left font-mono max-h-80 overflow-y-auto">
+                        <div className="absolute right-0 top-full mt-1.5 bg-slate-950 border border-slate-800 rounded-lg shadow-lg z-30 w-72 p-1 text-left font-mono max-h-80 overflow-y-auto">
                           <div className="flex items-center justify-between px-2.5 py-1 bg-slate-900/40 rounded border-b border-slate-900/60 mb-1">
-                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Tidligere genereringer</span>
+                            <span className="text-[11px] text-slate-500 font-bold uppercase tracking-widest">Tidligere genereringer</span>
                             {history.length > 0 && (
                               <button
                                 onClick={handleClearHistory}
-                                className="text-[9px] text-red-400 hover:text-red-300 flex items-center space-x-1"
+                                className="text-[11px] text-red-400 hover:text-red-300 flex items-center space-x-1"
                                 title="Ryd historik"
                               >
                                 <Trash2 className="w-3 h-3" /><span>Ryd</span>
@@ -1998,15 +1993,15 @@ export default function App() {
                             )}
                           </div>
                           {history.length === 0 ? (
-                            <div className="px-2.5 py-3 text-[10px] text-slate-500">Ingen gemte genereringer endnu.</div>
+                            <div className="px-2.5 py-3 text-[11px] text-slate-500">Ingen gemte genereringer endnu.</div>
                           ) : history.map(item => (
                             <button
                               key={item.id}
                               onClick={() => { handleLoadHistory(item); setHistoryOpen(false); }}
-                              className="w-full text-left px-2.5 py-2 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors border-t border-slate-900/60 first:border-t-0"
+                              className="w-full text-left px-2.5 py-2 text-[11px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors border-t border-slate-900/60 first:border-t-0"
                             >
                               <div className="font-bold text-slate-200 truncate">{item.client} — {item.project}</div>
-                              <div className="text-[9px] text-slate-500">{new Date(item.ts).toLocaleString('da-DK')}</div>
+                              <div className="text-[11px] text-slate-500">{new Date(item.ts).toLocaleString('da-DK')}</div>
                             </button>
                           ))}
                         </div>
@@ -2017,31 +2012,31 @@ export default function App() {
                     <div className="relative group/export mb-2 sm:mb-0 mr-2 flex items-stretch">
                       <button
                         onClick={() => handleExportSingleSection('all')}
-                        className="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white text-[11px] font-bold font-mono rounded-l-lg transition-all shadow-md cursor-pointer hover:shadow-orange-500/10 active:scale-95"
+                        className="flex items-center space-x-1.5 px-3 py-1.5 bg-brand-orange-600 hover:bg-brand-orange-500 text-white text-[11px] font-semibold rounded-l-lg transition-all shadow-sm cursor-pointer active:scale-95"
                         title="Generer pænt formateret kundemateriale med alt indhold som PDF"
                       >
                         <Printer className="w-3.5 h-3.5 text-white" />
-                        <span>EKSPORTER TIL PDF</span>
+                        <span>Eksportér til PDF</span>
                       </button>
 
                       <div className="relative flex items-stretch">
                         <button
                           type="button"
-                          className="flex items-center justify-center px-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white text-[11px] rounded-r-lg shadow-md cursor-pointer transition-all border-l border-white/10 active:scale-95"
+                          className="flex items-center justify-center px-1.5 bg-brand-orange-600 hover:bg-brand-orange-500 text-white text-[11px] rounded-r-lg shadow-sm cursor-pointer transition-all border-l border-white/10 active:scale-95"
                           title="Vælg specifik PDF eksport skabelon"
                         >
                           <ChevronDown className="w-3.5 h-3.5 text-white" />
                         </button>
 
                         {/* Dropdown Options List displayed on hover as a rich interactive popover */}
-                        <div className="absolute right-0 top-full mt-1.5 bg-slate-950 border border-slate-800 rounded-lg shadow-2xl opacity-0 invisible group-hover/export:opacity-100 group-hover/export:visible transition-all duration-150 z-30 w-52 p-1 text-left font-mono">
+                        <div className="absolute right-0 top-full mt-1.5 bg-slate-950 border border-slate-800 rounded-lg shadow-lg opacity-0 invisible group-hover/export:opacity-100 group-hover/export:visible transition-all duration-150 z-30 w-52 p-1 text-left font-mono">
                           <div className="px-2.5 py-1 bg-slate-900/40 rounded border-b border-slate-900/60 mb-1">
-                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest block">PDF Skabeloner</span>
+                            <span className="text-[11px] text-slate-500 font-bold uppercase tracking-widest block">PDF Skabeloner</span>
                           </div>
 
                           <button
                             onClick={() => handleExportSingleSection('all')}
-                            className="w-full text-left px-2.5 py-1.5 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
+                            className="w-full text-left px-2.5 py-1.5 text-[11px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
                           >
                             <FileText className="w-3.5 h-3.5 text-brand-orange-500 shrink-0" />
                             <span>Fuld rapport (Alt)</span>
@@ -2050,7 +2045,7 @@ export default function App() {
                           {output.cviSuggestion && (
                             <button
                               onClick={() => handleExportSingleSection('cvi')}
-                              className="w-full text-left px-2.5 py-1.5 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2 border-t border-slate-900"
+                              className="w-full text-left px-2.5 py-1.5 text-[11px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2 border-t border-slate-900"
                             >
                               <Palette className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                               <span className="font-bold text-amber-400">Kun Brand CVI-ark</span>
@@ -2059,19 +2054,19 @@ export default function App() {
 
                           <button
                             onClick={() => handleExportSingleSection('case')}
-                            className="w-full text-left px-2.5 py-1.5 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2 border-t border-slate-900"
+                            className="w-full text-left px-2.5 py-1.5 text-[11px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2 border-t border-slate-900"
                           >
                             <BookOpen className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                             <span>Kun Case-tekster</span>
                           </button>
 
                           <div className="px-2.5 py-1 bg-slate-900/40 rounded border-y border-slate-900/60 my-1">
-                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest block">Markdown</span>
+                            <span className="text-[11px] text-slate-500 font-bold uppercase tracking-widest block">Markdown</span>
                           </div>
 
                           <button
                             onClick={handleExportMarkdown}
-                            className="w-full text-left px-2.5 py-1.5 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
+                            className="w-full text-left px-2.5 py-1.5 text-[11px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
                           >
                             <FileText className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                             <span>Download som Markdown (.md)</span>
@@ -2079,7 +2074,7 @@ export default function App() {
 
                           <button
                             onClick={handleCopyAllMarkdown}
-                            className="w-full text-left px-2.5 py-1.5 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2 border-t border-slate-900"
+                            className="w-full text-left px-2.5 py-1.5 text-[11px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2 border-t border-slate-900"
                           >
                             {copiedKey === 'export_all_md'
                               ? <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
@@ -2088,24 +2083,24 @@ export default function App() {
                           </button>
 
                           <div className="px-2.5 py-1 bg-slate-900/40 rounded border-y border-slate-900/60 my-1">
-                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest block">HTML</span>
+                            <span className="text-[11px] text-slate-500 font-bold uppercase tracking-widest block">HTML</span>
                           </div>
 
                           <button
                             onClick={handleExportHtml}
-                            className="w-full text-left px-2.5 py-1.5 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
+                            className="w-full text-left px-2.5 py-1.5 text-[11px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
                           >
                             <Globe className="w-3.5 h-3.5 text-sky-400 shrink-0" />
                             <span>Download som HTML (.html)</span>
                           </button>
 
                           <div className="px-2.5 py-1 bg-slate-900/40 rounded border-y border-slate-900/60 my-1">
-                            <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest block">Word</span>
+                            <span className="text-[11px] text-slate-500 font-bold uppercase tracking-widest block">Word</span>
                           </div>
 
                           <button
                             onClick={handleExportDocx}
-                            className="w-full text-left px-2.5 py-1.5 text-[10px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
+                            className="w-full text-left px-2.5 py-1.5 text-[11px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
                           >
                             <Download className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                             <span>Download som Word (.docx)</span>
@@ -2139,14 +2134,14 @@ export default function App() {
                           >
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center space-x-2">
-                                <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">1. Kort case-tekst</span>
-                                {selectedTextKey === 'shortCaseText' && <span className="text-[9px] bg-brand-orange-600/20 text-brand-orange-500 px-1.5 py-0.2 rounded font-mono font-medium border border-brand-orange-500/20">Valgt til raffinering</span>}
+                                <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">1. Kort case-tekst</span>
+                                {selectedTextKey === 'shortCaseText' && <span className="text-[11px] bg-brand-orange-600/20 text-brand-orange-500 px-1.5 py-0.2 rounded font-mono font-medium border border-brand-orange-500/20">Valgt til raffinering</span>}
                               </div>
                               <div className="flex items-center space-x-1.5">
                                 {hasHistory('shortCaseText') && (
                                   <button 
                                     onClick={(e) => { e.stopPropagation(); handleUndoRefine('shortCaseText'); }}
-                                    className="text-[10px] text-amber-500 hover:text-amber-400 font-mono flex items-center space-x-0.5 mr-2"
+                                    className="text-[11px] text-amber-500 hover:text-amber-400 font-mono flex items-center space-x-0.5 mr-2"
                                     title="Fortryd omskrivning"
                                   >
                                     <RotateCcw className="w-3 h-3" />
@@ -2172,12 +2167,12 @@ export default function App() {
                             {/* Inline refining toolkit */}
                             <div className="mt-3 pt-2 border-t border-slate-800/60 flex flex-wrap gap-2 items-center justify-between">
                               <div className="flex items-center space-x-1">
-                                <span className="text-[10px] font-mono text-slate-500 uppercase mr-1">Raffinér:</span>
+                                <span className="text-[11px] font-mono text-slate-500 uppercase mr-1">Raffinér:</span>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleRefine('/shorten', 'shortCaseText'); }}
                                   disabled={isRefining}
                                   id="refine_shorten_short_case"
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
                                   title="Gør kortere"
                                 >
                                   /shorten
@@ -2185,7 +2180,7 @@ export default function App() {
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleRefine('/more-human', 'shortCaseText'); }}
                                   disabled={isRefining}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
                                   title="Gør mere menneskelig og ualmindelig varm"
                                 >
                                   /more-human
@@ -2193,7 +2188,7 @@ export default function App() {
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleRefine('/more-business', 'shortCaseText'); }}
                                   disabled={isRefining}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
                                   title="Gør mere forretningsmæssig skarp"
                                 >
                                   /more-business
@@ -2201,13 +2196,13 @@ export default function App() {
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleGenerateVariants('shortCaseText'); }}
                                   disabled={isVariating}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
                                   title="Generer 2 A/B-varianter"
                                 >
                                   /variant
                                 </button>
                               </div>
-                              <span className="text-[10px] text-slate-500 font-mono">Genereret uden marketingfloskler</span>
+                              <span className="text-[11px] text-slate-500 font-mono">Genereret uden marketingfloskler</span>
                             </div>
 
                             {/* Revision history comparison selector */}
@@ -2226,14 +2221,14 @@ export default function App() {
                           >
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center space-x-2">
-                                <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">2. Længere case-tekst (Website)</span>
-                                {selectedTextKey === 'longCaseText' && <span className="text-[9px] bg-brand-orange-600/20 text-brand-orange-500 px-1.5 py-0.2 rounded font-mono font-medium border border-brand-orange-500/20">Valgt til raffinering</span>}
+                                <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">2. Længere case-tekst (Website)</span>
+                                {selectedTextKey === 'longCaseText' && <span className="text-[11px] bg-brand-orange-600/20 text-brand-orange-500 px-1.5 py-0.2 rounded font-mono font-medium border border-brand-orange-500/20">Valgt til raffinering</span>}
                               </div>
                               <div className="flex items-center space-x-1.5">
                                 {hasHistory('longCaseText') && (
                                   <button 
                                     onClick={(e) => { e.stopPropagation(); handleUndoRefine('longCaseText'); }}
-                                    className="text-[10px] text-amber-500 hover:text-amber-400 font-mono flex items-center space-x-0.5 mr-2"
+                                    className="text-[11px] text-amber-500 hover:text-amber-400 font-mono flex items-center space-x-0.5 mr-2"
                                     title="Fortryd omskrivning"
                                   >
                                     <RotateCcw className="w-3 h-3" />
@@ -2259,38 +2254,38 @@ export default function App() {
                             {/* Inline refining toolkit */}
                             <div className="mt-3 pt-2 border-t border-slate-800/60 flex flex-wrap gap-2 items-center justify-between">
                               <div className="flex items-center space-x-1">
-                                <span className="text-[10px] font-mono text-slate-500 uppercase mr-1">Raffinér:</span>
+                                <span className="text-[11px] font-mono text-slate-500 uppercase mr-1">Raffinér:</span>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleRefine('/shorten', 'longCaseText'); }}
                                   disabled={isRefining}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
                                 >
                                   /shorten
                                 </button>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleRefine('/more-human', 'longCaseText'); }}
                                   disabled={isRefining}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
                                 >
                                   /more-human
                                 </button>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleRefine('/more-business', 'longCaseText'); }}
                                   disabled={isRefining}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
                                 >
                                   /more-business
                                 </button>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleGenerateVariants('longCaseText'); }}
                                   disabled={isVariating}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
                                   title="Generer 2 A/B-varianter"
                                 >
                                   /variant
                                 </button>
                               </div>
-                              <span className="text-[10px] text-slate-500 font-mono">Udførlig design documentation</span>
+                              <span className="text-[11px] text-slate-500 font-mono">Udførlig design documentation</span>
                             </div>
 
                             {/* Revision history comparison selector */}
@@ -2319,14 +2314,14 @@ export default function App() {
                           >
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center space-x-2">
-                                <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">3. LinkedIn-opslag</span>
-                                {selectedTextKey === 'linkedinPost' && <span className="text-[9px] bg-brand-orange-600/20 text-brand-orange-500 px-1.5 py-0.2 rounded font-mono font-medium border border-brand-orange-500/20">Valgt til raffinering</span>}
+                                <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">3. LinkedIn-opslag</span>
+                                {selectedTextKey === 'linkedinPost' && <span className="text-[11px] bg-brand-orange-600/20 text-brand-orange-500 px-1.5 py-0.2 rounded font-mono font-medium border border-brand-orange-500/20">Valgt til raffinering</span>}
                               </div>
                               <div className="flex items-center space-x-1.5">
                                 {hasHistory('linkedinPost') && (
                                   <button 
                                     onClick={(e) => { e.stopPropagation(); handleUndoRefine('linkedinPost'); }}
-                                    className="text-[10px] text-amber-500 hover:text-amber-400 font-mono flex items-center space-x-0.5 mr-2"
+                                    className="text-[11px] text-amber-500 hover:text-amber-400 font-mono flex items-center space-x-0.5 mr-2"
                                     title="Fortryd omskrivning"
                                   >
                                     <RotateCcw className="w-3 h-3" />
@@ -2352,39 +2347,39 @@ export default function App() {
                             {/* Inline refining toolkit */}
                             <div className="mt-3 pt-2 border-t border-slate-800/60 flex flex-wrap gap-2 items-center justify-between">
                               <div className="flex items-center space-x-1">
-                                <span className="text-[10px] font-mono text-slate-500 uppercase mr-1">Raffinér:</span>
+                                <span className="text-[11px] font-mono text-slate-500 uppercase mr-1">Raffinér:</span>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleRefine('/shorten', 'linkedinPost'); }}
                                   disabled={isRefining}
                                   id="refine_shorten_linkedin"
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
                                 >
                                   /shorten
                                 </button>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleRefine('/more-human', 'linkedinPost'); }}
                                   disabled={isRefining}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
                                 >
                                   /more-human
                                 </button>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleRefine('/more-business', 'linkedinPost'); }}
                                   disabled={isRefining}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-slate-300 rounded font-mono"
                                 >
                                   /more-business
                                 </button>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleGenerateVariants('linkedinPost'); }}
                                   disabled={isVariating}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-amber-700/40 hover:border-amber-600 hover:bg-slate-800 text-amber-400 rounded font-mono"
                                   title="Generer 2 A/B-varianter"
                                 >
                                   /variant
                                 </button>
                               </div>
-                              <span className="text-[10px] text-slate-500 font-mono">Inkluderer krog, krop, keywords</span>
+                              <span className="text-[11px] text-slate-500 font-mono">Inkluderer krog, krop, keywords</span>
                             </div>
 
                             {/* Revision history comparison selector */}
@@ -2405,7 +2400,7 @@ export default function App() {
                         >
                           {/* Subject lines */}
                           <div className="p-4 bg-slate-900/50 border border-slate-800 rounded-xl space-y-3">
-                            <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">9. Mailchimp Subject Lines</span>
+                            <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">9. Mailchimp Subject Lines</span>
                             
                             <div className="space-y-2">
                               {output.mailchimpSubjects.map((sub, i) => (
@@ -2436,12 +2431,12 @@ export default function App() {
                               }`}
                             >
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">Nyhedsbrev Layout / Sektion</span>
+                                <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">Nyhedsbrev Layout / Sektion</span>
                                 <div className="flex items-center space-x-1.5">
                                   {hasHistory('creativeNewsletterSection') && (
                                     <button 
                                       onClick={(e) => { e.stopPropagation(); handleUndoRefine('creativeNewsletterSection'); }}
-                                      className="text-[10px] text-amber-500 hover:text-amber-400 font-mono mr-2"
+                                      className="text-[11px] text-amber-500 hover:text-amber-400 font-mono mr-2"
                                     >
                                       Fortryd
                                     </button>
@@ -2475,14 +2470,14 @@ export default function App() {
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleRefine('/shorten', 'creativeNewsletterSection'); }}
                                   disabled={isRefining}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded font-mono"
                                 >
                                   /shorten
                                 </button>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleRefine('/more-human', 'creativeNewsletterSection'); }}
                                   disabled={isRefining}
-                                  className="px-2 py-1 text-[10px] bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded font-mono"
+                                  className="px-2 py-1 text-[11px] bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 rounded font-mono"
                                 >
                                   /more-human
                                 </button>
@@ -2504,7 +2499,7 @@ export default function App() {
                           exit={{ opacity: 0, y: -10 }}
                           className="space-y-4 font-sans"
                         >
-                          <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider block w-max">4. Overskrifter (Korte & Stærke)</span>
+                          <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider block w-max">4. Overskrifter (Korte & Stærke)</span>
                           
                           <div className="space-y-3">
                             {output.headlines.map((headline, i) => (
@@ -2536,7 +2531,7 @@ export default function App() {
                         >
                           {/* Left: Keywords block */}
                           <div className="space-y-3">
-                            <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">5. Tags & Keywords</span>
+                            <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">5. Tags & Keywords</span>
                             <div className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 flex flex-wrap gap-2">
                               {output.keywords.map((kw, i) => (
                                 <div 
@@ -2554,13 +2549,13 @@ export default function App() {
 
                           {/* Right: CTA options */}
                           <div className="space-y-3">
-                            <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">6. Call to Action (3 typer)</span>
+                            <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">6. Call to Action (3 typer)</span>
                             <div className="space-y-3">
                               {["Direkte", "Blød", "Kreativ"].map((type, idx) => {
                                 const val = output.cta[idx] || "";
                                 return (
                                   <div key={idx} className="bg-slate-950 p-3.5 rounded-xl border border-slate-800/80 space-y-1.5 relative">
-                                    <div className="flex items-center justify-between text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+                                    <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase tracking-wider text-slate-400">
                                       <span>{type} CTA</span>
                                       <button 
                                         onClick={() => handleCopyToClipboard(val, `cta_${idx}`)}
@@ -2588,8 +2583,8 @@ export default function App() {
                           className="space-y-4 font-sans"
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">8. AI-billedprompts (AI Billedmotor integreret)</span>
-                            <span className="text-[9px] text-slate-500 font-mono">Skal altid være på engelsk</span>
+                            <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">8. AI-billedprompts (AI Billedmotor integreret)</span>
+                            <span className="text-[11px] text-slate-500 font-mono">Skal altid være på engelsk</span>
                           </div>
 
                           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -2653,8 +2648,8 @@ export default function App() {
                           className="space-y-4"
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">7. Engelsk Version</span>
-                            <span className="text-[10px] text-slate-500 font-mono">Mature translation</span>
+                            <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">7. Engelsk Version</span>
+                            <span className="text-[11px] text-slate-500 font-mono">Mature translation</span>
                           </div>
 
                           <div className="grid grid-cols-1 gap-4">
@@ -2666,7 +2661,7 @@ export default function App() {
                                 selectedTextKey === 'englishShortCaseText' ? 'bg-slate-850 border-brand-orange-500/40' : 'bg-slate-900/50 border-slate-800'
                               }`}
                             >
-                              <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase mb-1.5 font-bold tracking-wide">
+                              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase mb-1.5 font-bold tracking-wide">
                                 <span>Short Case Text</span>
                                 <button
                                   onClick={() => handleCopyToClipboard(output.english?.shortCaseText || "", 'eng_short')}
@@ -2685,7 +2680,7 @@ export default function App() {
                                 selectedTextKey === 'englishLongCaseText' ? 'bg-slate-850 border-brand-orange-500/40' : 'bg-slate-900/50 border-slate-800'
                               }`}
                             >
-                              <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase mb-1.5 font-bold tracking-wide">
+                              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase mb-1.5 font-bold tracking-wide">
                                 <span>Long Case Text (Website)</span>
                                 <button
                                   onClick={() => handleCopyToClipboard(output.english?.longCaseText || "", 'eng_long')}
@@ -2704,7 +2699,7 @@ export default function App() {
                                 selectedTextKey === 'englishLinkedinPost' ? 'bg-slate-850 border-brand-orange-500/40' : 'bg-slate-900/50 border-slate-800'
                               }`}
                             >
-                              <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase mb-1.5 font-bold tracking-wide">
+                              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase mb-1.5 font-bold tracking-wide">
                                 <span>LinkedIn Post</span>
                                 <button
                                   onClick={() => handleCopyToClipboard(output.english?.linkedinPost || "", 'eng_linkedin')}
@@ -2730,14 +2725,14 @@ export default function App() {
                           className="space-y-5 text-left"
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800/80 pb-3 mb-1">
-                            <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider block w-max">AI-Genereret CVI (Corporate Visual Identity)</span>
+                            <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider block w-max">AI-Genereret CVI (Corporate Visual Identity)</span>
                             <button
                               onClick={() => handleExportSingleSection('cvi')}
-                              className="flex items-center space-x-1.5 px-3 py-1 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white text-[10px] font-mono font-bold rounded shadow transition-all active:scale-95 cursor-pointer self-start sm:self-auto"
+                              className="flex items-center space-x-1.5 px-3 py-1 bg-brand-orange-600 hover:bg-brand-orange-500 text-white text-[11px] font-semibold rounded-md shadow-sm transition-all active:scale-95 cursor-pointer self-start sm:self-auto"
                               title="Eksporter kun brandets designmanual og farvekoder som PDF"
                             >
-                              <Printer className="w-3 h-3 text-white animate-pulse" />
-                              <span>EKSPORTER DESIGNMANUAL (PDF)</span>
+                              <Printer className="w-3 h-3 text-white" />
+                              <span>Eksportér designmanual (PDF)</span>
                             </button>
                           </div>
 
@@ -2781,8 +2776,8 @@ export default function App() {
                                     ></span>
                                     <div className="truncate flex-1 font-sans">
                                       <span className="text-xs font-bold text-white block truncate">{color.name}</span>
-                                      <span className="text-[10px] font-mono font-medium text-slate-400 block group-hover:text-brand-orange-400 transition-colors uppercase">{color.hex}</span>
-                                      <span className="text-[9px] text-slate-500 block truncate leading-tight">{color.useCase}</span>
+                                      <span className="text-[11px] font-mono font-medium text-slate-400 block group-hover:text-brand-orange-400 transition-colors uppercase">{color.hex}</span>
+                                      <span className="text-[11px] text-slate-500 block truncate leading-tight">{color.useCase}</span>
                                     </div>
                                     <div className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                                       {copiedKey === `hex_${i}` ? <Check className="w-2.5 h-2.5 text-emerald-400" /> : <Copy className="w-2.5 h-2.5 text-slate-500" />}
@@ -2798,7 +2793,7 @@ export default function App() {
                                 <span className="text-xs font-mono text-orange-400 uppercase font-bold tracking-wider block border-b border-slate-800 pb-2">C. Typografi & Typografiske Dogmer</span>
                                 <div className="space-y-4 pt-4">
                                   <div>
-                                    <span className="text-[9px] font-mono uppercase text-slate-500 font-bold block mb-1">Overskrifter</span>
+                                    <span className="text-[11px] font-mono uppercase text-slate-500 font-bold block mb-1">Overskrifter</span>
                                     <span 
                                       className="text-lg font-bold text-white tracking-tight leading-none block border-b border-slate-800/50 pb-1 w-max px-0.5"
                                       style={{ fontFamily: output.cviSuggestion.fonts.primaryHeadings }}
@@ -2807,7 +2802,7 @@ export default function App() {
                                     </span>
                                   </div>
                                   <div>
-                                    <span className="text-[9px] font-mono uppercase text-slate-500 font-bold block mb-1">Brødtekst / Body</span>
+                                    <span className="text-[11px] font-mono uppercase text-slate-500 font-bold block mb-1">Brødtekst / Body</span>
                                     <span 
                                       className="text-xs text-slate-300 block"
                                       style={{ fontFamily: output.cviSuggestion.fonts.bodyText }}
@@ -2817,7 +2812,7 @@ export default function App() {
                                   </div>
                                 </div>
                               </div>
-                              <p className="text-[10px] text-slate-400 italic bg-slate-955 p-2.5 rounded border border-slate-850 mt-4 leading-relaxed">
+                              <p className="text-[11px] text-slate-400 italic bg-slate-955 p-2.5 rounded border border-slate-850 mt-4 leading-relaxed">
                                 <strong>Begrundelse:</strong> {output.cviSuggestion.fonts.description}
                               </p>
                             </div>
@@ -2836,7 +2831,7 @@ export default function App() {
                               <div className="pt-2">
                                 <button
                                   onClick={() => handleCopyToClipboard(output.cviSuggestion?.imageStyleGuidelines || "", 'cvi_images')}
-                                  className="px-2.5 py-1.5 bg-slate-955 text-slate-300 hover:text-white rounded border border-slate-850 text-[10px] font-mono flex items-center space-x-1.5 transition-all"
+                                  className="px-2.5 py-1.5 bg-slate-955 text-slate-300 hover:text-white rounded border border-slate-850 text-[11px] font-mono flex items-center space-x-1.5 transition-all"
                                 >
                                   <Copy className="w-3 h-3 shrink-0" />
                                   <span>Kopier fotomanual</span>
@@ -2853,7 +2848,7 @@ export default function App() {
                               <div className="pt-2">
                                 <button
                                   onClick={() => handleCopyToClipboard(output.cviSuggestion?.graphicElementsRules || "", 'cvi_graphics')}
-                                  className="px-2.5 py-1.5 bg-slate-955 text-slate-300 hover:text-white rounded border border-slate-855 text-[10px] font-mono flex items-center space-x-1.5 transition-all"
+                                  className="px-2.5 py-1.5 bg-slate-955 text-slate-300 hover:text-white rounded border border-slate-855 text-[11px] font-mono flex items-center space-x-1.5 transition-all"
                                 >
                                   <Copy className="w-3 h-3 shrink-0" />
                                   <span>Kopier layoutspilleregler</span>
@@ -2883,13 +2878,13 @@ export default function App() {
                           exit={{ opacity: 0, y: -10 }}
                           className="space-y-4"
                         >
-                          <span className="text-[10px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider block w-max">10. Kreative workflow & Produktions-forslag</span>
+                          <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider block w-max">10. Kreative workflow & Produktions-forslag</span>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             
                             {/* Missing Images proposal */}
                             <div className="bg-slate-900 border border-slate-800 rounded-lg p-3.5">
-                              <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Mangler i billed-dokumentation (Forslag)</span>
+                              <span className="text-[11px] font-mono text-slate-400 uppercase font-bold">Mangler i billed-dokumentation (Forslag)</span>
                               <ul className="list-disc pl-4 mt-2 space-y-1 text-slate-300 text-xs text-left">
                                 {output.production.missingImages.map((mi, i) => (
                                   <li key={i}>{mi}</li>
@@ -2899,29 +2894,29 @@ export default function App() {
 
                             {/* Formats required proposal */}
                             <div className="bg-slate-900 border border-slate-800 rounded-lg p-3.5">
-                              <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Produktions-formater der bør klargøres</span>
+                              <span className="text-[11px] font-mono text-slate-400 uppercase font-bold">Produktions-formater der bør klargøres</span>
                               <div className="flex flex-wrap gap-1.5 mt-2">
                                 {output.production.suggestedFormats.map((fmt, i) => (
-                                  <span key={i} className="px-2 py-1 bg-slate-950 text-slate-300 border border-slate-850 rounded text-[10px] font-mono">{fmt}</span>
+                                  <span key={i} className="px-2 py-1 bg-slate-950 text-slate-300 border border-slate-850 rounded text-[11px] font-mono">{fmt}</span>
                                 ))}
                               </div>
                             </div>
 
                             {/* Hero Visual Proposal */}
                             <div className="bg-slate-900 border border-slate-800 rounded-lg p-3.5 md:col-span-2 space-y-1.5">
-                              <span className="text-[10px] font-mono text-orange-400 uppercase font-bold">Skærm / Hero Visual idé</span>
+                              <span className="text-[11px] font-mono text-orange-400 uppercase font-bold">Skærm / Hero Visual idé</span>
                               <p className="text-slate-300 text-xs leading-relaxed">{output.production.heroVisual}</p>
                             </div>
 
                             {/* SoMe visual Format Proposal */}
                             <div className="bg-slate-900 border border-slate-800 rounded-lg p-3.5 space-y-1.5">
-                              <span className="text-[10px] font-mono text-orange-400 uppercase font-bold">Forslag til SoMe-format</span>
+                              <span className="text-[11px] font-mono text-orange-400 uppercase font-bold">Forslag til SoMe-format</span>
                               <p className="text-slate-300 text-xs leading-relaxed">{output.production.someFormat}</p>
                             </div>
 
                             {/* Target production CTA */}
                             <div className="bg-slate-900 border border-slate-800 rounded-lg p-3.5 space-y-1 rounded relative">
-                              <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 uppercase font-bold">
+                              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 uppercase font-bold">
                                 <span>Produktions-relateret CTA</span>
                                 <button
                                   onClick={() => handleCopyToClipboard(output.production?.cta || "", 'prod_cta')}
@@ -2949,7 +2944,7 @@ export default function App() {
                           <Wand2 className="w-3.5 h-3.5 text-orange-500" />
                           <span>Hurtig-Raffinering af valgt blok</span>
                         </span>
-                        <div className="text-[10px] text-slate-400 font-mono">
+                        <div className="text-[11px] text-slate-400 font-mono">
                           Valgt felt: <span className="text-orange-400 font-bold">{selectedTextKey}</span>
                         </div>
                       </div>
@@ -3016,16 +3011,16 @@ export default function App() {
                 </div>
 
                 {/* TONE & FLOSKEL-TJEK PANEL */}
-                <div id="tone_analysis_panel" className="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-2xl space-y-4">
+                <div id="tone_analysis_panel" className="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-850 pb-3 gap-2">
                     <div className="flex items-center space-x-2">
-                      <Sliders className="w-5 h-5 text-orange-500 animate-pulse" />
+                      <Sliders className="w-5 h-5 text-orange-500" />
                       <div>
                         <h3 className="font-display font-medium text-xs text-slate-100 uppercase tracking-wider font-bold flex items-center space-x-1.5">
                           <Search className="w-3.5 h-3.5 text-orange-500 shrink-0" />
                           <span>Tone & Floskel-tjek</span>
                         </h3>
-                        <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                        <p className="text-[11px] text-slate-400 font-mono mt-0.5">
                           Uafhængig AI-revisor baseret på vores redaktionelle dogmer
                         </p>
                       </div>
@@ -3062,7 +3057,7 @@ export default function App() {
                         
                         {/* Cliche Score */}
                         <div className="bg-slate-900/40 p-3 rounded-lg border border-slate-850 flex flex-col justify-between">
-                          <span className="text-[9px] font-mono text-slate-450 uppercase tracking-wider block">
+                          <span className="text-[11px] font-medium text-slate-400 block">
                             Floskel-frihed
                           </span>
                           <div className="flex items-baseline space-x-1 mt-1">
@@ -3072,7 +3067,7 @@ export default function App() {
                             }`}>
                               {output.toneAnalysis.clicheScore}%
                             </span>
-                            <span className="text-[9px] text-slate-500 font-mono">/100</span>
+                            <span className="text-[11px] text-slate-500 font-mono">/100</span>
                           </div>
                           
                           {/* Mini visual gauge */}
@@ -3089,7 +3084,7 @@ export default function App() {
 
                         {/* Concreteness Score */}
                         <div className="bg-slate-900/40 p-3 rounded-lg border border-slate-850 flex flex-col justify-between">
-                          <span className="text-[9px] font-mono text-slate-450 uppercase tracking-wider block">
+                          <span className="text-[11px] font-medium text-slate-400 block">
                             Konkrethed (Leverancer)
                           </span>
                           <div className="flex items-baseline space-x-1 mt-1">
@@ -3099,7 +3094,7 @@ export default function App() {
                             }`}>
                               {output.toneAnalysis.concretenessScore}%
                             </span>
-                            <span className="text-[9px] text-slate-500 font-mono">/100</span>
+                            <span className="text-[11px] text-slate-500 font-mono">/100</span>
                           </div>
                           
                           {/* Mini visual gauge */}
@@ -3116,7 +3111,7 @@ export default function App() {
 
                         {/* Human & Prof Score */}
                         <div className="bg-slate-900/40 p-3 rounded-lg border border-slate-850 flex flex-col justify-between">
-                          <span className="text-[9px] font-mono text-slate-450 uppercase tracking-wider block">
+                          <span className="text-[11px] font-medium text-slate-400 block">
                             Menneskelig nerve
                           </span>
                           <div className="flex items-baseline space-x-1 mt-1">
@@ -3126,7 +3121,7 @@ export default function App() {
                             }`}>
                               {output.toneAnalysis.humanScore}%
                             </span>
-                            <span className="text-[9px] text-slate-500 font-mono">/100</span>
+                            <span className="text-[11px] text-slate-500 font-mono">/100</span>
                           </div>
                           
                           {/* Mini visual gauge */}
@@ -3145,7 +3140,7 @@ export default function App() {
 
                       {/* FLOSKEL ALERTER */}
                       <div className="p-3 bg-slate-900/80 border border-slate-850 rounded-lg">
-                        <span className="text-[9px] font-mono text-slate-400 uppercase font-bold tracking-wider block mb-1.5">
+                        <span className="text-[11px] font-semibold text-slate-300 block mb-1.5">
                           Udpegede Floskler & Klichéer
                         </span>
                         
@@ -3161,7 +3156,7 @@ export default function App() {
                             </div>
                             <div className="flex flex-wrap gap-1.5">
                               {output.toneAnalysis.clichesFound.map((cl, idx) => (
-                                <span key={idx} className="px-2 py-0.5 rounded bg-red-950/40 border border-red-900/50 text-[10px] font-mono text-red-400">
+                                <span key={idx} className="px-2 py-0.5 rounded bg-red-950/40 border border-red-900/50 text-[11px] font-mono text-red-400">
                                   "{cl}"
                                 </span>
                               ))}
@@ -3172,7 +3167,7 @@ export default function App() {
 
                       {/* CORE GUIDELINES / DETAILED EVALUATIONS */}
                       <div className="space-y-2">
-                        <span className="text-[9px] font-mono text-slate-400 uppercase font-bold tracking-wider block">
+                        <span className="text-[11px] font-semibold text-slate-300 block">
                           Overholdelse af Redaktionelle Retningslinjer
                         </span>
                         
@@ -3182,11 +3177,11 @@ export default function App() {
                               <div className="flex items-center justify-between">
                                 <span className="text-xs font-bold text-white tracking-tight">{ev.ruleName}</span>
                                 {ev.status === 'passed' ? (
-                                  <span className="text-[9px] bg-emerald-500/10 text-emerald-400 px-1 py-0.5 rounded border border-emerald-500/20 font-bold uppercase">Overholdt</span>
+                                  <span className="text-[11px] bg-emerald-500/10 text-emerald-400 px-1 py-0.5 rounded border border-emerald-500/20 font-bold uppercase">Overholdt</span>
                                 ) : ev.status === 'warning' ? (
-                                  <span className="text-[9px] bg-amber-500/10 text-amber-400 px-1 py-0.5 rounded border border-amber-500/20 font-bold uppercase">Obs</span>
+                                  <span className="text-[11px] bg-amber-500/10 text-amber-400 px-1 py-0.5 rounded border border-amber-500/20 font-bold uppercase">Obs</span>
                                 ) : (
-                                  <span className="text-[9px] bg-red-500/10 text-red-400 px-1 py-0.5 rounded border border-red-500/20 font-bold uppercase">Mangler</span>
+                                  <span className="text-[11px] bg-red-500/10 text-red-400 px-1 py-0.5 rounded border border-red-500/20 font-bold uppercase">Mangler</span>
                                 )}
                               </div>
                               <p className="text-[11px] text-slate-400 leading-relaxed">{ev.feedback}</p>
@@ -3197,7 +3192,7 @@ export default function App() {
 
                       {/* OVERALL COMMENT */}
                       <div className="p-3 bg-slate-900/30 border border-slate-850 rounded-lg text-left italic relative">
-                        <span className="absolute right-3 bottom-2 text-[9px] font-mono text-slate-600 uppercase tracking-wider font-bold">Dom</span>
+                        <span className="absolute right-3 bottom-2 text-[11px] font-mono text-slate-600 uppercase tracking-wider font-bold">Dom</span>
                         <p className="text-slate-300 text-xs leading-relaxed font-sans pr-14">
                           "{output.toneAnalysis.overallReview}"
                         </p>
@@ -3205,7 +3200,7 @@ export default function App() {
 
                     </div>
                   ) : (
-                    <div className="text-slate-500 font-mono text-[10px] py-4 text-center">
+                    <div className="text-slate-500 font-mono text-[11px] py-4 text-center">
                       Kør generering eller tryk på "Genanalyser redigeret tekst" for at beregne guideline scores.
                     </div>
                   )}
@@ -3216,15 +3211,15 @@ export default function App() {
           </AnimatePresence>
 
           {/* AI HUMANIZER & DETECTOR BYPASS PANEL */}
-          <div id="external_humanizer_panel" className="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-2xl space-y-4">
+          <div id="external_humanizer_panel" className="bg-slate-950 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-850 pb-3 gap-2">
               <div className="flex items-center space-x-2">
-                <Fingerprint className="w-5 h-5 text-brand-orange-500 animate-pulse" />
+                <Fingerprint className="w-5 h-5 text-brand-orange-500" />
                 <div>
                   <h3 className="font-display font-medium text-xs text-slate-100 uppercase tracking-wider font-bold">
                     ✍️ Ekstern AI-Humanizer & Omgåelse
                   </h3>
-                  <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                  <p className="text-[11px] text-slate-400 font-mono mt-0.5">
                     Genretabler den menneskelige nerve i gamle/rå tekster & bypass AI-detektorer
                   </p>
                 </div>
@@ -3232,7 +3227,7 @@ export default function App() {
               {externalText && (
                 <button 
                   onClick={() => { setExternalText(''); setHumanizerResult(null); }}
-                  className="text-[10px] text-slate-500 hover:text-slate-300 font-mono flex items-center space-x-1"
+                  className="text-[11px] text-slate-500 hover:text-slate-300 font-mono flex items-center space-x-1"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>Ryd</span>
@@ -3241,7 +3236,7 @@ export default function App() {
             </div>
 
             <div className="space-y-3">
-              <label className="block text-[10px] font-mono tracking-wider text-slate-400 uppercase">Indsæt tidligere tekst (AI-skrevet, råt udkast eller tør tekst):</label>
+              <label className="block text-[11px] font-medium text-slate-400">Indsæt tidligere tekst (AI-skrevet, råt udkast eller tør tekst):</label>
               <div className="relative">
                 <textarea
                   value={externalText}
@@ -3251,7 +3246,7 @@ export default function App() {
                   className="w-full bg-slate-900 border border-slate-800 focus:border-brand-orange-500 focus:ring-1 focus:ring-brand-orange-500 rounded-lg p-3 text-xs text-white placeholder:text-slate-600 leading-relaxed font-sans resize-y"
                 />
                 {externalText && (
-                  <div className="absolute bottom-2 right-2 text-[9px] font-mono text-slate-500">
+                  <div className="absolute bottom-2 right-2 text-[11px] font-mono text-slate-500">
                     {externalText.length} tegn
                   </div>
                 )}
@@ -3290,14 +3285,14 @@ export default function App() {
                   <div className="bg-red-950/20 border border-red-900/30 rounded-lg p-3 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono text-slate-400 uppercase font-bold text-red-400">🤖 Før omskrivning</span>
-                        <span className="text-[10px] bg-red-955 text-red-400 border border-red-900/40 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Høj risiko</span>
+                        <span className="text-[11px] font-mono text-slate-400 uppercase font-bold text-red-400">🤖 Før omskrivning</span>
+                        <span className="text-[11px] bg-red-955 text-red-400 border border-red-900/40 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Høj risiko</span>
                       </div>
                       <div className="mt-2 flex items-baseline space-x-1">
                         <span className="text-2xl font-extrabold font-mono text-red-400">
                           {humanizerResult.originalAiScore}%
                         </span>
-                        <span className="text-[10px] text-slate-500 font-mono">robot-detektion sandsynlighed</span>
+                        <span className="text-[11px] text-slate-500 font-mono">robot-detektion sandsynlighed</span>
                       </div>
                       <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden mt-2">
                         <div className="h-full bg-red-500 rounded-full" style={{ width: `${humanizerResult.originalAiScore}%` }}></div>
@@ -3306,10 +3301,10 @@ export default function App() {
                     
                     {humanizerResult.clichesDetected.length > 0 && (
                       <div className="mt-3 space-y-1">
-                        <span className="text-[9px] font-mono text-slate-400 uppercase block">Opdagede klichéer:</span>
+                        <span className="text-[11px] font-mono text-slate-400 uppercase block">Opdagede klichéer:</span>
                         <div className="flex flex-wrap gap-1">
                           {humanizerResult.clichesDetected.map((cl, idx) => (
-                            <span key={idx} className="px-1.5 py-0.5 rounded bg-red-950/60 border border-red-900/30 text-[9px] font-mono text-red-300">
+                            <span key={idx} className="px-1.5 py-0.5 rounded bg-red-950/60 border border-red-900/30 text-[11px] font-mono text-red-300">
                               "{cl}"
                             </span>
                           ))}
@@ -3322,21 +3317,21 @@ export default function App() {
                   <div className="bg-emerald-950/20 border border-emerald-900/30 rounded-lg p-3 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono text-slate-400 uppercase font-bold text-emerald-400">🌱 Efter Humanizing</span>
-                        <span className="text-[10px] bg-emerald-955 text-emerald-400 border border-emerald-900/40 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Bypassed</span>
+                        <span className="text-[11px] font-mono text-slate-400 uppercase font-bold text-emerald-400">🌱 Efter Humanizing</span>
+                        <span className="text-[11px] bg-emerald-955 text-emerald-400 border border-emerald-900/40 px-1.5 py-0.5 rounded font-mono font-bold uppercase">Bypassed</span>
                       </div>
                       <div className="mt-2 flex items-baseline space-x-1">
                         <span className="text-2xl font-extrabold font-mono text-emerald-400">
                           {humanizerResult.humanizedAiScore}%
                         </span>
-                        <span className="text-[10px] text-slate-500 font-mono">robot-detektion sandsynlighed</span>
+                        <span className="text-[11px] text-slate-500 font-mono">robot-detektion sandsynlighed</span>
                       </div>
                       <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden mt-2">
                         <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${humanizerResult.humanizedAiScore}%` }}></div>
                       </div>
                     </div>
 
-                    <div className="mt-3 text-[10px] text-emerald-400/90 flex items-center space-x-1 font-mono">
+                    <div className="mt-3 text-[11px] text-emerald-400/90 flex items-center space-x-1 font-mono">
                       <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
                       <span>100% klar til udgivelse uden AI flagning.</span>
                     </div>
@@ -3347,7 +3342,7 @@ export default function App() {
                 {/* TEXT BOXES COMPARED */}
                 <div className="bg-slate-900/80 rounded-xl border border-slate-850 p-4 space-y-3">
                   <div className="flex items-center justify-between border-b border-slate-850 pb-2">
-                    <span className="text-[10px] font-mono text-slate-300 uppercase font-bold flex items-center space-x-1.5">
+                    <span className="text-[11px] font-mono text-slate-300 uppercase font-bold flex items-center space-x-1.5">
                       <UserCheck className="w-4 h-4 text-emerald-400" />
                       <span>Menneskeligt & floskelfrit resultat:</span>
                     </span>
@@ -3376,7 +3371,7 @@ export default function App() {
 
                 {/* IMPROVEMENTS PROTOCOL */}
                 <div className="bg-slate-900/30 border border-slate-850 rounded-lg p-3.5 space-y-2">
-                  <span className="text-[10px] font-mono text-slate-450 uppercase font-bold tracking-wider block">
+                  <span className="text-[11px] font-mono text-slate-450 uppercase font-bold tracking-wider block">
                     Udførte forbedringer til omgåelse:
                   </span>
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-1">
@@ -3395,11 +3390,11 @@ export default function App() {
           </div>
 
           {/* SYSTEM STATS OR ABOUT (No telemetry data as requested, just a clean branding footer) */}
-          <div className="py-4 border-t border-slate-800/65 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+          <div className="py-4 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
             <span>
               Content Machine by{' '}
               <a href="https://www.larssohl.dk" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 transition-colors">larssohl.dk</a>
-              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.1.0
+              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.2.0
             </span>
             <span>Konkret. Autentisk. Kreativt.</span>
           </div>
@@ -3427,7 +3422,7 @@ export default function App() {
               <span className="text-xs font-bold border-2 border-orange-500 text-orange-600 bg-orange-50/40 px-3 py-1.5 rounded uppercase tracking-wider">
                 {printMode === 'cvi' ? 'CVI Retningslinjer' : printMode === 'case' ? 'Tekst-Leverance' : 'Leverance Rapport'}
               </span>
-              <p className="text-[10px] text-slate-400 font-mono mt-1.5">
+              <p className="text-[11px] text-slate-400 font-mono mt-1.5">
                 Genereret: {new Date().toLocaleDateString('da-DK', { year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
             </div>
@@ -3436,29 +3431,29 @@ export default function App() {
           {/* Project Summary */}
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 mb-8 grid grid-cols-2 gap-4">
             <div>
-              <span className="text-[10px] font-bold font-mono uppercase tracking-wider text-slate-400 block">Kunde</span>
+              <span className="text-[11px] font-bold font-mono uppercase tracking-wider text-slate-400 block">Kunde</span>
               <span className="text-sm font-bold text-slate-800">{brief.client || 'Ikke angivet'}</span>
             </div>
             <div>
-              <span className="text-[10px] font-bold font-mono uppercase tracking-wider text-slate-400 block">Projekt</span>
+              <span className="text-[11px] font-bold font-mono uppercase tracking-wider text-slate-400 block">Projekt</span>
               <span className="text-sm font-bold text-slate-800">{brief.project || 'Ikke angivet'}</span>
             </div>
             <div className="col-span-2 border-t border-slate-200 pt-3">
-              <span className="text-[10px] font-bold font-mono uppercase tracking-wider text-slate-400 block">Kilde-brief beskrivelse</span>
+              <span className="text-[11px] font-bold font-mono uppercase tracking-wider text-slate-400 block">Kilde-brief beskrivelse</span>
               <p className="text-xs text-slate-600 mt-1 leading-relaxed">{brief.description || 'Ingen kildebeskrivelse tilgængelig.'}</p>
             </div>
             {brief.cviManual && (
               <div className="col-span-2 border-t border-slate-250 pt-4 mt-1 space-y-3">
-                <span className="text-[10px] font-bold font-mono uppercase tracking-wider text-slate-400 block">Scannet Designmanual / CVI Retningslinjer</span>
+                <span className="text-[11px] font-bold font-mono uppercase tracking-wider text-slate-400 block">Scannet Designmanual / CVI Retningslinjer</span>
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div>
-                    <strong className="text-slate-700 block font-mono text-[10px]">Brand Farver & Palet:</strong>
+                    <strong className="text-slate-700 block font-mono text-[11px]">Brand Farver & Palet:</strong>
                     <div className="flex flex-wrap gap-1.5 mt-1">
                       {brief.cviManual.brandColors.map((color, cidx) => {
                         const hexM = color.match(/#[0-9a-fA-F]{3,6}/);
                         const hexC = hexM ? hexM[0] : null;
                         return (
-                          <span key={cidx} className="inline-flex items-center space-x-1 border border-slate-300 rounded px-1.5 py-0.5 text-[10px] bg-white">
+                          <span key={cidx} className="inline-flex items-center space-x-1 border border-slate-300 rounded px-1.5 py-0.5 text-[11px] bg-white">
                             {hexC && <span className="w-2 h-2 rounded-full border border-slate-400/50 block shrink-0" style={{ backgroundColor: hexC }}></span>}
                             <span className="text-slate-600 font-mono">{color}</span>
                           </span>
@@ -3467,14 +3462,14 @@ export default function App() {
                     </div>
                   </div>
                   <div>
-                    <strong className="text-slate-700 block font-mono text-[10px]">Typografi & Fonte:</strong>
+                    <strong className="text-slate-700 block font-mono text-[11px]">Typografi & Fonte:</strong>
                     <p className="text-slate-600 mt-1">
                       Overskrifter: <span className="font-bold">{brief.cviManual.fonts?.primaryHeadings}</span> <span className="text-slate-300 mx-1">|</span> Brødtekst: <span className="font-bold">{brief.cviManual.fonts?.bodyText}</span>
                     </p>
-                    <p className="text-[10px] text-slate-500 italic mt-0.5">{brief.cviManual.fonts?.description}</p>
+                    <p className="text-[11px] text-slate-500 italic mt-0.5">{brief.cviManual.fonts?.description}</p>
                   </div>
                   <div className="col-span-2 pt-1.5 border-t border-slate-100">
-                    <strong className="text-slate-700 block font-mono text-[10px]">Identificeret Billedstil:</strong>
+                    <strong className="text-slate-700 block font-mono text-[11px]">Identificeret Billedstil:</strong>
                     <p className="text-slate-600 mt-0.5 italic">"{brief.cviManual.imageStyleGuidelines}"</p>
                   </div>
                 </div>
@@ -3532,7 +3527,7 @@ export default function App() {
                 {/* Hero Prompt */}
                 <div className="border border-slate-200 p-4 rounded-lg bg-slate-50 flex flex-col justify-between">
                   <div>
-                    <div className="text-[10px] font-mono font-bold text-orange-605 uppercase tracking-wider mb-1.5">
+                    <div className="text-[11px] font-mono font-bold text-orange-605 uppercase tracking-wider mb-1.5">
                       Prompt #1: Hero visual design
                     </div>
                     {generatedImages.hero.url && (
@@ -3544,7 +3539,7 @@ export default function App() {
                       "{output.imagePrompts.hero}"
                     </p>
                   </div>
-                  <div className="text-[9px] text-slate-500 border-t border-slate-150 pt-2 font-mono">
+                  <div className="text-[11px] text-slate-500 border-t border-slate-150 pt-2 font-mono">
                     <strong>Type:</strong> High Production Value Hero Design
                   </div>
                 </div>
@@ -3552,7 +3547,7 @@ export default function App() {
                 {/* Detail Prompt */}
                 <div className="border border-slate-200 p-4 rounded-lg bg-slate-50 flex flex-col justify-between">
                   <div>
-                    <div className="text-[10px] font-mono font-bold text-orange-605 uppercase tracking-wider mb-1.5">
+                    <div className="text-[11px] font-mono font-bold text-orange-605 uppercase tracking-wider mb-1.5">
                       Prompt #2: Special detail / closeup
                     </div>
                     {generatedImages.detail.url && (
@@ -3564,7 +3559,7 @@ export default function App() {
                       "{output.imagePrompts.detail}"
                     </p>
                   </div>
-                  <div className="text-[9px] text-slate-500 border-t border-slate-150 pt-2 font-mono">
+                  <div className="text-[11px] text-slate-500 border-t border-slate-150 pt-2 font-mono">
                     <strong>Type:</strong> Macro / Structural texturing
                   </div>
                 </div>
@@ -3572,7 +3567,7 @@ export default function App() {
                 {/* Abstract Prompt */}
                 <div className="border border-slate-200 p-4 rounded-lg bg-slate-50 flex flex-col justify-between">
                   <div>
-                    <div className="text-[10px] font-mono font-bold text-orange-605 uppercase tracking-wider mb-1.5">
+                    <div className="text-[11px] font-mono font-bold text-orange-605 uppercase tracking-wider mb-1.5">
                       Prompt #3: Abstract background texture
                     </div>
                     {generatedImages.abstract.url && (
@@ -3584,7 +3579,7 @@ export default function App() {
                       "{output.imagePrompts.abstract}"
                     </p>
                   </div>
-                  <div className="text-[9px] text-slate-500 border-t border-slate-150 pt-2 font-mono">
+                  <div className="text-[11px] text-slate-500 border-t border-slate-150 pt-2 font-mono">
                     <strong>Type:</strong> Ambient vibe / color pattern
                   </div>
                 </div>
@@ -3631,7 +3626,7 @@ export default function App() {
                     <p className="text-slate-750 font-medium mb-2.5">
                       Brødtekst: <span className="font-bold text-slate-900">{output.cviSuggestion.fonts.bodyText}</span>
                     </p>
-                    <p className="text-[10px] text-slate-500 leading-relaxed italic bg-white border border-slate-100 p-2 rounded">
+                    <p className="text-[11px] text-slate-500 leading-relaxed italic bg-white border border-slate-100 p-2 rounded">
                       <strong>Rationale:</strong> {output.cviSuggestion.fonts.description}
                     </p>
                   </div>
@@ -3660,7 +3655,7 @@ export default function App() {
           {(printMode === 'all' || printMode === 'case') && output.toneAnalysis && (
             <div className="mt-8 border-t border-slate-200 pt-6" style={{ pageBreakInside: 'avoid' }}>
               <div className="bg-slate-50 border border-slate-150 rounded-xl p-4">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 block font-bold mb-1">
+                <span className="text-[11px] font-mono uppercase tracking-wider text-slate-500 block font-bold mb-1">
                   Uafhængig Tone-Revisors Vurdering
                 </span>
                 <p className="text-xs italic text-slate-600 font-sans leading-relaxed">
@@ -3671,7 +3666,7 @@ export default function App() {
           )}
 
           {/* Footer print disclaimer */}
-          <div className="mt-12 text-center text-slate-400 text-[10px] font-mono border-t border-slate-150 pt-4">
+          <div className="mt-12 text-center text-slate-400 text-[11px] font-mono border-t border-slate-150 pt-4">
             <span>Udarbejdet via Content Machine • larssohl.dk</span>
           </div>
 

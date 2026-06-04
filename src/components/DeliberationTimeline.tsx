@@ -45,7 +45,7 @@ export function DeliberationTimeline({ critiqueBefore, critiqueAfter, earlyStopp
   }
 
   return (
-    <div className="bg-gradient-to-br from-slate-950 via-slate-950 to-brand-orange-600/5 border border-slate-800 rounded-xl shadow-xl overflow-hidden">
+    <div className="bg-slate-950 border border-slate-800 rounded-xl shadow-sm overflow-hidden">
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-slate-900/40 transition-colors cursor-pointer"
@@ -59,7 +59,7 @@ export function DeliberationTimeline({ critiqueBefore, critiqueAfter, earlyStopp
               Redaktionsmøde
               <Sparkles className="w-3 h-3 text-amber-400" />
             </span>
-            <span className="block text-[10px] font-mono text-slate-400">
+            <span className="block text-[11px] text-slate-400">
               {synthesisTruncated
                 ? 'Afbrudt — viser bedste udkast'
                 : earlyStopped
@@ -72,7 +72,7 @@ export function DeliberationTimeline({ critiqueBefore, critiqueAfter, earlyStopp
         </div>
         <div className="flex items-center space-x-2">
           {bestLift && bestLift.after > bestLift.before && (
-            <span className="hidden sm:flex items-center gap-1 text-[10px] font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+            <span className="hidden sm:flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
               <TrendingUp className="w-3 h-3" />
               forbedret
             </span>
@@ -100,7 +100,7 @@ export function DeliberationTimeline({ critiqueBefore, critiqueAfter, earlyStopp
               const after = critiqueAfter ? critiqueAfter[m.key] : undefined;
               return (
                 <div key={m.key} className="space-y-1">
-                  <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wide text-slate-400">
+                  <div className="flex items-center justify-between text-[11px] font-medium text-slate-400">
                     <span>{m.label}</span>
                     <span className="text-slate-300">
                       {after !== undefined && after !== before ? (
@@ -127,7 +127,7 @@ export function DeliberationTimeline({ critiqueBefore, critiqueAfter, earlyStopp
 
           {(critiqueAfter?.overallReview || critiqueBefore.overallReview) && (
             <div className="bg-slate-900/40 border border-slate-850 rounded-lg p-3">
-              <span className="block text-[9px] font-mono uppercase tracking-wider text-slate-500 font-bold mb-1">
+              <span className="block text-[11px] font-semibold text-slate-400 mb-1">
                 Chefredaktørens dom
               </span>
               <p className="text-xs italic text-slate-300 leading-relaxed">
