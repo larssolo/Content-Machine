@@ -1,4 +1,4 @@
-# Brand Surface Content Machine
+# Content Machine
 
 AI-drevet content-værktøj, der genererer marketing-indhold (case-tekster, LinkedIn,
 nyhedsbrev, overskrifter, keywords, CVI-analyse, AI-humanizer og billeder) ud fra en

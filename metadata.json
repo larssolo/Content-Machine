@@ -1,5 +1,5 @@
 {
-  "name": "Brand Surface Content Machine",
-  "description": "Intelligent assistent til Brand Surface, der genererer case-tekster, SoMe-opslag, nyhedsbreve og AI-billedprompts ud fra briefs.",
+  "name": "Content Machine",
+  "description": "Intelligent assistent der genererer case-tekster, SoMe-opslag, nyhedsbreve og AI-billedprompts ud fra briefs.",
   "requestFramePermissions": []
 }

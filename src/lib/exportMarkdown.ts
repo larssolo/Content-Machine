@@ -10,7 +10,7 @@ export function buildMarkdown(output: BrandSurfaceOutput, brief?: ProjectBrief):
   const lines: string[] = [];
   const heading = (t: string) => lines.push(`\n## ${t}\n`);
 
-  const title = `${brief?.client || 'Brand Surface'} — ${brief?.project || 'Case'}`;
+  const title = `${brief?.client || 'Content Machine'} — ${brief?.project || 'Case'}`;
   lines.push(`# ${title}\n`);
   if (brief?.description) lines.push(`> ${brief.description}\n`);
 

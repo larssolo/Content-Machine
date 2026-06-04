@@ -21,7 +21,7 @@ export function buildDocxDocument(output: BrandSurfaceOutput, brief?: ProjectBri
   const children: Paragraph[] = [];
   children.push(
     new Paragraph({
-      text: `${brief?.client || 'Brand Surface'} — ${brief?.project || 'Case'}`,
+      text: `${brief?.client || 'Content Machine'} — ${brief?.project || 'Case'}`,
       heading: HeadingLevel.TITLE,
     }),
   );

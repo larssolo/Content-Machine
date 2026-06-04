@@ -33,7 +33,7 @@ const evaluationItems = {
 
 export const generateTool: Anthropic.Tool = {
   name: 'submit_brand_surface_output',
-  description: 'Aflever hele Brand Surface content-pakken som struktureret data.',
+  description: 'Aflever hele Content Machine content-pakken som struktureret data.',
   input_schema: {
     type: 'object',
     properties: {
@@ -55,7 +55,7 @@ export const generateTool: Anthropic.Tool = {
       headlines: {
         type: 'array',
         items: { type: 'string' },
-        description: '5 korte og stærke overskrifter i overensstemmelse med Brand Surface stilen.',
+        description: '5 korte og stærke overskrifter i overensstemmelse med bureauets stil.',
       },
       keywords: {
         type: 'array',
@@ -189,7 +189,7 @@ export const generateTool: Anthropic.Tool = {
           overallReview: {
             type: 'string',
             description:
-              'Samlet kvalitetsvurdering og redaktionel dom baseret på Brand Surface retningslinjer (ca. 40-75 ord).',
+              'Samlet kvalitetsvurdering og redaktionel dom baseret på bureauets retningslinjer (ca. 40-75 ord).',
           },
         },
         required: [
@@ -403,6 +403,34 @@ export const variantsTool: Anthropic.Tool = {
       },
     },
     required: ['variants'],
+  },
+};
+
+// --- deliberation: kreativ direktør ------------------------------------------
+
+export const creativeTool: Anthropic.Tool = {
+  name: 'submit_creative_directions',
+  description: 'Aflever dristige, alternative kreative retninger som struktureret data.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      boldHeadlines: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Dristige, uventede alternative overskrifter (mindst 4).',
+      },
+      boldHooks: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Skarpe alternative LinkedIn-kroge / åbningslinjer (mindst 3).',
+      },
+      angles: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Korte noter om friske kreative vinkler at forfølge (2-3).',
+      },
+    },
+    required: ['boldHeadlines', 'boldHooks', 'angles'],
   },
 };
 

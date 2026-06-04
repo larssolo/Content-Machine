@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateTool, analyzeTool, analyzeCviTool, humanizeTool, variantsTool } from './schemas';
+import { generateTool, analyzeTool, analyzeCviTool, humanizeTool, variantsTool, creativeTool } from './schemas';
 
 describe('generateTool', () => {
   it('requires all 14 top-level fields (matches the old Gemini schema)', () => {
@@ -69,5 +69,20 @@ describe('variantsTool', () => {
     expect(props.variants.type).toBe('array');
     expect(props.variants.items.type).toBe('string');
     expect((variantsTool.input_schema as any).required).toEqual(['variants']);
+  });
+});
+
+describe('creativeTool', () => {
+  it('is named submit_creative_directions and requires the three idea arrays', () => {
+    expect(creativeTool.name).toBe('submit_creative_directions');
+    expect((creativeTool.input_schema as any).required).toEqual(['boldHeadlines', 'boldHooks', 'angles']);
+  });
+
+  it('types each direction field as a string array', () => {
+    const props = (creativeTool.input_schema as any).properties;
+    for (const key of ['boldHeadlines', 'boldHooks', 'angles']) {
+      expect(props[key].type).toBe('array');
+      expect(props[key].items.type).toBe('string');
+    }
   });
 });

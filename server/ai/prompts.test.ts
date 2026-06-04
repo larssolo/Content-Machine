@@ -3,6 +3,8 @@ import {
   buildGenerate,
   buildRefine,
   buildVariants,
+  buildCreativePush,
+  buildSynthesize,
   refineInstruction,
   cacheableSystem,
 } from './prompts';
@@ -22,7 +24,7 @@ describe('buildGenerate', () => {
   it('includes the static role and the brief fields', () => {
     const { system, user } = buildGenerate(baseBrief);
     expect(system).toHaveLength(1);
-    expect(system[0].text).toContain('Brand Surface Produktionsassistent');
+    expect(system[0].text).toContain('Content Machine Produktionsassistent');
     expect(user).toContain('Acme');
     expect(user).toContain('Launch');
     expect(user).toContain('Dansk');
@@ -71,5 +73,46 @@ describe('buildVariants', () => {
     expect(user).toContain('præcis 2');
     expect(user).toContain('Original tekst');
     expect(user).toContain('Dansk');
+  });
+});
+
+describe('buildCreativePush', () => {
+  it('casts the Creative Director and embeds a draft headline, a cliché and the language', () => {
+    const draft = { headlines: ['Den gamle overskrift'], linkedinPost: 'En krog her\nResten', shortCaseText: 'Kort' };
+    const critique = { clichesFound: ['synergieffekter'], overallReview: 'For tam.' };
+    const { system, user } = buildCreativePush(draft, critique, { language: 'Dansk', tone: 'skarp' });
+    expect(system[0].text).toContain('Kreativ Direktør');
+    expect(user).toContain('Den gamle overskrift');
+    expect(user).toContain('synergieffekter');
+    expect(user).toContain('Dansk');
+  });
+});
+
+describe('buildSynthesize', () => {
+  const draft = { shortCaseText: 'Kort', longCaseText: 'Lang', linkedinPost: 'Krog', headlines: ['H1'] };
+  const critique = { clichesFound: ['banebrydende'], clicheScore: 60, concretenessScore: 55, humanScore: 70, evaluations: [], overallReview: 'Ok.' };
+  const creative = { boldHeadlines: ['Dristig overskrift'], boldHooks: ['Dristig krog'], angles: ['Ny vinkel'] };
+
+  it('includes both the editor role and the generation role, and the three input blocks', () => {
+    const { system, user } = buildSynthesize(draft, critique, creative, { client: 'Acme', project: 'Launch', language: 'Dansk' });
+    const systemText = system.map((b) => b.text).join('\n');
+    expect(systemText).toContain('Chefredaktør');
+    expect(systemText).toContain('Produktionsassistent'); // GENERATE_SYSTEM_ROLE inherited
+    expect(user).toContain('FØRSTEUDKAST');
+    expect(user).toContain('REDAKTIONEL KRITIK');
+    expect(user).toContain('KREATIVE ALTERNATIVER');
+    expect(user).toContain('banebrydende');
+    expect(user).toContain('Dristig overskrift');
+    expect(user).toContain('Acme');
+  });
+
+  it('marks the last system block (CVI when present) as the cache boundary', () => {
+    const { system } = buildSynthesize(draft, critique, creative, {
+      client: 'Acme',
+      cviManual: { brandColors: ['#FF5400 - Orange'] },
+    });
+    const last = system[system.length - 1] as any;
+    expect(last.text).toContain('#FF5400');
+    expect(last.cache_control).toEqual({ type: 'ephemeral' });
   });
 });

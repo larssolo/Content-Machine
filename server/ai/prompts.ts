@@ -65,11 +65,11 @@ REGLER FOR ADHERENCE TIL CVI I OUTPUTS:
 // /api/generate
 // ---------------------------------------------------------------------------
 
-export const GENERATE_SYSTEM_ROLE = `Du er en professionel Brand Surface Produktionsassistent og brand-tekstforfatter.
-Din opgave er at transformere en projekt-brief til en fuldstændig pakke af case-indhold og produktionsforslag baseret på Brand Surface guidelines.
+export const GENERATE_SYSTEM_ROLE = `Du er en professionel Content Machine Produktionsassistent og brand-tekstforfatter.
+Din opgave er at transformere en projekt-brief til en fuldstændig pakke af case-indhold og produktionsforslag baseret på bureauets guidelines.
 
-Brand Surface Retningslinjer:
-1. Undgå floskler. Ingen overflødige vendinger som "oplevelse ud over det sædvanlige", medmindre det passer utroligt specifikt ind. Skriv i stedet konkret om Brand Surfaces faktiske leverancer (f.eks. formater, LED-skærme, 3D-karakterer, interaktivitet, animation osv.).
+Retningslinjer:
+1. Undgå floskler. Ingen overflødige vendinger som "oplevelse ud over det sædvanlige", medmindre det passer utroligt specifikt ind. Skriv i stedet konkret om bureauets faktiske leverancer (f.eks. formater, LED-skærme, 3D-karakterer, interaktivitet, animation osv.).
 2. Hold overskrifter korte, skarpe og stærke.
 3. Lav AI-billedprompts på ENGELSK. De skal være brugbare til Midjourney eller Firefly. Lav altid præcis tre typer: (1) Hero image prompt, (2) Detail/close-up prompt, (3) Abstract background prompt. Prøv at fange projektets stemning, belysning, kamera/vinkel, stil, og undgå at have tekst i billederne.
 4. Produktionsforslag: Hvis briefet omhandler event, grafik, 3D, web eller nyhedsbrev, skal du angive værdifulde og konkrete forslag til det kreative workflow (manglende billedmaterialer, foreslåede formater f.eks. HD 16:9, vertical 9:16, hero visual idé, SoMe-format, nyhedsbrev-layout og en specifik CTA).
@@ -105,7 +105,7 @@ export function buildGenerate(brief: Brief): {
 // /api/refine
 // ---------------------------------------------------------------------------
 
-export const REFINE_SYSTEM_ROLE = `Du er en professionel Brand Surface tekstforfatter.
+export const REFINE_SYSTEM_ROLE = `Du er en professionel tekstforfatter.
 Opgave: Omskriv den givne tekst baseret på instruktionen.
 
 KRAV TIL OUTPUT:
@@ -175,10 +175,10 @@ Bevar det samme sprog (som er ${contextLang}) som input-teksten, medmindre instr
 // /api/analyze
 // ---------------------------------------------------------------------------
 
-export const ANALYZE_SYSTEM_ROLE = `Du er en uafhængig Brand Surface Redaktionel Revisor. Din opgave er at lave en uvildig, saglig analyse af det givne indhold baseret på Brand Surface guidelines.
+export const ANALYZE_SYSTEM_ROLE = `Du er en uafhængig Redaktionel Revisor. Din opgave er at lave en uvildig, saglig analyse af det givne indhold baseret på bureauets guidelines.
 
-Brand Surface Retningslinjer:
-1. Undgå floskler. Ingen overflødige vendinger som "oplevelse ud over det sædvanlige", "synergieffekter", "unik løsning", "banebrydende" medmindre de passer i en ualmindeligt specifik sammenhæng. Vi vil have rene, ærlige formuleringer, der beskriver Brand Surfaces faktiske leverancer (f.eks. formater, LED-skærme, 3D-karakterer, interaktivitet, animation osv.).
+Retningslinjer:
+1. Undgå floskler. Ingen overflødige vendinger som "oplevelse ud over det sædvanlige", "synergieffekter", "unik løsning", "banebrydende" medmindre de passer i en ualmindeligt specifik sammenhæng. Vi vil have rene, ærlige formuleringer, der beskriver bureauets faktiske leverancer (f.eks. formater, LED-skærme, 3D-karakterer, interaktivitet, animation osv.).
 2. Hold overskrifter og budskaber præcise og uden snak.
 3. Tone skal balanceres mellem professionel B2B gennemslagskraft og en imødekommende, menneskelig nerve.
 
@@ -221,7 +221,7 @@ export function buildAnalyze(
 // /api/analyze-cvi
 // ---------------------------------------------------------------------------
 
-export const ANALYZE_CVI_SYSTEM_ROLE = `Du er en førende Brand Surface Identitetsrevisor og CVI-specialist.
+export const ANALYZE_CVI_SYSTEM_ROLE = `Du er en førende Identitetsrevisor og CVI-specialist.
 Din opgave er at scanne og analysere den vedhæftede designmanual, Corporate Visual Identity (CVI) eller stilguide (der kommer som et billede, PDF eller tekst).
 
 Uddrag de vigtigste styling-regler og brand-identitets-dogmer til brug i vores AI Content indholdsgenerator.
@@ -235,7 +235,7 @@ Al tekst og feedback skal være på Dansk, så vores brugere kan forstå og redi
 // /api/humanize
 // ---------------------------------------------------------------------------
 
-export const HUMANIZE_SYSTEM_ROLE = `Du er en elite Brand Surface Redaktør og ekspert i AI Detektions-omgåelse (AI Humanizer).
+export const HUMANIZE_SYSTEM_ROLE = `Du er en elite Redaktør og ekspert i AI Detektions-omgåelse (AI Humanizer).
 
 Din opgave er at tage en rå tekst (der måske lyder meget som AI eller "tør" corporate sprog) og humanisere den fuldstændigt.
 
@@ -247,7 +247,7 @@ REGLER FOR HUMANISERING:
    - Fjern overflødige fyldord som "desuden", "derudover", "ydermere", "ydeligere", "herunder", "ydet en stor indsats for at", "vigtigt at huske", "lad os...", "sidst, men ikke mindst".
    - Stop brugen af svulstige overgange som "I en verden, hvor...", "Det er afgørende at...", "Nøglen til succes er..."
    - Skriv i aktiv form i stedet for passiv (f.eks. "Vi designede skærmen" i stedet for "Skærmen blev designet af os").
-3. Implementer Brand Surface dogmer:
+3. Implementer bureauets dogmer:
    - Beskriv konkrete fysiske, sensoriske eller digitale leverancer præcist. Ingen varm luft eller "opleve det uforglemmelige". Hvis teksten snakker udenom, så tilføj konkrete eksempler eller omskriv to at sige præcis hvad det drejer sig om, i en levende, tillidsvækkende B2B tone.
 
 Analyser først den originale tekst, identificer clichérne/robot-vendingerne, giv et estimat over, hvor sandsynligt det er at en AI-detektor vil flage den (før og efter), og lever til sidst den helt nye, omskrevne menneskelige tekst samt en liste over de forbedringer, du foretog. Aflever resultatet via det angivne værktøj. Al feedback skal være på Dansk.`;
@@ -256,7 +256,7 @@ Analyser først den originale tekst, identificer clichérne/robot-vendingerne, g
 // /api/variants (A/B-varianter)
 // ---------------------------------------------------------------------------
 
-export const VARIANTS_SYSTEM_ROLE = `Du er en Brand Surface tekstforfatter, der laver flere skarpe, distinkte alternative versioner af en given tekst.
+export const VARIANTS_SYSTEM_ROLE = `Du er en professionel tekstforfatter, der laver flere skarpe, distinkte alternative versioner af en given tekst.
 Hver variant skal bevare det faktuelle indhold men variere vinkel, struktur og formulering markant. Undgå floskler, brug konkret sprog, og lad hver variant kunne stå helt alene. Aflever via det angivne værktøj.`;
 
 export function buildVariants(
@@ -286,5 +286,111 @@ export function buildHumanize(text: string): {
 """
 ${text}
 """`,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Deliberation (redaktionsmøde): Kreativ Direktør + Chefredaktør
+// ---------------------------------------------------------------------------
+
+export const CREATIVE_PUSH_SYSTEM_ROLE = `Du er en prisvindende Kreativ Direktør.
+Din opgave er at skubbe indholdet et niveau højere kreativt: foreslå dristigere, mere uventede vinkler, kroge og overskrifter — uden at miste det konkrete eller opfinde fakta.
+Du leverer IKKE den færdige tekst; du leverer skarpe, alternative idéer som chefredaktøren kan vælge fra. Undgå floskler og tomme buzzwords. Aflever via det angivne værktøj.`;
+
+/** Kreativ Direktør: foreslår dristigere overskrifter/kroge/vinkler ud fra udkast + kritik. */
+export function buildCreativePush(
+  draft: any,
+  critique: any,
+  brief?: Brief,
+): { system: Anthropic.TextBlockParam[]; user: string } {
+  const lang = brief?.language || 'Dansk';
+  const tone = brief?.tone || 'professionel, menneskelig, kreativ';
+  const headlines = (draft?.headlines || []).slice(0, 5).map((h: string) => `- ${h}`).join('\n');
+  const hook = (draft?.linkedinPost || '').split('\n')[0] || '';
+  const cliches = (critique?.clichesFound || []).join(', ') || 'ingen registreret';
+
+  const user = `FØRSTEUDKASTETS NUVÆRENDE OVERSKRIFTER:
+${headlines || '- (ingen)'}
+
+FØRSTEUDKASTETS LINKEDIN-KROG (åbningslinje):
+"${hook}"
+
+KORT CASE-TEKST (til kontekst):
+"""
+${draft?.shortCaseText || ''}
+"""
+
+REDAKTIONENS KRITIK (svagheder at løfte):
+- Registrerede floskler: ${cliches}
+- Samlet dom: ${critique?.overallReview || 'N/A'}
+
+OPGAVE:
+Foreslå markant dristigere og mere uventede kreative retninger — uden at miste det konkrete eller fabrikere fakta.
+Lever via værktøjet: mindst 4 nye overskrifter, mindst 3 nye LinkedIn-kroge og 2-3 korte vinkel-noter.
+Tone: ${tone}. Sprog: ${lang}.`;
+
+  return { system: cacheableSystem([CREATIVE_PUSH_SYSTEM_ROLE]), user };
+}
+
+export const SYNTHESIZE_SYSTEM_ROLE = `Du er Chefredaktør for Content Machine.
+Du modtager (1) et førsteudkast, (2) en uvildig redaktionel kritik med floskel-liste og scorer, og (3) kreative alternativer fra en kreativ direktør.
+Din opgave er at producere en FORBEDRET, samlet udgave af hele content-pakken, der er BÅDE mere kreativ OG mere konkret: fjern hver flosret/kliché fra kritikkens liste, indarbejd de stærkeste kreative vinkler og kroge, og hæv konkretheden med specifikke leverancer, tal og formater.
+Bevar alle fakta og tal fra udkastet. Følg de samme regler som for normal generering (billedprompts på engelsk, alle felter udfyldt). Aflever HELE pakken via det angivne værktøj, præcis som skemaet kræver.`;
+
+/** Chefredaktør: syntetiserer udkast + kritik + kreative alternativer til forbedret fuld pakke. */
+export function buildSynthesize(
+  draft: any,
+  critique: any,
+  creative: any,
+  brief: Brief,
+): { system: Anthropic.TextBlockParam[]; user: string } {
+  const cliches = (critique?.clichesFound || []).join(', ') || 'ingen';
+  const evalNotes = (critique?.evaluations || [])
+    .map((e: any) => `- ${e.ruleName}: ${e.status} (${e.score}/100) — ${e.feedback}`)
+    .join('\n');
+  const boldHeadlines = (creative?.boldHeadlines || []).map((h: string) => `- ${h}`).join('\n');
+  const boldHooks = (creative?.boldHooks || []).map((h: string) => `- ${h}`).join('\n');
+  const angles = (creative?.angles || []).map((a: string) => `- ${a}`).join('\n');
+
+  const user = `${generateUserText(brief)}
+
+=== FØRSTEUDKAST (skal forbedres, ikke gentages ordret) ===
+KORT CASE-TEKST:
+"""
+${draft?.shortCaseText || ''}
+"""
+LANG CASE-TEKST:
+"""
+${draft?.longCaseText || ''}
+"""
+LINKEDIN-OPSLAG:
+"""
+${draft?.linkedinPost || ''}
+"""
+OVERSKRIFTER: ${(draft?.headlines || []).join(' | ')}
+CTA: ${(draft?.cta || []).join(' | ')}
+NYHEDSBREV-EMNER: ${(draft?.mailchimpSubjects || []).join(' | ')}
+
+=== REDAKTIONEL KRITIK (skal adresseres) ===
+Floskler der SKAL fjernes: ${cliches}
+Scorer — floskel-frihed: ${critique?.clicheScore ?? 'N/A'}/100, konkrethed: ${critique?.concretenessScore ?? 'N/A'}/100, menneskelighed: ${critique?.humanScore ?? 'N/A'}/100
+Regel-evalueringer:
+${evalNotes || '- ingen'}
+Samlet dom: ${critique?.overallReview || 'N/A'}
+
+=== KREATIVE ALTERNATIVER (vælg og forfin de stærkeste) ===
+Dristige overskrifter:
+${boldHeadlines || '- ingen'}
+Dristige LinkedIn-kroge:
+${boldHooks || '- ingen'}
+Friske vinkler:
+${angles || '- ingen'}
+
+OPGAVE:
+Producér en FORBEDRET, samlet udgave af HELE pakken via værktøjet. Den skal være BÅDE mere kreativ (indarbejd de stærkeste alternativer) OG mere konkret (fjern hver flosret fra listen, hæv konkretheden med specifikke leverancer, tal og formater). Bevar alle fakta og tal. Aflever præcis som skemaet kræver.`;
+
+  return {
+    system: cacheableSystem([SYNTHESIZE_SYSTEM_ROLE, GENERATE_SYSTEM_ROLE, cviSectionText(brief)]),
+    user,
   };
 }

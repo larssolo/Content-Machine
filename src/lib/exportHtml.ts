@@ -24,7 +24,7 @@ function para(text: string): string {
 
 /** Build a self-contained HTML document from a BrandSurfaceOutput. */
 export function buildHtml(output: BrandSurfaceOutput, brief?: ProjectBrief): string {
-  const title = `${brief?.client || 'Brand Surface'} — ${brief?.project || 'Case'}`;
+  const title = `${brief?.client || 'Content Machine'} — ${brief?.project || 'Case'}`;
   const sections: string[] = [];
 
   if (brief?.description) {
@@ -126,7 +126,7 @@ export function buildHtml(output: BrandSurfaceOutput, brief?: ProjectBrief): str
 <div class="wrapper">
 <header>
   <h1>${esc(title)}</h1>
-  <p>Genereret ${date} · Brand Surface Content Machine</p>
+  <p>Genereret ${date} · Content Machine Content Machine</p>
 </header>
 ${sections.join('\n')}
 </div>
