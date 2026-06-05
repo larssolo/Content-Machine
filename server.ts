@@ -185,10 +185,8 @@ async function startServer() {
     res.flushHeaders?.();
     res.write(': connected\n\n'); // åbn streamen straks, så proxyen ikke buffer-venter på første byte
 
-    const ac = new AbortController();
-    req.on('close', () => ac.abort());
-    res.on('close', () => ac.abort()); // stop også hvis svar-forbindelsen lukkes (proxy/klient)
-
+    // Bevidst INGEN abort på forbindelses-luk (samme som /generate-deep): et blip
+    // må ikke dræbe en lovlig kørsel. Kørslen er kort + omkostnings-bundet.
     const heartbeat = setInterval(() => {
       if (!res.writableEnded) res.write(': keep-alive\n\n');
     }, 15000);
