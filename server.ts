@@ -137,6 +137,7 @@ async function startServer() {
     // Afbryd igangværende kald hvis klienten lukker forbindelsen.
     const ac = new AbortController();
     req.on('close', () => ac.abort());
+    res.on('close', () => ac.abort()); // stop også hvis svar-forbindelsen lukkes (proxy/klient)
 
     // Heartbeat-kommentarer holder forbindelsen i live under de lange (55-110s) kald.
     const heartbeat = setInterval(() => {
@@ -189,6 +190,7 @@ async function startServer() {
 
     const ac = new AbortController();
     req.on('close', () => ac.abort());
+    res.on('close', () => ac.abort()); // stop også hvis svar-forbindelsen lukkes (proxy/klient)
 
     const heartbeat = setInterval(() => {
       if (!res.writableEnded) res.write(': keep-alive\n\n');

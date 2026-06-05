@@ -15,4 +15,7 @@ if (!config.anthropicApiKey) {
 // når et rigtigt request rammer Anthropic.
 export const anthropic = new Anthropic({
   apiKey: config.anthropicApiKey ?? 'dummy-key',
+  // Begræns automatiske gentagelser (SDK-default er 2). Undgår at et fejlende,
+  // dyrt kald genkøres og faktureres flere gange.
+  maxRetries: 1,
 });
