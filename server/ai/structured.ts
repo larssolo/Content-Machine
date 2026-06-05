@@ -16,6 +16,8 @@ export interface StructuredOptions {
   tool: Anthropic.Tool;
   model?: string;
   maxTokens?: number;
+  /** Afbryd det igangværende API-kald hvis klienten lukker forbindelsen. */
+  signal?: AbortSignal;
 }
 
 /**
@@ -26,14 +28,26 @@ export interface StructuredOptions {
  * thinking udelades bevidst her.
  */
 export async function generateStructured<T>(opts: StructuredOptions): Promise<T> {
-  const msg = await anthropic.messages.create({
-    model: opts.model ?? config.model,
-    max_tokens: opts.maxTokens ?? config.maxTokens,
-    system: opts.system,
-    tools: [opts.tool],
-    tool_choice: { type: 'tool', name: opts.tool.name },
-    messages: [{ role: 'user', content: opts.userContent }],
-  });
+  const model = opts.model ?? config.model;
+  const maxTokens = opts.maxTokens ?? config.maxTokens;
+  const msg = await anthropic.messages.create(
+    {
+      model,
+      max_tokens: maxTokens,
+      system: opts.system,
+      tools: [opts.tool],
+      tool_choice: { type: 'tool', name: opts.tool.name },
+      messages: [{ role: 'user', content: opts.userContent }],
+    },
+    { signal: opts.signal },
+  );
+
+  // Log forbrug pr. kald, så omkostningen er gennemsigtig i server-loggen.
+  const u = msg.usage as any;
+  console.log(
+    `[claude] ${model} ${opts.tool.name} in=${u?.input_tokens ?? '?'} out=${u?.output_tokens ?? '?'} ` +
+      `cache_read=${u?.cache_read_input_tokens ?? 0} cache_write=${u?.cache_creation_input_tokens ?? 0} stop=${msg.stop_reason}`,
+  );
 
   if (msg.stop_reason === 'max_tokens') {
     throw new Error(

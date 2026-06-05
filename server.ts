@@ -237,6 +237,7 @@ async function startServer() {
         system,
         userContent: [{ type: 'text', text: user }],
         tool: variantsTool,
+        model: config.fastModel,
         maxTokens: 4096,
       });
       res.json({ variants: (parsed.variants || []).slice(0, n) });
@@ -259,6 +260,7 @@ async function startServer() {
         system,
         userContent: [{ type: 'text', text: user }],
         tool: analyzeTool,
+        model: config.fastModel,
         maxTokens: 4096,
       });
 
@@ -282,6 +284,7 @@ async function startServer() {
         system: cacheableSystem([ANALYZE_CVI_SYSTEM_ROLE]),
         userContent,
         tool: analyzeCviTool,
+        model: config.fastModel,
         maxTokens: 4096,
       });
 
@@ -305,6 +308,7 @@ async function startServer() {
         system,
         userContent: [{ type: 'text', text: user }],
         tool: humanizeTool,
+        model: config.fastModel,
         maxTokens: 4096,
       });
 

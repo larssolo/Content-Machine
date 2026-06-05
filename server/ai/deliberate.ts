@@ -119,6 +119,7 @@ export async function runDeliberation(
     tool: generateTool,
     model: config.model,
     maxTokens: config.maxTokens,
+    signal,
   });
 
   // 2. Kritik (Haiku)
@@ -162,6 +163,7 @@ export async function runDeliberation(
         tool: generateTool,
         model: config.model,
         maxTokens: config.maxTokens,
+        signal,
       });
     } catch (err: any) {
       if (/afkortet/i.test(err?.message || '')) {

@@ -4,7 +4,8 @@ AI-drevet content-værktøj, der genererer marketing-indhold (case-tekster, Link
 nyhedsbrev, overskrifter, keywords, CVI-analyse, AI-humanizer og billeder) ud fra en
 projekt-brief.
 
-Tekst og analyse kører på **Anthropic Claude** (standardmodel Opus 4.8), og billeder
+Tekst og analyse kører på **Anthropic Claude** (standardmodel Sonnet 4.6 — sæt
+`ANTHROPIC_MODEL=claude-opus-4-8` for højeste kvalitet), og billeder
 genereres via **Flux 1.1 Pro (fal.ai)**.
 
 ## Stack
