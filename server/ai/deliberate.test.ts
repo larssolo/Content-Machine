@@ -44,15 +44,16 @@ describe('runDeliberation', () => {
     expect(result.critiqueAfter).toBe(strong);
     expect(result.earlyStopped).toBe(false);
 
-    // Model-routing: udkast + syntese = config.model, kritik/kreativ/verificér = Haiku.
+    // Model-routing: udkast=Sonnet, kritik=Haiku, kreativ-push=Sonnet,
+    // syntese=Opus (creativeModel), verificér=Haiku.
     const opts = mocked.mock.calls.map((c) => c[0]);
     expect(opts[0].model).toBe(config.model);
     expect(opts[0].tool.name).toBe('submit_brand_surface_output');
     expect(opts[1].model).toBe(config.fastModel);
     expect(opts[1].tool.name).toBe('submit_tone_analysis');
-    expect(opts[2].model).toBe(config.fastModel);
+    expect(opts[2].model).toBe(config.model);
     expect(opts[2].tool.name).toBe('submit_creative_directions');
-    expect(opts[3].model).toBe(config.model);
+    expect(opts[3].model).toBe(config.creativeModel);
     expect(opts[3].tool.name).toBe('submit_brand_surface_output');
     expect(opts[4].model).toBe(config.fastModel);
   });

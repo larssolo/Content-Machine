@@ -147,7 +147,7 @@ export async function runDeliberation(
       system: cp.system,
       userContent: [{ type: 'text', text: cp.user }],
       tool: creativeTool,
-      model: config.fastModel,
+      model: config.model,
       maxTokens: 4096,
     });
 
@@ -161,7 +161,7 @@ export async function runDeliberation(
         system: syn.system,
         userContent: [{ type: 'text', text: syn.user }],
         tool: generateTool,
-        model: config.model,
+        model: config.creativeModel,
         maxTokens: config.maxTokens,
         signal,
       });
