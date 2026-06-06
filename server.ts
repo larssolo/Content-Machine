@@ -18,6 +18,7 @@ import {
   buildVariants,
   buildRegenerate,
   buildBrainstorm,
+  buildLogoPrompt,
   ANALYZE_CVI_SYSTEM_ROLE,
   cacheableSystem,
 } from './server/ai/prompts';
@@ -28,6 +29,7 @@ import {
   humanizeTool,
   variantsTool,
   brainstormTool,
+  logoPromptTool,
 } from './server/ai/schemas';
 import { runDeliberation } from './server/ai/deliberate';
 import { runVisualDeliberation } from './server/ai/deliberateVisual';
@@ -388,6 +390,31 @@ async function startServer() {
         res.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
         res.end();
       }
+    }
+  });
+
+  // Optimér/oversæt en logo-prompt til Recraft text-to-vector via AI
+  app.post('/api/logo-prompt', async (req, res) => {
+    try {
+      const { brief, currentPrompt, mode } = req.body;
+      const safeMode = mode === 'refine' ? 'refine' : 'translate';
+      if (safeMode === 'refine' && !currentPrompt?.trim()) {
+        return res.status(400).json({ error: 'En eksisterende prompt er påkrævet for forfining.' });
+      }
+
+      const { system, user } = buildLogoPrompt(brief || {}, currentPrompt || '', safeMode);
+      const parsed = await generateStructured<{ prompt: string }>({
+        system,
+        userContent: [{ type: 'text', text: user }],
+        tool: logoPromptTool,
+        model: config.fastModel,
+        maxTokens: 1024,
+      });
+
+      res.json({ prompt: (parsed.prompt || '').trim() });
+    } catch (error: any) {
+      console.error('Fejl under logo-prompt optimering:', error);
+      res.status(500).json({ error: error.message || 'Kunne ikke optimere logo-prompten.' });
     }
   });
 

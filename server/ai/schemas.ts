@@ -467,6 +467,24 @@ export const humanizeTool: Anthropic.Tool = {
   },
 };
 
+// --- /api/logo-prompt --------------------------------------------------------
+
+export const logoPromptTool: Anthropic.Tool = {
+  name: 'submit_logo_prompt',
+  description: 'Aflever den optimerede Recraft text-to-vector logo-prompt som struktureret data.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      prompt: {
+        type: 'string',
+        description:
+          'Den færdige, optimerede logo-prompt på ENGELSK, klar til Recraft V4 text-to-vector. Konkret om form, symbol, stil og komposition. INGEN tekst/bogstaver i selve logoet.',
+      },
+    },
+    required: ['prompt'],
+  },
+};
+
 // --- /api/brainstorm ---------------------------------------------------------
 
 export const brainstormTool: Anthropic.Tool = {

@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Check, Copy, Download, Loader2, RefreshCw, Sparkles, X } from 'lucide-react';
+import { Check, Copy, Download, Languages, Loader2, RefreshCw, Sparkles, Wand2, X } from 'lucide-react';
 import { ProjectBrief, LogoResult } from '../types';
 
 type RecraftStyle = '' | 'vector_illustration' | 'vector_illustration/flat_design' | 'vector_illustration/bold' | 'vector_illustration/minimalistic';
@@ -51,6 +51,8 @@ interface LogoPanelProps {
   logoResult: LogoResult | null;
   isGeneratingLogo: boolean;
   handleGenerateLogo: (prompt: string, style: string, colors: Array<{ r: number; g: number; b: number }>) => void;
+  isOptimizingLogoPrompt: boolean;
+  handleOptimizeLogoPrompt: (currentPrompt: string, mode: 'translate' | 'refine') => Promise<string | null>;
   onClearResult: () => void;
   copiedKey: string | null;
   onCopy: (text: string, key: string) => void;
@@ -61,6 +63,8 @@ export function LogoPanel({
   logoResult,
   isGeneratingLogo,
   handleGenerateLogo,
+  isOptimizingLogoPrompt,
+  handleOptimizeLogoPrompt,
   onClearResult,
   copiedKey,
   onCopy,
@@ -95,6 +99,11 @@ export function LogoPanel({
   const onGenerate = () => {
     const colors = [...selectedColors].map(hexToRgb);
     handleGenerateLogo(prompt, style, colors);
+  };
+
+  const onOptimize = async (mode: 'translate' | 'refine') => {
+    const result = await handleOptimizeLogoPrompt(prompt, mode);
+    if (result) setPrompt(result);
   };
 
   return (
@@ -137,6 +146,38 @@ export function LogoPanel({
           placeholder="f.eks. Minimalistisk logo for TechCorp. Rent, geometrisk symbol. Ingen tekst."
           className="w-full bg-slate-900 border border-slate-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500/50 rounded-lg p-3 text-xs text-white placeholder:text-slate-600 leading-relaxed transition-all font-sans resize-y"
         />
+        {/* AI PROMPT-VÆRKTØJER */}
+        <div className="flex flex-wrap gap-2 pt-0.5">
+          <button
+            type="button"
+            onClick={() => onOptimize('translate')}
+            disabled={isOptimizingLogoPrompt || isGeneratingLogo}
+            title="Oversæt og omdan dit input til en Recraft-optimeret engelsk vektor-prompt baseret på briefet"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:border-violet-500/40 hover:bg-violet-500/5 text-[11px] font-mono text-slate-300 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isOptimizingLogoPrompt ? (
+              <Loader2 className="w-3 h-3 animate-spin shrink-0" />
+            ) : (
+              <Languages className="w-3 h-3 text-violet-400 shrink-0" />
+            )}
+            <span>Oversæt til Recraft</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onOptimize('refine')}
+            disabled={isOptimizingLogoPrompt || isGeneratingLogo || !prompt.trim()}
+            title="Forfin og skærp den nuværende prompt gennem AI"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:border-violet-500/40 hover:bg-violet-500/5 text-[11px] font-mono text-slate-300 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isOptimizingLogoPrompt ? (
+              <Loader2 className="w-3 h-3 animate-spin shrink-0" />
+            ) : (
+              <Wand2 className="w-3 h-3 text-violet-400 shrink-0" />
+            )}
+            <span>Forfin gennem AI</span>
+          </button>
+        </div>
+
         <p className="text-[10px] text-slate-600 font-mono leading-relaxed">
           Tips: beskriv formen, symbolikken og stemningen. Undgå at bede om tekst i logoet. Engelsk prompt giver typisk bedre resultater.
         </p>

@@ -336,6 +336,60 @@ Skriv nu en frisk ${label}:`;
 }
 
 // ---------------------------------------------------------------------------
+// /api/logo-prompt — optimér/oversæt logo-prompt til Recraft text-to-vector
+// ---------------------------------------------------------------------------
+
+export const LOGO_PROMPT_SYSTEM_ROLE = `Du er ekspert i at skrive prompts til AI vektor-logo-generatoren Recraft V4 (text-to-vector).
+
+Du producerer ÉN færdig logo-prompt på ENGELSK, optimeret til at generere et skarpt, skalerbart SVG-vektorlogo.
+
+REGLER FOR EN GOD RECRAFT LOGO-PROMPT:
+1. Skriv på engelsk — Recraft fungerer markant bedre på engelsk.
+2. Vær konkret om: hovedsymbol/motiv, geometrisk form, komposition og stiludtryk.
+3. Beskriv et ENKELT, rent ikon/symbol — ikke en scene eller et fotografi.
+4. Bed ALDRIG om tekst, bogstaver, ord eller typografi i logoet (vektor-loget skal være et rent grafisk mærke).
+5. Brug vektorvenlige termer: "flat vector logo", "minimal geometric icon", "clean lines", "scalable", "solid shapes", "negative space".
+6. Undgå floskler, fotorealisme, gradients-tunge beskrivelser og overflødige ord.
+7. Hold den fokuseret — typisk 1-3 sætninger. Ingen forklaringer rundt om.
+
+Aflever KUN den færdige prompt via det angivne værktøj.`;
+
+export function buildLogoPrompt(
+  brief: Brief,
+  currentPrompt: string,
+  mode: 'translate' | 'refine',
+): { system: Anthropic.TextBlockParam[]; user: string } {
+  const colors = (brief.cviManual?.brandColors || []).join(', ');
+  const cviLine = colors ? `\n- Brand-farver (CVI): ${colors}` : '';
+  const styleLine = brief.cviManual?.imageStyleGuidelines
+    ? `\n- Visuel stil (CVI): ${brief.cviManual.imageStyleGuidelines}`
+    : '';
+
+  const task =
+    mode === 'translate'
+      ? `Konvertér nedenstående input til én optimeret, engelsk Recraft logo-prompt. Inddrag relevant kontekst fra briefet, så logoet matcher kunden og projektet.`
+      : `Forfin og skærp nedenstående eksisterende logo-prompt: gør den mere konkret, vektorvenlig og fokuseret — bevar den oprindelige idé og retning, men løft kvaliteten.`;
+
+  const user = `PROJEKT KONTEKST:
+- Kunde: ${brief.client || 'N/A'}
+- Projekt: ${brief.project || 'N/A'}
+- Hvad handler det om: ${brief.description || 'N/A'}
+- Branche/målgruppe: ${brief.audience || 'N/A'}
+- Tone/stemning: ${brief.tone || 'N/A'}${cviLine}${styleLine}
+
+INPUT (${mode === 'translate' ? 'rå beskrivelse der skal oversættes' : 'eksisterende prompt der skal forfines'}):
+"""
+${currentPrompt || '(tom — byg en passende logo-prompt ud fra konteksten ovenfor)'}
+"""
+
+OPGAVE:
+${task}
+Aflever den færdige engelske logo-prompt via værktøjet.`;
+
+  return { system: cacheableSystem([LOGO_PROMPT_SYSTEM_ROLE]), user };
+}
+
+// ---------------------------------------------------------------------------
 // /api/brainstorm — kreativ idé-eksplosion før produktionsstart
 // ---------------------------------------------------------------------------
 

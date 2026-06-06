@@ -118,6 +118,7 @@ export function useContentMachine() {
 
   const [logoResult, setLogoResult] = useState<LogoResult | null>(null);
   const [isGeneratingLogo, setIsGeneratingLogo] = useState<boolean>(false);
+  const [isOptimizingLogoPrompt, setIsOptimizingLogoPrompt] = useState<boolean>(false);
 
   const [cviFileName, setCviFileName] = useState<string | null>(null);
   const [isAnalyzingCvi, setIsAnalyzingCvi] = useState<boolean>(false);
@@ -898,6 +899,37 @@ export function useContentMachine() {
     }
   };
 
+  const handleOptimizeLogoPrompt = async (
+    currentPrompt: string,
+    mode: 'translate' | 'refine',
+  ): Promise<string | null> => {
+    if (mode === 'refine' && !currentPrompt.trim()) {
+      setErrorMsg("Skriv en prompt først, før den kan forfines.");
+      return null;
+    }
+    setIsOptimizingLogoPrompt(true);
+    setErrorMsg(null);
+    try {
+      const response = await fetch('/api/logo-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brief, currentPrompt, mode })
+      });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(httpErrorMessage(response.status, errData.error));
+      }
+      const data = await response.json();
+      return (data.prompt as string) || null;
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Kunne ikke optimere logo-prompten.');
+      return null;
+    } finally {
+      setIsOptimizingLogoPrompt(false);
+    }
+  };
+
   const handleRefine = async (command: string, targetKey: string) => {
     if (!output) return;
 
@@ -1152,6 +1184,8 @@ export function useContentMachine() {
     logoResult, setLogoResult,
     isGeneratingLogo,
     handleGenerateLogo,
+    isOptimizingLogoPrompt,
+    handleOptimizeLogoPrompt,
     // CVI
     cviFileName,
     // Print
