@@ -338,6 +338,83 @@ Skriv nu en frisk ${label}:`;
 }
 
 // ---------------------------------------------------------------------------
+// /api/strategy — Strategi-fundament: indsigt der fodrer Den Store Idé
+// ---------------------------------------------------------------------------
+
+export const STRATEGY_SYSTEM_ROLE = `Du er Chefstrateg (Head of Strategy) i et prisvindende reklamebureau.
+
+Din opgave er at destillere et projekt-brief til ÉT skarpt strategisk fundament — den indsigt og retning som en stor kreativ idé kan stå på. Du leverer IKKE kreative idéer eller copy; du leverer det strategiske grundlag, der gør idéerne uundgåelige.
+
+Et stærkt strategisk fundament:
+1. Bygger på en reel menneskelig indsigt om målgruppen — ikke en demografisk beskrivelse, men hvad de faktisk tænker, føler og kæmper med.
+2. Navngiver den centrale spænding eller barriere, kampagnen skal løse.
+3. Forstår kategorien: hvordan konkurrenterne taler, og hvilket ledigt territorium dette brand kan eje.
+4. Koger budskabet ned til ÉT enkelt-mindet løfte (single-minded proposition) — det ene, vi vil have målgruppen til at tage med sig.
+5. Underbygger løftet med konkrete reasons-to-believe forankret i de faktiske leverancer.
+6. Peger på 2-3 strategiske afsæt (springboards), som en kreativ idé-motor kan springe fra.
+
+Vær skarp og konkret. Ingen floskler, ingen tom marketing-luft. Aflever hele fundamentet via det angivne værktøj, præcist som skemaet kræver.`;
+
+export function buildStrategy(brief: Brief): {
+  system: Anthropic.TextBlockParam[];
+  user: string;
+} {
+  const system = cacheableSystem([STRATEGY_SYSTEM_ROLE, cviSectionText(brief)]);
+  const user = `PROJEKT BRIEF:
+- Kunde: ${brief.client || 'N/A'}
+- Projekt: ${brief.project || 'N/A'}
+- Hvad lavede vi (Beskrivelse): ${brief.description || 'N/A'}
+- Særlige detaljer: ${brief.details || 'N/A'}
+- Målgruppe: ${brief.audience || 'N/A'}
+- Tone: ${brief.tone || 'Professionel, menneskelig, kreativ'}
+- Sprog: ${brief.language || 'Dansk'}
+- Kanaler: ${(brief.channels || []).join(', ') || 'N/A'}
+- Ekstra noter: ${brief.notes || 'N/A'}
+
+Udvikl nu det strategiske fundament for dette projekt: målgruppe-indsigt, central spænding, konkurrence-kontekst, det enkelt-mindede løfte, reasons-to-believe, ønsket respons og 2-3 strategiske afsæt. Aflever via værktøjet. Skriv på ${brief.language || 'Dansk'}.`;
+
+  return { system, user };
+}
+
+/** Et strategisk afsæt (springboard) — delmængde af StrategyFoundation. */
+export type StrategySpringboard = { title?: string; insight?: string };
+
+/** Det strategiske fundament der kan fodre Den Store Idé-motor. */
+export type StrategyFoundation = {
+  audienceTruth?: string;
+  tension?: string;
+  competitiveContext?: string;
+  singleMindedProposition?: string;
+  reasonsToBelieve?: string[];
+  desiredResponse?: string;
+  springboards?: StrategySpringboard[];
+  strategicSummary?: string;
+};
+
+/**
+ * Render et strategisk fundament som en kompakt kontekst-blok, der kan injiceres i
+ * Den Store Idé-motor, så de kreative ruter står på reel strategi frem for det blå.
+ */
+export function strategyContextText(strategy: StrategyFoundation): string {
+  if (!strategy || (!strategy.singleMindedProposition && !strategy.audienceTruth)) return '';
+  const rtb = (Array.isArray(strategy.reasonsToBelieve) ? strategy.reasonsToBelieve : []).join('; ');
+  const springs = (Array.isArray(strategy.springboards) ? strategy.springboards : [])
+    .map((s) => `${s?.title || 'Afsæt'} — ${s?.insight || ''}`)
+    .join(' | ');
+  return `STRATEGISK FUNDAMENT (idéerne SKAL stå på denne indsigt):
+- Målgruppe-indsigt: ${strategy.audienceTruth || 'N/A'}
+- Central spænding: ${strategy.tension || 'N/A'}
+- Konkurrence-kontekst: ${strategy.competitiveContext || 'N/A'}
+- Single-minded proposition: ${strategy.singleMindedProposition || 'N/A'}
+- Reasons to believe: ${rtb || 'N/A'}
+- Ønsket respons: ${strategy.desiredResponse || 'N/A'}
+- Strategiske afsæt: ${springs || 'N/A'}
+${strategy.strategicSummary ? `- Sammenfatning: ${strategy.strategicSummary}` : ''}
+
+Brug dette fundament som afsæt: hver kreativ rute skal forløse spændingen og bære det enkelt-mindede løfte.`;
+}
+
+// ---------------------------------------------------------------------------
 // /api/big-idea — Den Store Idé: konkurrerende kampagne-platforme
 // ---------------------------------------------------------------------------
 
@@ -358,11 +435,12 @@ Krav til de tre ruter:
 
 Aflever alle tre ruter via det angivne værktøj, præcist som skemaet kræver.`;
 
-export function buildBigIdea(brief: Brief): {
+export function buildBigIdea(brief: Brief, strategy?: StrategyFoundation | null): {
   system: Anthropic.TextBlockParam[];
   user: string;
 } {
   const system = cacheableSystem([BIG_IDEA_SYSTEM_ROLE, cviSectionText(brief)]);
+  const foundation = strategy ? strategyContextText(strategy) : '';
   const user = `PROJEKT BRIEF:
 - Kunde: ${brief.client || 'N/A'}
 - Projekt: ${brief.project || 'N/A'}
@@ -373,7 +451,7 @@ export function buildBigIdea(brief: Brief): {
 - Sprog: ${brief.language || 'Dansk'}
 - Kanaler: ${(brief.channels || []).join(', ') || 'N/A'}
 - Ekstra noter: ${brief.notes || 'N/A'}
-
+${foundation ? `\n${foundation}\n` : ''}
 Udvikl nu TRE konkurrerende kreative ruter (kampagne-platforme) for dette projekt. Aflever via værktøjet. Skriv på ${brief.language || 'Dansk'} (kanal-navne må gerne være på engelsk hvis det er mest naturligt).`;
 
   return { system, user };
@@ -387,6 +465,7 @@ export type ChosenIdea = {
   manifesto?: string;
   strategicRoot?: string;
   toneDescriptor?: string;
+  channelExpressions?: Array<{ channel?: string; idea?: string }>;
 };
 
 /**
@@ -404,6 +483,61 @@ export function campaignContextText(idea: ChosenIdea): string {
 ${idea.manifesto ? `- Manifest: ${idea.manifesto}` : ''}
 
 Alt indhold (case-tekster, LinkedIn, nyhedsbrev, overskrifter, CTA m.m.) skal være en tydelig forlængelse af denne store idé og tagline — samme verden, samme tone, samme løfte.`;
+}
+
+// ---------------------------------------------------------------------------
+// /api/channel-matrix — Omni-channel: skalér den valgte idé til alle kanaler
+// ---------------------------------------------------------------------------
+
+export const CHANNEL_MATRIX_SYSTEM_ROLE = `Du er Omni-channel Creative Director og integreret producer i et reklamebureau i verdensklasse.
+
+Du modtager ÉN valgt kampagne-platform (en stor idé med tagline, manifest og kanal-frø). Din opgave er at skalere den til en komplet omni-channel matrix: en færdig, produktionsklar eksekvering for hver kanal — samme store idé, men eksekveret native til hver kanals styrker.
+
+Principper:
+1. Trofast mod idéen: hver eksekvering skal umiskendeligt være SAMME kampagne — samme verden, tone, løfte og tagline. Ingen kanal må drive sin egen vej.
+2. Native eksekvering: et filmmanus skal være et rigtigt manus (scener, voiceover, super, lyd); et radiospot skal have SFX, VO og timing; OOH skal være ÉN knivskarp visuel idé med få ord; social skal have krog, caption, hashtags og format; aktivering skal beskrive den fysiske/digitale oplevelse trin for trin; PR skal have en nyhedsvinkel og en pitch.
+3. Konkret og produktionsklar: angiv varighed, format/ratio, antal scener, talent, lyd/musik og en tydelig CTA. Ingen floskler, ingen tom marketing-luft.
+4. script-feltet er en sekvens af navngivne blokke (label + indhold). Brug labels der passer kanalen (fx "Scene 1", "VO", "Super", "SFX", "Caption", "Hashtags", "Headline", "Subline", "Oplevelse", "Pitch", "CTA").
+
+Udvikl en eksekvering for hver kanal i platformens kanal-frø (og briefets kanaler). Aflever hele matrixen via det angivne værktøj, præcist som skemaet kræver.`;
+
+/** Render den valgte rutes kanal-frø som seed-liste til omni-channel-skaleringen. */
+function channelSeedsText(idea: ChosenIdea): string {
+  const seeds = (Array.isArray(idea?.channelExpressions) ? idea.channelExpressions : [])
+    .map((c) => `- ${c?.channel || 'Kanal'}: ${c?.idea || ''}`)
+    .join('\n');
+  return seeds ? `KANAL-FRØ FRA DEN VALGTE RUTE (skal foldes ud til fulde eksekveringer):\n${seeds}` : '';
+}
+
+/**
+ * Skalér den valgte kampagne-platform til en produktionsklar omni-channel matrix.
+ * Trådes med både den store idé (kohærens) og det strategiske fundament (forankring).
+ */
+export function buildChannelMatrix(
+  brief: Brief,
+  chosenIdea: ChosenIdea,
+  strategy?: StrategyFoundation | null,
+): { system: Anthropic.TextBlockParam[]; user: string } {
+  const system = cacheableSystem([CHANNEL_MATRIX_SYSTEM_ROLE, cviSectionText(brief)]);
+  const platform = campaignContextText(chosenIdea);
+  const seeds = channelSeedsText(chosenIdea);
+  const foundation = strategy ? strategyContextText(strategy) : '';
+
+  const user = `PROJEKT BRIEF:
+- Kunde: ${brief.client || 'N/A'}
+- Projekt: ${brief.project || 'N/A'}
+- Hvad lavede vi (Beskrivelse): ${brief.description || 'N/A'}
+- Særlige detaljer: ${brief.details || 'N/A'}
+- Målgruppe: ${brief.audience || 'N/A'}
+- Tone: ${brief.tone || 'Professionel, menneskelig, kreativ'}
+- Sprog: ${brief.language || 'Dansk'}
+- Briefets kanaler: ${(brief.channels || []).join(', ') || 'N/A'}
+
+${platform || 'INGEN valgt platform — vælg en kreativ rute først.'}
+${seeds ? `\n${seeds}\n` : ''}${foundation ? `\n${foundation}\n` : ''}
+Skalér nu den valgte store idé til en komplet omni-channel matrix — én produktionsklar eksekvering pr. kanal (fold kanal-frøene ud, og dæk briefets kanaler). Aflever via værktøjet. Skriv på ${brief.language || 'Dansk'} (kanal-/format-navne må gerne være engelske hvor det er mest naturligt).`;
+
+  return { system, user };
 }
 
 // ---------------------------------------------------------------------------

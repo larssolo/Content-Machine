@@ -6,7 +6,9 @@ import {
   humanizeTool,
   variantsTool,
   creativeTool,
+  strategyTool,
   campaignPlatformTool,
+  channelMatrixTool,
   visualConceptTool,
   visualCritiqueTool,
   visualDirectionsTool,
@@ -98,6 +100,29 @@ describe('creativeTool', () => {
   });
 });
 
+describe('strategyTool', () => {
+  it('is named submit_strategy_foundation and requires the eight fields', () => {
+    expect(strategyTool.name).toBe('submit_strategy_foundation');
+    expect((strategyTool.input_schema as any).required).toEqual([
+      'audienceTruth',
+      'tension',
+      'competitiveContext',
+      'singleMindedProposition',
+      'reasonsToBelieve',
+      'desiredResponse',
+      'springboards',
+      'strategicSummary',
+    ]);
+  });
+
+  it('types reasonsToBelieve as a string array and springboards as title+insight objects', () => {
+    const props = (strategyTool.input_schema as any).properties;
+    expect(props.reasonsToBelieve.type).toBe('array');
+    expect(props.reasonsToBelieve.items.type).toBe('string');
+    expect(props.springboards.items.required).toEqual(['title', 'insight']);
+  });
+});
+
 describe('campaignPlatformTool', () => {
   it('is named submit_campaign_platform and requires territories', () => {
     expect(campaignPlatformTool.name).toBe('submit_campaign_platform');
@@ -117,6 +142,31 @@ describe('campaignPlatformTool', () => {
       'rationale',
     ]);
     expect(items.properties.channelExpressions.items.required).toEqual(['channel', 'idea']);
+  });
+});
+
+describe('channelMatrixTool', () => {
+  it('is named submit_channel_matrix and requires channels', () => {
+    expect(channelMatrixTool.name).toBe('submit_channel_matrix');
+    expect((channelMatrixTool.input_schema as any).required).toEqual(['channels']);
+  });
+
+  it('each channel asset requires the seven production fields', () => {
+    const items = (channelMatrixTool.input_schema as any).properties.channels.items;
+    expect(items.required).toEqual([
+      'channel',
+      'format',
+      'headline',
+      'keyMessage',
+      'script',
+      'productionNotes',
+      'cta',
+    ]);
+  });
+
+  it('script blocks require label + content', () => {
+    const items = (channelMatrixTool.input_schema as any).properties.channels.items;
+    expect(items.properties.script.items.required).toEqual(['label', 'content']);
   });
 });
 

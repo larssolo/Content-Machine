@@ -51,6 +51,8 @@ import { Toolbar } from './components/Toolbar';
 import { UsageBadge } from './components/UsageBadge';
 import { BrainstormPanel } from './components/BrainstormPanel';
 import { CampaignPanel } from './components/CampaignPanel';
+import { StrategyPanel } from './components/StrategyPanel';
+import { ChannelMatrixPanel } from './components/ChannelMatrixPanel';
 import { LogoPanel } from './components/LogoPanel';
 import { useContentMachine, PRESETS } from './hooks/useContentMachine';
 
@@ -85,9 +87,13 @@ export default function App() {
     regeneratingKey, handleRegenerateSection,
     brainstormResult, setBrainstormResult,
     isBrainstorming, handleBrainstorm,
+    strategy,
+    isGeneratingStrategy, handleGenerateStrategy, handleClearStrategy,
     campaignPlatform, setCampaignPlatform,
     isGeneratingCampaign, handleGenerateBigIdea,
     selectedTerritory, handleSelectTerritory, handleClearTerritory,
+    channelMatrix,
+    isGeneratingMatrix, handleGenerateChannelMatrix, handleClearChannelMatrix,
     logoResult, setLogoResult,
     isGeneratingLogo, handleGenerateLogo,
     isOptimizingLogoPrompt, handleOptimizeLogoPrompt,
@@ -166,9 +172,14 @@ export default function App() {
            handleVisualDevelop={handleVisualDevelop}
            handleBrainstorm={handleBrainstorm}
            isBrainstorming={isBrainstorming}
+           handleGenerateStrategy={handleGenerateStrategy}
+           isGeneratingStrategy={isGeneratingStrategy}
+           hasStrategy={!!strategy}
            handleGenerateBigIdea={handleGenerateBigIdea}
            isGeneratingCampaign={isGeneratingCampaign}
            hasSelectedTerritory={!!selectedTerritory}
+           handleGenerateChannelMatrix={handleGenerateChannelMatrix}
+           isGeneratingMatrix={isGeneratingMatrix}
            errorMsg={errorMsg}
            generationStep={generationStep}
          />
@@ -188,6 +199,18 @@ export default function App() {
            />
 
 
+          {/* STRATEGY FOUNDATION PANEL (Strategi-fundament) */}
+          {strategy && (
+            <StrategyPanel
+              strategy={strategy}
+              onClose={handleClearStrategy}
+              onGenerateBigIdea={handleGenerateBigIdea}
+              isGeneratingCampaign={isGeneratingCampaign}
+              copiedKey={copiedKey}
+              onCopy={handleCopyToClipboard}
+            />
+          )}
+
           {/* CAMPAIGN PLATFORM PANEL (Den Store Idé) */}
           {campaignPlatform && (
             <CampaignPanel
@@ -196,6 +219,18 @@ export default function App() {
               onSelectTerritory={handleSelectTerritory}
               onClearTerritory={handleClearTerritory}
               onClose={() => setCampaignPlatform(null)}
+              copiedKey={copiedKey}
+              onCopy={handleCopyToClipboard}
+            />
+          )}
+
+          {/* OMNI-CHANNEL MATRIX PANEL (Fase 3) */}
+          {channelMatrix && (
+            <ChannelMatrixPanel
+              matrix={channelMatrix}
+              onClose={handleClearChannelMatrix}
+              onRegenerate={handleGenerateChannelMatrix}
+              isGenerating={isGeneratingMatrix}
               copiedKey={copiedKey}
               onCopy={handleCopyToClipboard}
             />
@@ -732,7 +767,7 @@ export default function App() {
             <span>
               Content Machine by{' '}
               <a href="https://www.larssohl.dk" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 transition-colors">larssohl.dk</a>
-              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.9.0
+              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.11.0
             </span>
             <div className="flex items-center space-x-4">
               {lastUsage && <UsageBadge usage={lastUsage} />}

@@ -6,7 +6,7 @@
 import { Dispatch, SetStateAction, ChangeEvent } from 'react';
 import {
   AlertTriangle, Check, ChevronRight, Compass, FileText, Fingerprint,
-  Lightbulb, Loader2, Palette, Pin, Rocket, RotateCcw, Sparkles, Trash2, UploadCloud, Users,
+  Layers, Lightbulb, Loader2, Palette, Pin, Rocket, RotateCcw, Sparkles, Trash2, UploadCloud, Users,
 } from 'lucide-react';
 import { ProjectBrief, BrandSurfaceOutput, PresetBrief } from '../types';
 
@@ -34,9 +34,14 @@ interface BriefFormProps {
   handleVisualDevelop: () => void;
   handleBrainstorm: () => void;
   isBrainstorming: boolean;
+  handleGenerateStrategy: () => void;
+  isGeneratingStrategy: boolean;
+  hasStrategy: boolean;
   handleGenerateBigIdea: () => void;
   isGeneratingCampaign: boolean;
   hasSelectedTerritory: boolean;
+  handleGenerateChannelMatrix: () => void;
+  isGeneratingMatrix: boolean;
   errorMsg: string | null;
   generationStep: string;
 }
@@ -49,7 +54,9 @@ export function BriefForm({
   handleCviUpload, handleRemoveCvi, handlePinCurrentBrief,
   handleClearPresets, handleRestorePresets,
   handleGenerateAll, handleVisualDevelop, handleBrainstorm, isBrainstorming,
+  handleGenerateStrategy, isGeneratingStrategy, hasStrategy,
   handleGenerateBigIdea, isGeneratingCampaign, hasSelectedTerritory,
+  handleGenerateChannelMatrix, isGeneratingMatrix,
   errorMsg, generationStep,
 }: BriefFormProps) {
   return (
@@ -432,13 +439,36 @@ export function BriefForm({
               </span>
             </button>
 
+            {/* STRATEGY FOUNDATION BUTTON (Strategi-fundament) */}
+            <button
+              type="button"
+              onClick={handleGenerateStrategy}
+              disabled={isGenerating || isGeneratingStrategy}
+              className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-sky-600/15 to-cyan-600/10 border border-sky-500/40 hover:border-sky-400/60 hover:from-sky-600/25 text-sky-100 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              title="Destillér briefet til et strategisk fundament (indsigt, spænding, løfte) — fundamentet fodrer Den Store Idé"
+            >
+              {isGeneratingStrategy ? (
+                <>
+                  <Loader2 className="w-4 h-4 text-sky-300 animate-spin shrink-0" />
+                  <span>Bygger strategi-fundament...</span>
+                </>
+              ) : (
+                <>
+                  <Compass className="w-4 h-4 text-sky-300 shrink-0" />
+                  <span>Byg Strategi-fundament</span>
+                </>
+              )}
+            </button>
+
             {/* BIG IDEA BUTTON (Den Store Idé) */}
             <button
               type="button"
               onClick={handleGenerateBigIdea}
               disabled={isGenerating || isGeneratingCampaign}
               className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-violet-600/15 to-brand-orange-600/10 border border-violet-500/40 hover:border-violet-400/60 hover:from-violet-600/25 text-violet-100 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-              title="Udvikl tre konkurrerende kampagne-platforme (kreative ruter) — vælg én, og alt indhold bygger på den"
+              title={hasStrategy
+                ? 'Udvikl tre kampagne-platforme oven på det strategiske fundament — vælg én, og alt indhold bygger på den'
+                : 'Udvikl tre konkurrerende kampagne-platforme (kreative ruter) — vælg én, og alt indhold bygger på den'}
             >
               {isGeneratingCampaign ? (
                 <>
@@ -452,6 +482,14 @@ export function BriefForm({
                 </>
               )}
             </button>
+
+            {/* ACTIVE STRATEGY INDICATOR */}
+            {hasStrategy && (
+              <div className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-sky-500/10 border border-sky-500/25 text-[11px] font-mono text-sky-200">
+                <Compass className="w-3 h-3 text-sky-300 shrink-0" />
+                <span>Den Store Idé bygger på dit strategi-fundament</span>
+              </div>
+            )}
 
             {/* BRAINSTORM BUTTON */}
             <button
@@ -474,11 +512,32 @@ export function BriefForm({
               )}
             </button>
 
-            {/* ACTIVE CAMPAIGN PLATFORM INDICATOR */}
+            {/* ACTIVE CAMPAIGN PLATFORM INDICATOR + OMNI-CHANNEL SCALING */}
             {hasSelectedTerritory && (
-              <div className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/25 text-[11px] font-mono text-violet-200">
-                <Rocket className="w-3 h-3 text-violet-300 shrink-0" />
-                <span>Genererer på den valgte kampagne-platform</span>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/25 text-[11px] font-mono text-violet-200">
+                  <Rocket className="w-3 h-3 text-violet-300 shrink-0" />
+                  <span>Genererer på den valgte kampagne-platform</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleGenerateChannelMatrix}
+                  disabled={isGenerating || isGeneratingMatrix}
+                  className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-emerald-600/15 to-teal-600/10 border border-emerald-500/40 hover:border-emerald-400/60 hover:from-emerald-600/25 text-emerald-100 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                  title="Skalér den valgte store idé til en produktionsklar eksekvering pr. kanal (film, OOH, radio, social, aktivering, PR)"
+                >
+                  {isGeneratingMatrix ? (
+                    <>
+                      <Loader2 className="w-4 h-4 text-emerald-300 animate-spin shrink-0" />
+                      <span>Skalerer til alle kanaler...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Layers className="w-4 h-4 text-emerald-300 shrink-0" />
+                      <span>Skalér til omni-channel matrix</span>
+                    </>
+                  )}
+                </button>
               </div>
             )}
 

@@ -18,7 +18,9 @@ import {
   buildVariants,
   buildRegenerate,
   buildBrainstorm,
+  buildStrategy,
   buildBigIdea,
+  buildChannelMatrix,
   buildLogoPrompt,
   ANALYZE_CVI_SYSTEM_ROLE,
   cacheableSystem,
@@ -30,7 +32,9 @@ import {
   humanizeTool,
   variantsTool,
   brainstormTool,
+  strategyTool,
   campaignPlatformTool,
+  channelMatrixTool,
   logoPromptTool,
 } from './server/ai/schemas';
 import { runDeliberation } from './server/ai/deliberate';
@@ -326,15 +330,45 @@ async function startServer() {
     }
   });
 
-  // Den Store Idé: tre konkurrerende kampagne-platforme ud fra briefet
-  app.post('/api/big-idea', async (req, res) => {
+  // Strategi-fundament: indsigt der fodrer Den Store Idé-motor
+  app.post('/api/strategy', async (req, res) => {
     try {
       const { brief } = req.body;
       if (!brief) {
         return res.status(400).json({ error: 'Brief er påkrævet.' });
       }
 
-      const { system, user } = buildBigIdea(brief);
+      const { system, user } = buildStrategy(brief);
+      let usageInfo: any = null;
+      const parsed = await generateStructured<any>({
+        system,
+        userContent: [{ type: 'text', text: user }],
+        tool: strategyTool,
+        model: config.model,
+        maxTokens: config.maxTokens,
+        onUsage: (u) => { usageInfo = u; },
+      });
+
+      if (!parsed || !parsed.singleMindedProposition) {
+        throw new Error('Ufuldstændigt output fra Claude. Prøv igen.');
+      }
+
+      res.json({ ...parsed, _usage: usageInfo });
+    } catch (error: any) {
+      console.error('Fejl under Strategi-fundament:', error);
+      res.status(500).json({ error: error.message || 'Kunne ikke bygge det strategiske fundament.' });
+    }
+  });
+
+  // Den Store Idé: tre konkurrerende kampagne-platforme ud fra briefet
+  app.post('/api/big-idea', async (req, res) => {
+    try {
+      const { brief, strategy } = req.body;
+      if (!brief) {
+        return res.status(400).json({ error: 'Brief er påkrævet.' });
+      }
+
+      const { system, user } = buildBigIdea(brief, strategy || null);
       let usageInfo: any = null;
       const parsed = await generateStructured<any>({
         system,
@@ -353,6 +387,39 @@ async function startServer() {
     } catch (error: any) {
       console.error('Fejl under Den Store Idé:', error);
       res.status(500).json({ error: error.message || 'Kunne ikke udvikle kampagne-platforme.' });
+    }
+  });
+
+  // Omni-channel matrix: skalér den valgte store idé til en eksekvering pr. kanal
+  app.post('/api/channel-matrix', async (req, res) => {
+    try {
+      const { brief, chosenIdea, strategy } = req.body;
+      if (!brief) {
+        return res.status(400).json({ error: 'Brief er påkrævet.' });
+      }
+      if (!chosenIdea || !chosenIdea.bigIdea) {
+        return res.status(400).json({ error: 'Vælg en kampagne-platform (rute) først for at skalere den til kanaler.' });
+      }
+
+      const { system, user } = buildChannelMatrix(brief, chosenIdea, strategy || null);
+      let usageInfo: any = null;
+      const parsed = await generateStructured<any>({
+        system,
+        userContent: [{ type: 'text', text: user }],
+        tool: channelMatrixTool,
+        model: config.model,
+        maxTokens: config.maxTokens,
+        onUsage: (u) => { usageInfo = u; },
+      });
+
+      if (!parsed || !Array.isArray(parsed.channels) || parsed.channels.length === 0) {
+        throw new Error('Ufuldstændigt output fra Claude. Prøv igen.');
+      }
+
+      res.json({ ...parsed, _usage: usageInfo });
+    } catch (error: any) {
+      console.error('Fejl under omni-channel matrix:', error);
+      res.status(500).json({ error: error.message || 'Kunne ikke skalere idéen til kanaler.' });
     }
   });
 
