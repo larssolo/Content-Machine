@@ -86,6 +86,12 @@ describe('buildCreativePush', () => {
     expect(user).toContain('synergieffekter');
     expect(user).toContain('Dansk');
   });
+
+  it('does not crash when the model returns non-array fields (robusthed)', () => {
+    const draft = { headlines: 'ikke en liste', linkedinPost: 'Krog', shortCaseText: 'Kort' } as any;
+    const critique = { clichesFound: 'synergi, banebrydende', overallReview: 'tam' } as any;
+    expect(() => buildCreativePush(draft, critique, { language: 'Dansk' })).not.toThrow();
+  });
 });
 
 describe('buildSynthesize', () => {
@@ -114,5 +120,12 @@ describe('buildSynthesize', () => {
     const last = system[system.length - 1] as any;
     expect(last.text).toContain('#FF5400');
     expect(last.cache_control).toEqual({ type: 'ephemeral' });
+  });
+
+  it('does not crash when model fields are non-arrays (robusthed)', () => {
+    const badDraft = { headlines: 'x', cta: 'y', mailchimpSubjects: 'z', shortCaseText: 'a' } as any;
+    const badCritique = { clichesFound: 'a, b', evaluations: 'nej', overallReview: 'ok' } as any;
+    const badCreative = { boldHeadlines: 'h', boldHooks: 'k', angles: 'v' } as any;
+    expect(() => buildSynthesize(badDraft, badCritique, badCreative, { client: 'Acme' })).not.toThrow();
   });
 });
