@@ -299,6 +299,11 @@ export const CREATIVE_PUSH_SYSTEM_ROLE = `Du er en prisvindende Kreativ Direktø
 Din opgave er at sprænge rammerne kreativt: foreslå vildt dristige, uventede og gerne provokerende vinkler, kroge og overskrifter — det der tør skille sig ud — uden at miste det konkrete eller opfinde fakta.
 Tænk i overraskende kontraster, stærke billeder, uventede åbninger og en distinkt stemme. INGEN sikre, forudsigelige, generiske eller "corporate-pæne" forslag — dem ryger direkte i skraldespanden. Hver idé skal kunne forsvare hvorfor den er modigere end det oplagte. Du leverer IKKE den færdige tekst; du leverer skarpe, vovede alternativer som chefredaktøren kan vælge fra. Aflever via det angivne værktøj.`;
 
+/** Sikrer en liste, selv hvis modellen returnerer et felt i forkert form (robusthed). */
+function arr(x: any): any[] {
+  return Array.isArray(x) ? x : [];
+}
+
 /** Kreativ Direktør: foreslår dristigere overskrifter/kroge/vinkler ud fra udkast + kritik. */
 export function buildCreativePush(
   draft: any,
@@ -307,9 +312,9 @@ export function buildCreativePush(
 ): { system: Anthropic.TextBlockParam[]; user: string } {
   const lang = brief?.language || 'Dansk';
   const tone = brief?.tone || 'professionel, menneskelig, kreativ';
-  const headlines = (draft?.headlines || []).slice(0, 5).map((h: string) => `- ${h}`).join('\n');
+  const headlines = arr(draft?.headlines).slice(0, 5).map((h: string) => `- ${h}`).join('\n');
   const hook = (draft?.linkedinPost || '').split('\n')[0] || '';
-  const cliches = (critique?.clichesFound || []).join(', ') || 'ingen registreret';
+  const cliches = arr(critique?.clichesFound).join(', ') || 'ingen registreret';
 
   const user = `FØRSTEUDKASTETS NUVÆRENDE OVERSKRIFTER:
 ${headlines || '- (ingen)'}
@@ -346,13 +351,13 @@ export function buildSynthesize(
   creative: any,
   brief: Brief,
 ): { system: Anthropic.TextBlockParam[]; user: string } {
-  const cliches = (critique?.clichesFound || []).join(', ') || 'ingen';
-  const evalNotes = (critique?.evaluations || [])
+  const cliches = arr(critique?.clichesFound).join(', ') || 'ingen';
+  const evalNotes = arr(critique?.evaluations)
     .map((e: any) => `- ${e.ruleName}: ${e.status} (${e.score}/100) — ${e.feedback}`)
     .join('\n');
-  const boldHeadlines = (creative?.boldHeadlines || []).map((h: string) => `- ${h}`).join('\n');
-  const boldHooks = (creative?.boldHooks || []).map((h: string) => `- ${h}`).join('\n');
-  const angles = (creative?.angles || []).map((a: string) => `- ${a}`).join('\n');
+  const boldHeadlines = arr(creative?.boldHeadlines).map((h: string) => `- ${h}`).join('\n');
+  const boldHooks = arr(creative?.boldHooks).map((h: string) => `- ${h}`).join('\n');
+  const angles = arr(creative?.angles).map((a: string) => `- ${a}`).join('\n');
 
   const user = `${generateUserText(brief)}
 
@@ -369,9 +374,9 @@ LINKEDIN-OPSLAG:
 """
 ${draft?.linkedinPost || ''}
 """
-OVERSKRIFTER: ${(draft?.headlines || []).join(' | ')}
-CTA: ${(draft?.cta || []).join(' | ')}
-NYHEDSBREV-EMNER: ${(draft?.mailchimpSubjects || []).join(' | ')}
+OVERSKRIFTER: ${arr(draft?.headlines).join(' | ')}
+CTA: ${arr(draft?.cta).join(' | ')}
+NYHEDSBREV-EMNER: ${arr(draft?.mailchimpSubjects).join(' | ')}
 
 === REDAKTIONEL KRITIK (skal adresseres) ===
 Floskler der SKAL fjernes: ${cliches}
@@ -417,7 +422,7 @@ Lav ÉT bærende visuelt koncept og TRE konkrete billedprompts (hero, detail, ab
 
 /** Render et visuelt koncept som tekst-input til kritik/push/syntese. */
 function visualConceptAsText(c: any): string {
-  const mood = (c?.moodKeywords || []).join(', ');
+  const mood = arr(c?.moodKeywords).join(', ');
   return `VISUELT KONCEPT:
 ${c?.visualConcept || ''}
 
@@ -481,7 +486,7 @@ export function buildVisualPush(
   critique: any,
   brief?: Brief,
 ): { system: Anthropic.TextBlockParam[]; user: string } {
-  const weaknesses = (critique?.weaknesses || []).join(', ') || 'ingen registreret';
+  const weaknesses = arr(critique?.weaknesses).join(', ') || 'ingen registreret';
   const user = `NUVÆRENDE VISUELLE UDKAST:
 ${visualConceptAsText(concept)}
 
@@ -504,10 +509,10 @@ export function buildVisualSynthesize(
   directions: any,
   brief: Brief,
 ): { system: Anthropic.TextBlockParam[]; user: string } {
-  const weaknesses = (critique?.weaknesses || []).join(', ') || 'ingen';
-  const boldVisuals = (directions?.boldVisuals || []).map((d: string) => `- ${d}`).join('\n');
-  const lightingAndColor = (directions?.lightingAndColor || []).map((d: string) => `- ${d}`).join('\n');
-  const compositions = (directions?.compositions || []).map((d: string) => `- ${d}`).join('\n');
+  const weaknesses = arr(critique?.weaknesses).join(', ') || 'ingen';
+  const boldVisuals = arr(directions?.boldVisuals).map((d: string) => `- ${d}`).join('\n');
+  const lightingAndColor = arr(directions?.lightingAndColor).map((d: string) => `- ${d}`).join('\n');
+  const compositions = arr(directions?.compositions).map((d: string) => `- ${d}`).join('\n');
 
   const user = `${visualBriefText(brief)}
 

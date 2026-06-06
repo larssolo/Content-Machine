@@ -1414,7 +1414,7 @@ export default function App() {
               Content Machine
             </span>
             <div className="flex items-center text-[11px] text-slate-500 font-mono mt-0.5">
-              <span>v1.5.1</span>
+              <span>v1.5.2</span>
             </div>
           </div>
         </div>
@@ -3515,7 +3515,7 @@ export default function App() {
             <span>
               Content Machine by{' '}
               <a href="https://www.larssohl.dk" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 transition-colors">larssohl.dk</a>
-              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.5.1
+              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.5.2
             </span>
             <span>Konkret. Autentisk. Kreativt.</span>
           </div>
