@@ -181,6 +181,8 @@ export interface ChannelMatrix {
 export interface LogoResult {
   imageUrl: string;
   contentType: string;
+  /** Rå SVG-markup fra serveren — bruges til robust inline-rendering. */
+  svg?: string;
   prompt: string;
   style: string;
 }

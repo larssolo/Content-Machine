@@ -1010,7 +1010,7 @@ export function useContentMachine() {
       }
       const data = await response.json();
       if (!data.imageUrl) throw new Error('Forkert svar-format fra logo-API.');
-      setLogoResult({ imageUrl: data.imageUrl, contentType: data.contentType, prompt, style });
+      setLogoResult({ imageUrl: data.imageUrl, contentType: data.contentType, svg: data.svg, prompt, style });
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || 'Kunne ikke generere logo.');

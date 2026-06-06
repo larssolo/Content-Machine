@@ -72,6 +72,18 @@ export function LogoPanel({
   const [prompt, setPrompt] = useState<string>(() => buildDefaultPrompt(brief));
   const [style, setStyle] = useState<RecraftStyle>('vector_illustration/flat_design');
   const [selectedColors, setSelectedColors] = useState<Set<string>>(new Set());
+  const [imgError, setImgError] = useState<boolean>(false);
+
+  // Foretræk den rå SVG-markup som data-URI (renderer robust, omgår CORS/MIME);
+  // fald tilbage til den hostede URL hvis serveren ikke kunne hente markuppen.
+  const previewSrc = logoResult?.svg
+    ? `data:image/svg+xml;utf8,${encodeURIComponent(logoResult.svg)}`
+    : logoResult?.imageUrl ?? '';
+
+  // Nulstil fejl-tilstand når et nyt logo kommer ind
+  useEffect(() => {
+    setImgError(false);
+  }, [logoResult?.imageUrl, logoResult?.svg]);
 
   const cviColors = extractHexColors(brief.cviManual?.brandColors);
 
@@ -276,14 +288,28 @@ export function LogoPanel({
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Crect width='10' height='10' fill='%231e293b'/%3E%3Crect x='10' y='10' width='10' height='10' fill='%231e293b'/%3E%3Crect x='10' y='0' width='10' height='10' fill='%23253347'/%3E%3Crect x='0' y='10' width='10' height='10' fill='%23253347'/%3E%3C/svg%3E")`,
               }}
             >
-              <img
-                src={logoResult.imageUrl}
-                alt={`Logo: ${logoResult.prompt.slice(0, 60)}`}
-                className="max-w-full max-h-64 object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
+              {imgError ? (
+                <div className="text-center space-y-2">
+                  <p className="text-[11px] text-slate-400 font-mono">
+                    Kunne ikke vise logoet inline.
+                  </p>
+                  <a
+                    href={logoResult.imageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[11px] font-mono text-violet-300 hover:text-violet-200 underline"
+                  >
+                    Åbn SVG i ny fane →
+                  </a>
+                </div>
+              ) : (
+                <img
+                  src={previewSrc}
+                  alt={`Logo: ${logoResult.prompt.slice(0, 60)}`}
+                  className="max-w-full max-h-64 object-contain"
+                  onError={() => setImgError(true)}
+                />
+              )}
             </div>
 
             {/* Result meta */}
@@ -303,7 +329,9 @@ export function LogoPanel({
                   )}
                 </button>
                 <a
-                  href={logoResult.imageUrl}
+                  href={logoResult.svg
+                    ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(logoResult.svg)}`
+                    : logoResult.imageUrl}
                   download={`logo-${(brief.client || 'brand').toLowerCase().replace(/\s+/g, '-')}.svg`}
                   target="_blank"
                   rel="noopener noreferrer"

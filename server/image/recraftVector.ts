@@ -23,6 +23,8 @@ export interface RecraftLogoRequest {
 export interface RecraftLogoResult {
   imageUrl: string;
   contentType: string;
+  /** Rå SVG-markup (hentet fra imageUrl) så frontenden kan inline-rendere den robust. */
+  svg?: string;
 }
 
 let configured = false;
@@ -71,5 +73,19 @@ export async function generateLogoSvg(opts: RecraftLogoRequest): Promise<Recraft
     result?.data?.images?.[0]?.content_type ??
     'image/svg+xml';
 
-  return { imageUrl: url, contentType };
+  // Hent selve SVG-markuppen, så frontenden kan inline-rendere den robust
+  // (en ekstern SVG-URL renderer ikke altid i et <img>-tag pga. MIME/CORS).
+  // Best-effort: fejler hentningen, falder vi tilbage til den hostede URL.
+  let svg: string | undefined;
+  try {
+    const r = await fetch(url);
+    if (r.ok) {
+      const text = await r.text();
+      if (text.includes('<svg')) svg = text;
+    }
+  } catch {
+    /* ignorér — frontenden bruger imageUrl som fallback */
+  }
+
+  return { imageUrl: url, contentType, svg };
 }
