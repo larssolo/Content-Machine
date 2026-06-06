@@ -15,6 +15,7 @@ export interface SavedSession {
   generatedImages?: Record<string, { url: string; loading: boolean; error: string | null; aspectRatio: string }>;
   cviFileName?: string | null;
   activeTab?: string;
+  lockedSections?: string[];
 }
 
 /** Persistér den aktuelle arbejds-session (så intet går tabt ved refresh). */

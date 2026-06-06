@@ -16,6 +16,7 @@ import {
   buildHumanize,
   buildRefine,
   buildVariants,
+  buildRegenerate,
   ANALYZE_CVI_SYSTEM_ROLE,
   cacheableSystem,
 } from './server/ai/prompts';
@@ -56,11 +57,13 @@ async function startServer() {
       }
 
       const { system, user } = buildGenerate(brief);
+      let usageInfo: any = null;
       const parsed = await generateStructured<any>({
         system,
         userContent: [{ type: 'text', text: user }],
         tool: generateTool,
         maxTokens: config.maxTokens,
+        onUsage: (u) => { usageInfo = u; },
       });
 
       // Let runtime-shape-tjek så vi fejler tydeligt frem for at sende et halvt objekt.
@@ -68,7 +71,7 @@ async function startServer() {
         throw new Error('Ufuldstændigt output fra Claude. Prøv igen.');
       }
 
-      res.json(parsed);
+      res.json({ ...parsed, _usage: usageInfo });
     } catch (error: any) {
       console.error('Fejl under generering:', error);
       res.status(500).json({ error: error.message || 'Internt server fejl under generering.' });
@@ -313,6 +316,51 @@ async function startServer() {
     } catch (error: any) {
       console.error('Fejl under humanisering:', error);
       res.status(500).json({ error: error.message || 'Kunne ikke fuldføre humanisering af teksten.' });
+    }
+  });
+
+  // Regenerate a single output section from scratch (streaming via SSE)
+  app.post('/api/regenerate-section', async (req, res) => {
+    try {
+      const { brief, sectionKey, currentText } = req.body;
+      if (!sectionKey) {
+        return res.status(400).json({ error: 'sectionKey er påkrævet.' });
+      }
+
+      const { system, user } = buildRegenerate(brief || {}, sectionKey, currentText || '');
+
+      res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
+      res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no');
+      res.flushHeaders?.();
+
+      const stream = anthropic.messages.stream({
+        model: config.fastModel,
+        max_tokens: 4096,
+        system: [{ type: 'text', text: system }],
+        messages: [{ role: 'user', content: user }],
+      });
+
+      let full = '';
+      stream.on('text', (delta) => {
+        full += delta;
+        res.write(`data: ${JSON.stringify({ delta })}\n\n`);
+      });
+
+      await stream.finalMessage();
+
+      res.write(`data: ${JSON.stringify({ done: true, regeneratedText: full.trim() })}\n\n`);
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (error: any) {
+      console.error('Fejl under sektion-regenerering:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: error.message || 'Kunne ikke regenerere sektionen.' });
+      } else {
+        res.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
+        res.end();
+      }
     }
   });
 

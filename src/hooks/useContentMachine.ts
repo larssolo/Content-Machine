@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { ProjectBrief, BrandSurfaceOutput, PresetBrief, HumanizerResult, ToneAnalysis, VisualDevResult } from '../types';
+import { ProjectBrief, BrandSurfaceOutput, PresetBrief, HumanizerResult, ToneAnalysis, VisualDevResult, UsageInfo } from '../types';
 import { buildMarkdown, downloadTextFile, slugify } from '../lib/exportMarkdown';
 import { downloadHtmlFile } from '../lib/exportHtml';
 import { downloadDocx } from '../lib/exportDocx';
@@ -118,6 +118,10 @@ export function useContentMachine() {
 
   const [printMode, setPrintMode] = useState<'all' | 'cvi' | 'case'>('all');
 
+  const [lastUsage, setLastUsage] = useState<UsageInfo | null>(null);
+  const [lockedSections, setLockedSections] = useState<string[]>(() => loadSession()?.lockedSections ?? []);
+  const [regeneratingKey, setRegeneratingKey] = useState<string | null>(null);
+
   const [generatedImages, setGeneratedImages] = useState<Record<'hero' | 'detail' | 'abstract', { url: string; loading: boolean; error: string | null; aspectRatio: string }>>({
     hero: { url: '', loading: false, error: null, aspectRatio: '16:9' },
     detail: { url: '', loading: false, error: null, aspectRatio: '1:1' },
@@ -177,8 +181,8 @@ export function useContentMachine() {
 
   useEffect(() => {
     if (!output && !brief.client) return;
-    saveSession({ brief, output, revisions, activeCompareIndex, generatedImages, cviFileName, activeTab });
-  }, [brief, output, revisions, activeCompareIndex, generatedImages, cviFileName, activeTab]);
+    saveSession({ brief, output, revisions, activeCompareIndex, generatedImages, cviFileName, activeTab, lockedSections });
+  }, [brief, output, revisions, activeCompareIndex, generatedImages, cviFileName, activeTab, lockedSections]);
 
   const handleClearPresets = () => {
     setCustomPresets([]);
@@ -430,6 +434,107 @@ export function useContentMachine() {
     setVariants(null);
   };
 
+  const handleToggleLock = (key: string) => {
+    setLockedSections(prev =>
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
+
+  const handleRegenerateSection = async (sectionKey: string) => {
+    if (!output) return;
+
+    const currentText = (() => {
+      if (sectionKey === 'shortCaseText') return output.shortCaseText;
+      if (sectionKey === 'longCaseText') return output.longCaseText;
+      if (sectionKey === 'linkedinPost') return output.linkedinPost;
+      if (sectionKey === 'creativeNewsletterSection') return output.production?.newsletterSection ?? '';
+      return '';
+    })();
+
+    setRegeneratingKey(sectionKey);
+    setErrorMsg(null);
+
+    try {
+      const response = await fetch('/api/regenerate-section', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brief, sectionKey, currentText })
+      });
+
+      if (!response.ok || !response.body) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(httpErrorMessage(response.status, errData.error));
+      }
+
+      const applyLiveText = (value: string) => {
+        setOutput(prev => {
+          if (!prev) return null;
+          const u = {
+            ...prev,
+            production: prev.production ? { ...prev.production } : prev.production,
+            directUsable: prev.directUsable ? { ...prev.directUsable } : prev.directUsable,
+          };
+          if (sectionKey === 'shortCaseText') {
+            u.shortCaseText = value;
+            if (u.directUsable) u.directUsable.bestShortText = value;
+          } else if (sectionKey === 'longCaseText') {
+            u.longCaseText = value;
+          } else if (sectionKey === 'linkedinPost') {
+            u.linkedinPost = value;
+          } else if (sectionKey === 'creativeNewsletterSection' && u.production) {
+            u.production.newsletterSection = value;
+          }
+          return u;
+        });
+      };
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let acc = '';
+      let streamErr: string | null = null;
+
+      while (true) {
+        const { value, done: rdDone } = await reader.read();
+        if (rdDone) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n\n');
+        buffer = parts.pop() || '';
+        for (const part of parts) {
+          const dataLine = part.split('\n').find(l => l.startsWith('data: '));
+          const isErrEvent = part.includes('event: error');
+          if (!dataLine) continue;
+          const payload = dataLine.slice(6);
+          if (payload === '[DONE]') continue;
+          try {
+            const evt = JSON.parse(payload);
+            if (isErrEvent && evt.error) streamErr = evt.error;
+            else if (typeof evt.delta === 'string') { acc += evt.delta; applyLiveText(acc); }
+            else if (evt.done && typeof evt.regeneratedText === 'string') acc = evt.regeneratedText;
+          } catch { /* ignorér ukomplette/uventede linjer */ }
+        }
+      }
+
+      if (streamErr) throw new Error(streamErr);
+      const finalText = (acc || currentText).trim();
+
+      setRefinementHistory(prev => [...prev, { key: sectionKey, original: currentText }]);
+      setRevisions(prev => {
+        const list = [...(prev[sectionKey] || [])];
+        if (list.length === 0) list.push(currentText);
+        if (list[list.length - 1] !== finalText) list.push(finalText);
+        return { ...prev, [sectionKey]: list };
+      });
+      setActiveCompareIndex(prev => ({ ...prev, [sectionKey]: null }));
+      applyLiveText(finalText);
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Kunne ikke regenerere sektionen.');
+    } finally {
+      setRegeneratingKey(null);
+    }
+  };
+
   const handleGenerateAll = async () => {
     if (!brief.client || !brief.project || !brief.description) {
       setErrorMsg("Udfyld venligst mindst Kunde, Projekt og Hvad lavede vi for at køre Content Machine.");
@@ -473,15 +578,35 @@ export function useContentMachine() {
         const errData = await response.json().catch(() => ({}));
         throw new Error(httpErrorMessage(response.status, errData.error));
       }
-      const data: BrandSurfaceOutput = await response.json();
-      setOutput(data);
-      setHistory(prev => pushHistory(prev, brief, data));
-      if (data) {
+      const raw = await response.json();
+      const { _usage, ...outputData } = raw as any;
+      if (_usage) setLastUsage(_usage);
+      const data = outputData as BrandSurfaceOutput;
+
+      // Bevar låste sektioner fra det eksisterende output
+      const mergedData: BrandSurfaceOutput = lockedSections.length > 0 && output
+        ? (() => {
+            const m = { ...data };
+            for (const key of lockedSections) {
+              if (key === 'shortCaseText') m.shortCaseText = output.shortCaseText;
+              else if (key === 'longCaseText') m.longCaseText = output.longCaseText;
+              else if (key === 'linkedinPost') m.linkedinPost = output.linkedinPost;
+              else if (key === 'creativeNewsletterSection' && m.production && output.production) {
+                m.production = { ...m.production, newsletterSection: output.production.newsletterSection };
+              }
+            }
+            return m;
+          })()
+        : data;
+
+      setOutput(mergedData);
+      setHistory(prev => pushHistory(prev, brief, mergedData));
+      if (mergedData) {
         setRevisions({
-          shortCaseText: [data.shortCaseText],
-          longCaseText: [data.longCaseText],
-          linkedinPost: [data.linkedinPost],
-          creativeNewsletterSection: data.production?.newsletterSection ? [data.production.newsletterSection] : []
+          shortCaseText: [mergedData.shortCaseText],
+          longCaseText: [mergedData.longCaseText],
+          linkedinPost: [mergedData.linkedinPost],
+          creativeNewsletterSection: mergedData.production?.newsletterSection ? [mergedData.production.newsletterSection] : []
         });
         setActiveCompareIndex({ shortCaseText: null, longCaseText: null, linkedinPost: null, creativeNewsletterSection: null });
       }
@@ -545,16 +670,32 @@ export function useContentMachine() {
 
       const data: BrandSurfaceOutput = finalEvt.output;
       const draft: BrandSurfaceOutput = finalEvt.draft || data;
-      setOutput(data);
-      setHistory(prev => pushHistory(prev, brief, data));
+
+      const mergedData: BrandSurfaceOutput = lockedSections.length > 0 && output
+        ? (() => {
+            const m = { ...data };
+            for (const key of lockedSections) {
+              if (key === 'shortCaseText') m.shortCaseText = output.shortCaseText;
+              else if (key === 'longCaseText') m.longCaseText = output.longCaseText;
+              else if (key === 'linkedinPost') m.linkedinPost = output.linkedinPost;
+              else if (key === 'creativeNewsletterSection' && m.production && output.production) {
+                m.production = { ...m.production, newsletterSection: output.production.newsletterSection };
+              }
+            }
+            return m;
+          })()
+        : data;
+
+      setOutput(mergedData);
+      setHistory(prev => pushHistory(prev, brief, mergedData));
 
       const seed = (a?: string, b?: string): string[] =>
         a && b && a !== b ? [a, b] : b ? [b] : a ? [a] : [];
       setRevisions({
-        shortCaseText: seed(draft.shortCaseText, data.shortCaseText),
-        longCaseText: seed(draft.longCaseText, data.longCaseText),
-        linkedinPost: seed(draft.linkedinPost, data.linkedinPost),
-        creativeNewsletterSection: data.production?.newsletterSection ? [data.production.newsletterSection] : []
+        shortCaseText: seed(draft.shortCaseText, mergedData.shortCaseText),
+        longCaseText: seed(draft.longCaseText, mergedData.longCaseText),
+        linkedinPost: seed(draft.linkedinPost, mergedData.linkedinPost),
+        creativeNewsletterSection: mergedData.production?.newsletterSection ? [mergedData.production.newsletterSection] : []
       });
       setActiveCompareIndex({ shortCaseText: null, longCaseText: null, linkedinPost: null, creativeNewsletterSection: null });
 
@@ -948,6 +1089,11 @@ export function useContentMachine() {
     theme, setTheme,
     // Presets
     customPresets,
+    // Usage
+    lastUsage,
+    // Lås & regenerér
+    lockedSections, handleToggleLock,
+    regeneratingKey, handleRegenerateSection,
     // Handlers
     handleBriefChange,
     handleChannelToggle,

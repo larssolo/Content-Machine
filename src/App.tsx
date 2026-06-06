@@ -48,6 +48,7 @@ import { ProductionTab } from './components/tabs/ProductionTab';
 import { BriefForm } from './components/BriefForm';
 import { AppHeader } from './components/AppHeader';
 import { Toolbar } from './components/Toolbar';
+import { UsageBadge } from './components/UsageBadge';
 import { useContentMachine, PRESETS } from './hooks/useContentMachine';
 
 export default function App() {
@@ -76,6 +77,9 @@ export default function App() {
     generatedImages,
     theme, setTheme,
     customPresets,
+    lastUsage,
+    lockedSections, handleToggleLock,
+    regeneratingKey, handleRegenerateSection,
     handleBriefChange,
     handleChannelToggle,
     handleLoadPreset,
@@ -459,6 +463,10 @@ export default function App() {
                            variants={variants}
                            setVariants={setVariants}
                            handleApplyVariant={handleApplyVariant}
+                           lockedSections={lockedSections}
+                           handleToggleLock={handleToggleLock}
+                           handleRegenerateSection={handleRegenerateSection}
+                           regeneratingKey={regeneratingKey}
                          />
                        )}
 
@@ -485,6 +493,10 @@ export default function App() {
                            variants={variants}
                            setVariants={setVariants}
                            handleApplyVariant={handleApplyVariant}
+                           lockedSections={lockedSections}
+                           handleToggleLock={handleToggleLock}
+                           handleRegenerateSection={handleRegenerateSection}
+                           regeneratingKey={regeneratingKey}
                          />
                        )}
 
@@ -506,6 +518,10 @@ export default function App() {
                            activeCompareIndex={activeCompareIndex}
                            setActiveCompareIndex={setActiveCompareIndex}
                            setErrorMsg={setErrorMsg}
+                           lockedSections={lockedSections}
+                           handleToggleLock={handleToggleLock}
+                           handleRegenerateSection={handleRegenerateSection}
+                           regeneratingKey={regeneratingKey}
                          />
                        )}
 
@@ -660,9 +676,12 @@ export default function App() {
             <span>
               Content Machine by{' '}
               <a href="https://www.larssohl.dk" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 transition-colors">larssohl.dk</a>
-              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.5.2
+              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.6.0
             </span>
-            <span>Konkret. Autentisk. Kreativt.</span>
+            <div className="flex items-center space-x-4">
+              {lastUsage && <UsageBadge usage={lastUsage} />}
+              <span>Konkret. Autentisk. Kreativt.</span>
+            </div>
           </div>
 
         </div>

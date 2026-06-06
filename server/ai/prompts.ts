@@ -292,6 +292,50 @@ ${text}
 }
 
 // ---------------------------------------------------------------------------
+// /api/regenerate-section — frisk enkelt-sektion fra bunden
+// ---------------------------------------------------------------------------
+
+const SECTION_LABELS: Record<string, string> = {
+  shortCaseText: 'kort case-tekst (ca. 100-150 ord, konkret og fængende om de faktiske leverancer)',
+  longCaseText: 'lang case-tekst til hjemmeside (ca. 250-400 ord med konkrete detaljer, milepæle og resultater)',
+  linkedinPost: 'LinkedIn opslag (professionelt og levende, med krog i første linje, klare afsnit og en CTA)',
+  creativeNewsletterSection: 'nyhedsbrev-sektion med kreativt layout-forslag og konkret indhold',
+};
+
+export function buildRegenerate(
+  brief: Brief,
+  sectionKey: string,
+  currentText: string,
+): { system: string; user: string } {
+  const label = SECTION_LABELS[sectionKey] ?? sectionKey;
+  const system = `Du er en professionel Content Machine Produktionsassistent og brand-tekstforfatter.
+
+Opgave: Generer en FRISK, ORIGINAL ny version af: ${label}
+
+KRAV:
+1. Find en ny indgang og vinkel — ignorer den eksisterende teksts konkrete formuleringer
+2. Bevar faktuelle oplysninger fra briefet (klient, projekt, leverancer, tal, navne)
+3. Vær modig og konkret — undgå floskler og generiske marketingvendinger
+4. Svar UDELUKKENDE med den nye tekst — ingen forklaringer, overskrifter eller kommentarer
+5. Skriv på ${brief.language || 'Dansk'}`;
+
+  const user = `PROJEKT BRIEF:
+- Kunde: ${brief.client || 'N/A'}
+- Projekt: ${brief.project || 'N/A'}
+- Hvad lavede vi: ${brief.description || 'N/A'}
+- Særlige detaljer: ${brief.details || 'N/A'}
+- Målgruppe: ${brief.audience || 'N/A'}
+- Tone: ${brief.tone || 'Professionel, menneskelig, kreativ'}
+
+EKSISTERENDE VERSION (kun til reference — skriv NOGET ANDERLEDES):
+${currentText}
+
+Skriv nu en frisk ${label}:`;
+
+  return { system, user };
+}
+
+// ---------------------------------------------------------------------------
 // Deliberation (redaktionsmøde): Kreativ Direktør + Chefredaktør
 // ---------------------------------------------------------------------------
 

@@ -23,7 +23,7 @@ export function AppHeader({ theme, setTheme }: AppHeaderProps) {
               Content Machine
             </span>
             <div className="flex items-center text-[11px] text-slate-500 font-mono mt-0.5">
-              <span>v1.5.2</span>
+              <span>v1.6.0</span>
             </div>
           </div>
         </div>

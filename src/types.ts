@@ -116,6 +116,13 @@ export interface PresetBrief {
   brief: ProjectBrief;
 }
 
+export interface UsageInfo {
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+}
+
 export interface HumanizerResult {
   originalAiScore: number;
   clichesDetected: string[];

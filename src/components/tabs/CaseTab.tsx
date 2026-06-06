@@ -5,7 +5,7 @@
 
 import { Dispatch, SetStateAction } from 'react';
 import { motion } from 'motion/react';
-import { Check, Copy, RotateCcw } from 'lucide-react';
+import { Check, Copy, Lock, LockOpen, Loader2, RefreshCw, RotateCcw } from 'lucide-react';
 import { BrandSurfaceOutput } from '../../types';
 import { RevisionSelector } from '../RevisionSelector';
 import { VariantsDisplay } from '../VariantsDisplay';
@@ -31,6 +31,10 @@ interface CaseTabProps {
   variants: { key: string; options: string[] } | null;
   setVariants: Dispatch<SetStateAction<{ key: string; options: string[] } | null>>;
   handleApplyVariant: (targetKey: string, value: string) => void;
+  lockedSections: string[];
+  handleToggleLock: (key: string) => void;
+  handleRegenerateSection: (key: string) => void;
+  regeneratingKey: string | null;
 }
 
 export function CaseTab({
@@ -39,8 +43,10 @@ export function CaseTab({
   handleGenerateVariants, handleCopyToClipboard, copiedKey,
   refinementHistory, revisions, setRevisions, activeCompareIndex,
   setActiveCompareIndex, setErrorMsg, variants, setVariants, handleApplyVariant,
+  lockedSections, handleToggleLock, handleRegenerateSection, regeneratingKey,
 }: CaseTabProps) {
   const hasHistory = (key: string) => refinementHistory.some(h => h.key === key);
+  const isLocked = (key: string) => lockedSections.includes(key);
 
   return (
     <motion.div
@@ -54,7 +60,9 @@ export function CaseTab({
       <div
         onClick={() => setSelectedTextKey('shortCaseText')}
         className={`p-4 rounded-xl border transition-all ${
-          selectedTextKey === 'shortCaseText'
+          isLocked('shortCaseText')
+            ? 'bg-amber-950/10 border-amber-700/30'
+            : selectedTextKey === 'shortCaseText'
             ? 'bg-slate-850 border-brand-orange-500/40 ring-1 ring-brand-orange-500/30'
             : 'bg-slate-900/50 border-slate-800 hover:border-slate-750'
         }`}
@@ -62,19 +70,37 @@ export function CaseTab({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2">
             <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">1. Kort case-tekst</span>
-            {selectedTextKey === 'shortCaseText' && <span className="text-[11px] bg-brand-orange-600/20 text-brand-orange-500 px-1.5 py-0.2 rounded font-mono font-medium border border-brand-orange-500/20">Valgt til raffinering</span>}
+            {selectedTextKey === 'shortCaseText' && !isLocked('shortCaseText') && <span className="text-[11px] bg-brand-orange-600/20 text-brand-orange-500 px-1.5 py-0.2 rounded font-mono font-medium border border-brand-orange-500/20">Valgt til raffinering</span>}
+            {isLocked('shortCaseText') && <span className="text-[11px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded font-mono border border-amber-500/20">Låst</span>}
           </div>
           <div className="flex items-center space-x-1.5">
             {hasHistory('shortCaseText') && (
               <button
                 onClick={(e) => { e.stopPropagation(); handleUndoRefine('shortCaseText'); }}
-                className="text-[11px] text-amber-500 hover:text-amber-400 font-mono flex items-center space-x-0.5 mr-2"
+                className="text-[11px] text-amber-500 hover:text-amber-400 font-mono flex items-center space-x-0.5 mr-1"
                 title="Fortryd omskrivning"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Fortryd</span>
               </button>
             )}
+            <button
+              onClick={(e) => { e.stopPropagation(); handleRegenerateSection('shortCaseText'); }}
+              disabled={isRefining || regeneratingKey !== null || isLocked('shortCaseText')}
+              className="text-slate-400 hover:text-sky-400 disabled:opacity-30 transition-colors"
+              title="Generer frisk version fra bunden"
+            >
+              {regeneratingKey === 'shortCaseText'
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin text-sky-400" />
+                : <RefreshCw className="w-3.5 h-3.5" />}
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleToggleLock('shortCaseText'); }}
+              className={`transition-colors ${isLocked('shortCaseText') ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'}`}
+              title={isLocked('shortCaseText') ? 'Sektion låst — klik for at låse op' : 'Lås sektion (bevares ved ny generering)'}
+            >
+              {isLocked('shortCaseText') ? <Lock className="w-3.5 h-3.5" /> : <LockOpen className="w-3.5 h-3.5" />}
+            </button>
             <button
               onClick={(e) => { e.stopPropagation(); handleCopyToClipboard(output.shortCaseText, 'shortCaseText'); }}
               className="text-slate-400 hover:text-white transition-colors"
@@ -155,7 +181,9 @@ export function CaseTab({
       <div
         onClick={() => setSelectedTextKey('longCaseText')}
         className={`p-4 rounded-xl border transition-all ${
-          selectedTextKey === 'longCaseText'
+          isLocked('longCaseText')
+            ? 'bg-amber-950/10 border-amber-700/30'
+            : selectedTextKey === 'longCaseText'
             ? 'bg-slate-850 border-brand-orange-500/40 ring-1 ring-brand-orange-500/30'
             : 'bg-slate-900/50 border-slate-800 hover:border-slate-750'
         }`}
@@ -163,19 +191,37 @@ export function CaseTab({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2">
             <span className="text-[11px] font-mono bg-zinc-800 text-zinc-350 px-2 py-0.5 rounded uppercase font-bold tracking-wider">2. Længere case-tekst (Website)</span>
-            {selectedTextKey === 'longCaseText' && <span className="text-[11px] bg-brand-orange-600/20 text-brand-orange-500 px-1.5 py-0.2 rounded font-mono font-medium border border-brand-orange-500/20">Valgt til raffinering</span>}
+            {selectedTextKey === 'longCaseText' && !isLocked('longCaseText') && <span className="text-[11px] bg-brand-orange-600/20 text-brand-orange-500 px-1.5 py-0.2 rounded font-mono font-medium border border-brand-orange-500/20">Valgt til raffinering</span>}
+            {isLocked('longCaseText') && <span className="text-[11px] bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded font-mono border border-amber-500/20">Låst</span>}
           </div>
           <div className="flex items-center space-x-1.5">
             {hasHistory('longCaseText') && (
               <button
                 onClick={(e) => { e.stopPropagation(); handleUndoRefine('longCaseText'); }}
-                className="text-[11px] text-amber-500 hover:text-amber-400 font-mono flex items-center space-x-0.5 mr-2"
+                className="text-[11px] text-amber-500 hover:text-amber-400 font-mono flex items-center space-x-0.5 mr-1"
                 title="Fortryd omskrivning"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span>Fortryd</span>
               </button>
             )}
+            <button
+              onClick={(e) => { e.stopPropagation(); handleRegenerateSection('longCaseText'); }}
+              disabled={isRefining || regeneratingKey !== null || isLocked('longCaseText')}
+              className="text-slate-400 hover:text-sky-400 disabled:opacity-30 transition-colors"
+              title="Generer frisk version fra bunden"
+            >
+              {regeneratingKey === 'longCaseText'
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin text-sky-400" />
+                : <RefreshCw className="w-3.5 h-3.5" />}
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleToggleLock('longCaseText'); }}
+              className={`transition-colors ${isLocked('longCaseText') ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'}`}
+              title={isLocked('longCaseText') ? 'Sektion låst — klik for at låse op' : 'Lås sektion (bevares ved ny generering)'}
+            >
+              {isLocked('longCaseText') ? <Lock className="w-3.5 h-3.5" /> : <LockOpen className="w-3.5 h-3.5" />}
+            </button>
             <button
               onClick={(e) => { e.stopPropagation(); handleCopyToClipboard(output.longCaseText, 'longCaseText'); }}
               className="text-slate-400 hover:text-white transition-colors"
