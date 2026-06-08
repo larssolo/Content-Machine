@@ -27,6 +27,7 @@ import {
   Clock,
   Trash2,
   Download,
+  Presentation,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { DirectUsableBar } from './components/DirectUsableBar';
@@ -111,6 +112,7 @@ export default function App() {
     handleCopyAllMarkdown,
     handleExportHtml,
     handleExportDocx,
+    handleExportDeck,
     handleLoadHistory,
     handleClearHistory,
     handleGenerateVariants,
@@ -218,6 +220,7 @@ export default function App() {
               selectedTerritory={selectedTerritory}
               onSelectTerritory={handleSelectTerritory}
               onClearTerritory={handleClearTerritory}
+              onExportDeck={handleExportDeck}
               onClose={() => setCampaignPlatform(null)}
               copiedKey={copiedKey}
               onCopy={handleCopyToClipboard}
@@ -497,6 +500,22 @@ export default function App() {
                             <span>Download som HTML (.html)</span>
                           </button>
 
+                          {selectedTerritory && (
+                            <>
+                              <div className="px-2.5 py-1 bg-slate-900/40 rounded border-y border-slate-900/60 my-1">
+                                <span className="text-[11px] text-slate-500 font-bold uppercase tracking-widest block">Pitch-deck</span>
+                              </div>
+
+                              <button
+                                onClick={handleExportDeck}
+                                className="w-full text-left px-2.5 py-1.5 text-[11px] text-slate-250 hover:text-white hover:bg-slate-900 rounded transition-colors flex items-center space-x-2"
+                              >
+                                <Presentation className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+                                <span className="font-bold text-violet-300">Eksportér pitch-deck (.html)</span>
+                              </button>
+                            </>
+                          )}
+
                           <div className="px-2.5 py-1 bg-slate-900/40 rounded border-y border-slate-900/60 my-1">
                             <span className="text-[11px] text-slate-500 font-bold uppercase tracking-widest block">Word</span>
                           </div>
@@ -767,7 +786,7 @@ export default function App() {
             <span>
               Content Machine by{' '}
               <a href="https://www.larssohl.dk" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 transition-colors">larssohl.dk</a>
-              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.11.1
+              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.12.0
             </span>
             <div className="flex items-center space-x-4">
               {lastUsage && <UsageBadge usage={lastUsage} />}

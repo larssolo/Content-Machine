@@ -11,6 +11,7 @@ import {
   Copy,
   Lightbulb,
   Megaphone,
+  Presentation,
   Quote,
   Radar,
   Sparkles,
@@ -24,6 +25,7 @@ interface CampaignPanelProps {
   selectedTerritory: CampaignTerritory | null;
   onSelectTerritory: (territory: CampaignTerritory) => void;
   onClearTerritory: () => void;
+  onExportDeck?: () => void;
   onClose: () => void;
   copiedKey: string | null;
   onCopy: (text: string, key: string) => void;
@@ -34,6 +36,7 @@ export function CampaignPanel({
   selectedTerritory,
   onSelectTerritory,
   onClearTerritory,
+  onExportDeck,
   onClose,
   copiedKey,
   onCopy,
@@ -79,12 +82,24 @@ export function CampaignPanel({
               Aktiv platform: <span className="font-bold">{selectedTerritory.name}</span> — alt nyt indhold bygger på denne idé
             </span>
           </div>
-          <button
-            onClick={onClearTerritory}
-            className="text-[11px] font-mono text-slate-400 hover:text-white shrink-0 transition-colors"
-          >
-            Ryd
-          </button>
+          <div className="flex items-center space-x-3 shrink-0">
+            {onExportDeck && (
+              <button
+                onClick={onExportDeck}
+                className="flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-violet-600 hover:bg-violet-500 text-white text-[11px] font-semibold transition-all active:scale-95"
+                title="Saml strategi, idé og kanaler til én klient-klar pitch-deck (.html)"
+              >
+                <Presentation className="w-3.5 h-3.5" />
+                <span>Eksportér pitch-deck</span>
+              </button>
+            )}
+            <button
+              onClick={onClearTerritory}
+              className="text-[11px] font-mono text-slate-400 hover:text-white transition-colors"
+            >
+              Ryd
+            </button>
+          </div>
         </div>
       )}
 

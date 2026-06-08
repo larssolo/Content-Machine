@@ -7,6 +7,7 @@ import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { ProjectBrief, BrandSurfaceOutput, PresetBrief, HumanizerResult, ToneAnalysis, VisualDevResult, UsageInfo, BrainstormResult, LogoResult, CampaignPlatform, CampaignTerritory, StrategyFoundation, ChannelMatrix } from '../types';
 import { buildMarkdown, downloadTextFile, slugify } from '../lib/exportMarkdown';
 import { downloadHtmlFile } from '../lib/exportHtml';
+import { downloadDeckFile } from '../lib/exportDeck';
 import { downloadDocx } from '../lib/exportDocx';
 import { saveSession, loadSession } from '../lib/session';
 import { loadHistory, pushHistory, clearHistory, type HistoryItem } from '../lib/history';
@@ -367,6 +368,28 @@ export function useContentMachine() {
       await downloadDocx(`${slugify(brief.client || 'brand-surface')}-case.docx`, output, brief);
     } catch (e: any) {
       setErrorMsg(e.message || 'Kunne ikke generere Word-dokument.');
+    }
+  };
+
+  const handleExportDeck = async () => {
+    if (!selectedTerritory) return;
+    try {
+      await downloadDeckFile({
+        brief,
+        territory: selectedTerritory,
+        strategy,
+        channelMatrix,
+        output,
+        logoSrc: logoResult?.imageUrl,
+        logoSvg: logoResult?.svg,
+        images: {
+          hero: generatedImages.hero?.url || undefined,
+          detail: generatedImages.detail?.url || undefined,
+          abstract: generatedImages.abstract?.url || undefined,
+        },
+      });
+    } catch (e: any) {
+      setErrorMsg(e.message || 'Kunne ikke generere pitch-deck.');
     }
   };
 
@@ -1346,6 +1369,7 @@ export function useContentMachine() {
     handleCopyAllMarkdown,
     handleExportHtml,
     handleExportDocx,
+    handleExportDeck,
     handleLoadHistory,
     handleClearHistory,
     handleGenerateVariants,
