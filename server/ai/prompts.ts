@@ -355,11 +355,35 @@ Et stærkt strategisk fundament:
 
 Vær skarp og konkret. Ingen floskler, ingen tom marketing-luft. Aflever hele fundamentet via det angivne værktøj, præcist som skemaet kræver.`;
 
-export function buildStrategy(brief: Brief): {
+export function buildStrategy(
+  brief: Brief,
+  culturalIntel?: import('./culturalScan').CulturalScanResult | null,
+): {
   system: Anthropic.TextBlockParam[];
   user: string;
 } {
   const system = cacheableSystem([STRATEGY_SYSTEM_ROLE, cviSectionText(brief)]);
+  const culturalBlock = culturalIntel
+    ? (() => {
+        // Inline serialisation (same structure as culturalContextText but avoids circular dep)
+        const trends = (culturalIntel.trends || [])
+          .map((t: any) => `  · ${t.trend} → ${t.actionableAngle}`)
+          .join('\n');
+        const competitors = (culturalIntel.competitorSignals || [])
+          .map((c: any) => `  · ${c.brand}: ${c.signal} (${c.takeaway})`)
+          .join('\n');
+        const moments = (culturalIntel.culturalMoments || [])
+          .map((m: any) => `  · ${m.moment} → ${m.opportunity}`)
+          .join('\n');
+        return `\nKULTUREL EFTERRETNING (brug som virkelighedsgrundlag — strategien SKAL besvare åbningsspørgsmålet):
+Landskab: ${culturalIntel.groundingNarrative || 'N/A'}
+Trends:\n${trends || '  · N/A'}
+Konkurrenter:\n${competitors || '  · N/A'}
+Kulturelle øjeblikke:\n${moments || '  · N/A'}
+Timing: ${culturalIntel.timingContext || 'N/A'}
+Åbningsspørgsmål: ${culturalIntel.openingQuestion || 'N/A'}\n`;
+      })()
+    : '';
   const user = `PROJEKT BRIEF:
 - Kunde: ${brief.client || 'N/A'}
 - Projekt: ${brief.project || 'N/A'}
@@ -370,7 +394,7 @@ export function buildStrategy(brief: Brief): {
 - Sprog: ${brief.language || 'Dansk'}
 - Kanaler: ${(brief.channels || []).join(', ') || 'N/A'}
 - Ekstra noter: ${brief.notes || 'N/A'}
-
+${culturalBlock}
 Udvikl nu det strategiske fundament for dette projekt: målgruppe-indsigt, central spænding, konkurrence-kontekst, det enkelt-mindede løfte, reasons-to-believe, ønsket respons og 2-3 strategiske afsæt. Aflever via værktøjet. Skriv på ${brief.language || 'Dansk'}.`;
 
   return { system, user };

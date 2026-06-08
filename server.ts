@@ -39,6 +39,7 @@ import {
 } from './server/ai/schemas';
 import { runDeliberation } from './server/ai/deliberate';
 import { runVisualDeliberation } from './server/ai/deliberateVisual';
+import { runCulturalScan } from './server/ai/culturalScan';
 import { getImageProvider } from './server/image/provider';
 import { generateLogoSvg } from './server/image/recraftVector';
 
@@ -331,14 +332,42 @@ async function startServer() {
   });
 
   // Strategi-fundament: indsigt der fodrer Den Store Idé-motor
-  app.post('/api/strategy', async (req, res) => {
+  // Kulturel antenne: web-grounding scan af branche, konkurrenter og kulturelle øjeblikke
+  app.post('/api/cultural-scan', async (req, res) => {
     try {
       const { brief } = req.body;
       if (!brief) {
         return res.status(400).json({ error: 'Brief er påkrævet.' });
       }
 
-      const { system, user } = buildStrategy(brief);
+      const signal = req.socket.destroyed
+        ? AbortSignal.abort()
+        : new AbortController().signal;
+
+      const result = await runCulturalScan(brief, signal);
+
+      if (!result || !result.groundingNarrative) {
+        throw new Error('Ufuldstændig scanning. Prøv igen.');
+      }
+
+      res.json(result);
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        return res.status(499).json({ error: 'Annulleret.' });
+      }
+      console.error('Fejl under kulturel scanning:', error);
+      res.status(500).json({ error: error.message || 'Kulturel scanning fejlede.' });
+    }
+  });
+
+  app.post('/api/strategy', async (req, res) => {
+    try {
+      const { brief, culturalIntel } = req.body;
+      if (!brief) {
+        return res.status(400).json({ error: 'Brief er påkrævet.' });
+      }
+
+      const { system, user } = buildStrategy(brief, culturalIntel ?? null);
       let usageInfo: any = null;
       const parsed = await generateStructured<any>({
         system,

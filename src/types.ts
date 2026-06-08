@@ -159,6 +159,37 @@ export interface StrategyFoundation {
   strategicSummary: string;
 }
 
+// ---------------------------------------------------------------------------
+// Kulturel efterretning (Kulturel antenne)
+// ---------------------------------------------------------------------------
+
+export interface CulturalTrend {
+  trend: string;
+  relevance: string;
+  actionableAngle: string;
+}
+
+export interface CompetitorSignal {
+  brand: string;
+  signal: string;
+  takeaway: string;
+}
+
+export interface CulturalMoment {
+  moment: string;
+  opportunity: string;
+}
+
+export interface CulturalScanResult {
+  trends: CulturalTrend[];
+  competitorSignals: CompetitorSignal[];
+  culturalMoments: CulturalMoment[];
+  timingContext: string;
+  openingQuestion: string;
+  groundingNarrative: string;
+  searchedAt: string;
+}
+
 export interface ChannelScriptBlock {
   label: string;
   content: string;

@@ -52,6 +52,7 @@ import { Toolbar } from './components/Toolbar';
 import { UsageBadge } from './components/UsageBadge';
 import { BrainstormPanel } from './components/BrainstormPanel';
 import { CampaignPanel } from './components/CampaignPanel';
+import { CulturalAntennaPanel } from './components/CulturalAntennaPanel';
 import { StrategyPanel } from './components/StrategyPanel';
 import { ChannelMatrixPanel } from './components/ChannelMatrixPanel';
 import { LogoPanel } from './components/LogoPanel';
@@ -88,6 +89,7 @@ export default function App() {
     regeneratingKey, handleRegenerateSection,
     brainstormResult, setBrainstormResult,
     isBrainstorming, handleBrainstorm,
+    culturalIntel, isScanning, handleCulturalScan, handleClearCulturalIntel,
     strategy,
     isGeneratingStrategy, handleGenerateStrategy, handleClearStrategy,
     campaignPlatform, setCampaignPlatform,
@@ -174,6 +176,9 @@ export default function App() {
            handleVisualDevelop={handleVisualDevelop}
            handleBrainstorm={handleBrainstorm}
            isBrainstorming={isBrainstorming}
+           handleCulturalScan={handleCulturalScan}
+           isScanning={isScanning}
+           hasCulturalIntel={!!culturalIntel}
            handleGenerateStrategy={handleGenerateStrategy}
            isGeneratingStrategy={isGeneratingStrategy}
            hasStrategy={!!strategy}
@@ -200,6 +205,18 @@ export default function App() {
              handleExecuteTerminalCommand={handleExecuteTerminalCommand}
            />
 
+
+          {/* CULTURAL ANTENNA PANEL */}
+          {culturalIntel && (
+            <CulturalAntennaPanel
+              intel={culturalIntel}
+              onClose={handleClearCulturalIntel}
+              onGenerateStrategy={handleGenerateStrategy}
+              isGeneratingStrategy={isGeneratingStrategy}
+              copiedKey={copiedKey}
+              onCopy={handleCopyToClipboard}
+            />
+          )}
 
           {/* STRATEGY FOUNDATION PANEL (Strategi-fundament) */}
           {strategy && (
@@ -786,7 +803,7 @@ export default function App() {
             <span>
               Content Machine by{' '}
               <a href="https://www.larssohl.dk" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 transition-colors">larssohl.dk</a>
-              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.12.0
+              {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.13.0
             </span>
             <div className="flex items-center space-x-4">
               {lastUsage && <UsageBadge usage={lastUsage} />}

@@ -6,7 +6,7 @@
 import { Dispatch, SetStateAction, ChangeEvent } from 'react';
 import {
   AlertTriangle, Check, ChevronRight, Compass, FileText, Fingerprint,
-  Layers, Lightbulb, Loader2, Palette, Pin, Rocket, RotateCcw, Sparkles, Trash2, UploadCloud, Users,
+  Layers, Lightbulb, Loader2, Palette, Pin, Radio, Rocket, RotateCcw, Sparkles, Trash2, UploadCloud, Users,
 } from 'lucide-react';
 import { ProjectBrief, BrandSurfaceOutput, PresetBrief } from '../types';
 
@@ -34,6 +34,9 @@ interface BriefFormProps {
   handleVisualDevelop: () => void;
   handleBrainstorm: () => void;
   isBrainstorming: boolean;
+  handleCulturalScan: () => void;
+  isScanning: boolean;
+  hasCulturalIntel: boolean;
   handleGenerateStrategy: () => void;
   isGeneratingStrategy: boolean;
   hasStrategy: boolean;
@@ -54,6 +57,7 @@ export function BriefForm({
   handleCviUpload, handleRemoveCvi, handlePinCurrentBrief,
   handleClearPresets, handleRestorePresets,
   handleGenerateAll, handleVisualDevelop, handleBrainstorm, isBrainstorming,
+  handleCulturalScan, isScanning, hasCulturalIntel,
   handleGenerateStrategy, isGeneratingStrategy, hasStrategy,
   handleGenerateBigIdea, isGeneratingCampaign, hasSelectedTerritory,
   handleGenerateChannelMatrix, isGeneratingMatrix,
@@ -438,6 +442,35 @@ export function BriefForm({
                 <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${deepMode ? 'translate-x-4' : ''}`} />
               </span>
             </button>
+
+            {/* CULTURAL ANTENNA BUTTON */}
+            <button
+              type="button"
+              onClick={handleCulturalScan}
+              disabled={isGenerating || isScanning}
+              className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-amber-600/15 to-orange-600/10 border border-amber-500/40 hover:border-amber-400/60 hover:from-amber-600/25 text-amber-100 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              title="Scan kulturen, konkurrenter og aktuelle trends via websøgning — grounder strategien i virkeligheden"
+            >
+              {isScanning ? (
+                <>
+                  <Loader2 className="w-4 h-4 text-amber-300 animate-spin shrink-0" />
+                  <span>Scanner kultur & marked...</span>
+                </>
+              ) : (
+                <>
+                  <Radio className="w-4 h-4 text-amber-300 shrink-0" />
+                  <span>Skan kultur & marked</span>
+                </>
+              )}
+            </button>
+
+            {/* ACTIVE CULTURAL INTEL INDICATOR */}
+            {hasCulturalIntel && (
+              <div className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/25 text-[11px] font-mono text-amber-200">
+                <Radio className="w-3 h-3 text-amber-300 shrink-0" />
+                <span>Strategi-fundamentet bygger på live kulturel scanning</span>
+              </div>
+            )}
 
             {/* STRATEGY FOUNDATION BUTTON (Strategi-fundament) */}
             <button

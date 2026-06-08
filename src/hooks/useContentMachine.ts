@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { ProjectBrief, BrandSurfaceOutput, PresetBrief, HumanizerResult, ToneAnalysis, VisualDevResult, UsageInfo, BrainstormResult, LogoResult, CampaignPlatform, CampaignTerritory, StrategyFoundation, ChannelMatrix } from '../types';
+import { ProjectBrief, BrandSurfaceOutput, PresetBrief, HumanizerResult, ToneAnalysis, VisualDevResult, UsageInfo, BrainstormResult, LogoResult, CampaignPlatform, CampaignTerritory, StrategyFoundation, ChannelMatrix, CulturalScanResult } from '../types';
 import { buildMarkdown, downloadTextFile, slugify } from '../lib/exportMarkdown';
 import { downloadHtmlFile } from '../lib/exportHtml';
 import { downloadDeckFile } from '../lib/exportDeck';
@@ -117,6 +117,9 @@ export function useContentMachine() {
   const [brainstormResult, setBrainstormResult] = useState<BrainstormResult | null>(null);
   const [isBrainstorming, setIsBrainstorming] = useState<boolean>(false);
 
+  const [culturalIntel, setCulturalIntel] = useState<CulturalScanResult | null>(() => loadSession()?.culturalIntel ?? null);
+  const [isScanning, setIsScanning] = useState<boolean>(false);
+
   const [strategy, setStrategy] = useState<StrategyFoundation | null>(() => loadSession()?.strategy ?? null);
   const [isGeneratingStrategy, setIsGeneratingStrategy] = useState<boolean>(false);
 
@@ -199,8 +202,8 @@ export function useContentMachine() {
 
   useEffect(() => {
     if (!output && !brief.client) return;
-    saveSession({ brief, output, revisions, activeCompareIndex, generatedImages, cviFileName, activeTab, lockedSections, selectedTerritory, strategy, channelMatrix });
-  }, [brief, output, revisions, activeCompareIndex, generatedImages, cviFileName, activeTab, lockedSections, selectedTerritory, strategy, channelMatrix]);
+    saveSession({ brief, output, revisions, activeCompareIndex, generatedImages, cviFileName, activeTab, lockedSections, selectedTerritory, strategy, channelMatrix, culturalIntel });
+  }, [brief, output, revisions, activeCompareIndex, generatedImages, cviFileName, activeTab, lockedSections, selectedTerritory, strategy, channelMatrix, culturalIntel]);
 
   const handleClearPresets = () => {
     setCustomPresets([]);
@@ -911,7 +914,7 @@ export function useContentMachine() {
       const response = await fetch('/api/strategy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ brief })
+        body: JSON.stringify({ brief, culturalIntel: culturalIntel ?? undefined })
       });
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
@@ -931,6 +934,37 @@ export function useContentMachine() {
 
   const handleClearStrategy = () => {
     setStrategy(null);
+  };
+
+  const handleCulturalScan = async () => {
+    if (!brief.client || !brief.description) {
+      setErrorMsg('Udfyld mindst Kunde og Hvad lavede vi for at scanne kulturen.');
+      return;
+    }
+    setIsScanning(true);
+    setErrorMsg(null);
+    try {
+      const response = await fetch('/api/cultural-scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brief }),
+      });
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(httpErrorMessage(response.status, errData.error));
+      }
+      const data = await response.json();
+      setCulturalIntel(data as CulturalScanResult);
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Kulturel scanning fejlede.');
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleClearCulturalIntel = () => {
+    setCulturalIntel(null);
   };
 
   const handleGenerateBigIdea = async () => {
@@ -1323,6 +1357,8 @@ export function useContentMachine() {
     brainstormResult, setBrainstormResult,
     isBrainstorming,
     handleBrainstorm,
+    // Kulturel antenne
+    culturalIntel, isScanning, handleCulturalScan, handleClearCulturalIntel,
     // Strategi-fundament
     strategy, setStrategy,
     isGeneratingStrategy, handleGenerateStrategy, handleClearStrategy,
