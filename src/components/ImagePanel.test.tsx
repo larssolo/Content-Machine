@@ -11,10 +11,12 @@ describe('ImagePanel', () => {
     expect(screen.getByPlaceholderText('Beskriv billedet du vil generere…')).toBeTruthy();
   });
 
-  it('does not call onGenerate when the prompt is empty (button disabled)', () => {
+  it('disables the generate button and does not call onGenerate when the prompt is empty', () => {
     const onGenerate = vi.fn();
     render(<ImagePanel image={baseImage} onGenerate={onGenerate} onAspectChange={() => {}} />);
-    fireEvent.click(screen.getByText('Generer billede'));
+    const button = screen.getByText('Generer billede').closest('button') as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+    fireEvent.click(button);
     expect(onGenerate).not.toHaveBeenCalled();
   });
 

@@ -144,7 +144,7 @@ export function ImageGenCard({
               disabled ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-brand-orange-600 hover:bg-brand-orange-500 cursor-pointer'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-white" />
+            <Sparkles className="w-3.5 h-3.5" />
             <span>Generer billede</span>
           </button>
         )}
