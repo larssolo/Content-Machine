@@ -11,7 +11,7 @@ export type GeneratedImageState = { url: string; loading: boolean; error: string
 export type GeneratedImages = Record<GeneratedImageKey, GeneratedImageState>;
 
 /**
- * AI-billedgenerering pr. slot (hero/detail/abstract): aspekt-forhold og
+ * AI-billedgenerering pr. slot (hero/detail/abstract/custom): aspekt-forhold og
  * generering via /api/generate-image. Selvstændigt domæne — kun afhængig af
  * den fælles fejl-helper. setGeneratedImages eksponeres så session-gendannelse
  * kan fylde gemte billeder ind.

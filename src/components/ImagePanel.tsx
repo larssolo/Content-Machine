@@ -48,7 +48,7 @@ export function ImagePanel({ image, onGenerate, onAspectChange }: ImagePanelProp
         copied={copied}
         onCopy={handleCopy}
         onAspectChange={onAspectChange}
-        onGenerate={() => { if (trimmed) onGenerate(prompt); }}
+        onGenerate={() => { if (trimmed) onGenerate(trimmed); }}
         disabled={!trimmed}
       />
     </div>
