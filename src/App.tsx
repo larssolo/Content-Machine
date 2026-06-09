@@ -100,9 +100,32 @@ export default function App() {
       <div className="print:hidden flex flex-col min-h-screen w-full flex-1">
 
         <WorkingOverlay
-          show={isGenerating || isVisualDeveloping || isHumanizing}
-          title={isVisualDeveloping ? 'Visuel udvikling' : isHumanizing ? 'Humaniserer' : deepMode ? 'Redaktionsmøde' : 'Genererer'}
+          show={
+            isGenerating || isRefining || isAnalyzing || isVisualDeveloping || isHumanizing ||
+            isAnalyzingCvi || isBrainstorming || isScanning || isGeneratingStrategy ||
+            isGeneratingCampaign || isSharpening || isGeneratingMatrix ||
+            isGeneratingEffectiveness || isGeneratingLogo || isOptimizingLogoPrompt
+          }
+          title={
+            isVisualDeveloping ? 'Visuel udvikling' :
+            isHumanizing ? 'Humaniserer' :
+            isAnalyzingCvi ? 'Analyserer CVI' :
+            isBrainstorming ? 'Brainstormer' :
+            isScanning ? 'Kulturel scanning' :
+            isGeneratingStrategy ? 'Strategi-fundament' :
+            isGeneratingCampaign ? 'Den Store Idé' :
+            isSharpening ? 'Skærper idé' :
+            isGeneratingMatrix ? 'Omni-channel matrix' :
+            isGeneratingEffectiveness ? 'Effekt-lag' :
+            isGeneratingLogo ? 'Logo' :
+            isOptimizingLogoPrompt ? 'Logo-prompt' :
+            isRefining ? 'Forfiner' :
+            isAnalyzing ? 'Analyserer' :
+            deepMode ? 'Redaktionsmøde' : 'Genererer'
+          }
           step={isHumanizing ? 'Omformulerer og gør teksten mere menneskelig …' : generationStep}
+          error={errorMsg}
+          onDismissError={() => setErrorMsg(null)}
         />
 
         {/* BRAND HEADER */}
