@@ -25,6 +25,8 @@ interface Props {
   onCopy: () => void;
   onAspectChange: (ratio: string) => void;
   onGenerate: () => void;
+  /** Deaktiverer generér-knappen (fx når prompten er tom). Default: false. */
+  disabled?: boolean;
 }
 
 /** Ét kort for en AI-billedprompt med live generering (erstatter 3 ens blokke). */
@@ -40,6 +42,7 @@ export function ImageGenCard({
   onCopy,
   onAspectChange,
   onGenerate,
+  disabled = false,
 }: Props) {
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between space-y-4 shadow-sm">
@@ -136,7 +139,10 @@ export function ImageGenCard({
         ) : (
           <button
             onClick={onGenerate}
-            className="w-full py-2 bg-brand-orange-600 hover:bg-brand-orange-500 rounded-lg text-white font-medium text-[11px] shadow-sm transition-all flex items-center justify-center space-x-1.5 cursor-pointer"
+            disabled={disabled}
+            className={`w-full py-2 rounded-lg text-white font-medium text-[11px] shadow-sm transition-all flex items-center justify-center space-x-1.5 ${
+              disabled ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-brand-orange-600 hover:bg-brand-orange-500 cursor-pointer'
+            }`}
           >
             <Sparkles className="w-3.5 h-3.5 text-white" />
             <span>Generer billede</span>
