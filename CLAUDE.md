@@ -1,4 +1,4 @@
-# Content Machine — Development Rules
+# Neura Studio — Development Rules
 
 ## Version number
 
@@ -12,7 +12,7 @@ The app version lives in **three places** that must always be in sync:
 
 ## Branding
 
-The product is called **Content Machine**. Never use "Brand Surface" or "Brandsurface" anywhere in user-visible text, UI labels, export files, or AI prompts.
+The product is called **Neura Studio**. Never use "Content Machine", "Brand Surface" or "Brandsurface" anywhere in user-visible text, UI labels, export files, or AI prompts.
 
 ## Branch
 

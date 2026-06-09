@@ -20,10 +20,10 @@ export function AppHeader({ theme, setTheme }: AppHeaderProps) {
           </div>
           <div>
             <span className="font-display font-bold text-xl tracking-tight text-white">
-              Content Machine
+              Neura Studio
             </span>
             <div className="flex items-center text-[11px] text-slate-500 font-mono mt-0.5">
-              <span>v1.16.0</span>
+              <span>v1.17.0</span>
             </div>
           </div>
         </div>

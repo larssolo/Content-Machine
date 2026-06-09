@@ -129,7 +129,7 @@ describe('buildGenerate', () => {
   it('includes the static role and the brief fields', () => {
     const { system, user } = buildGenerate(baseBrief);
     expect(system).toHaveLength(1);
-    expect(system[0].text).toContain('Content Machine Produktionsassistent');
+    expect(system[0].text).toContain('Neura Studio Produktionsassistent');
     expect(user).toContain('Acme');
     expect(user).toContain('Launch');
     expect(user).toContain('Dansk');

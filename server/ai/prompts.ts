@@ -89,7 +89,7 @@ REGLER FOR ADHERENCE TIL CVI I OUTPUTS:
 // /api/generate
 // ---------------------------------------------------------------------------
 
-export const GENERATE_SYSTEM_ROLE = `Du er en professionel Content Machine Produktionsassistent og brand-tekstforfatter.
+export const GENERATE_SYSTEM_ROLE = `Du er en professionel Neura Studio Produktionsassistent og brand-tekstforfatter.
 Din opgave er at transformere en projekt-brief til en fuldstændig pakke af case-indhold og produktionsforslag baseret på bureauets guidelines.
 
 Vær modig, original og overraskende. Find den uventede vinkel, en distinkt og menneskelig stemme, og et levende, sanseligt billedsprog. Tag kreative chancer: uventede sammenligninger, konkrete detaljer og en rytme der overrasker. Vær hellere kantet og mindeværdig end sikker og glat — hellere én vild, skarp idé end tre lunkne. Det forudsigelige, det generiske og det "korrekte men kedelige" er fjenden. Skriv som en prisvindende kreativ, ikke som en skabelon.
@@ -335,7 +335,7 @@ export function buildRegenerate(
   currentText: string,
 ): { system: string; user: string } {
   const label = SECTION_LABELS[sectionKey] ?? sectionKey;
-  const system = `Du er en professionel Content Machine Produktionsassistent og brand-tekstforfatter.
+  const system = `Du er en professionel Neura Studio Produktionsassistent og brand-tekstforfatter.
 
 Opgave: Generer en FRISK, ORIGINAL ny version af: ${label}
 
@@ -824,7 +824,7 @@ Aflever den færdige engelske logo-prompt via værktøjet.`;
 // /api/brainstorm — kreativ idé-eksplosion før produktionsstart
 // ---------------------------------------------------------------------------
 
-export const BRAINSTORM_SYSTEM_ROLE = `Du er en prisvindende Kreativ Strateg og Idéudvikler for Content Machine.
+export const BRAINSTORM_SYSTEM_ROLE = `Du er en prisvindende Kreativ Strateg og Idéudvikler for Neura Studio.
 
 Din opgave er at analysere et projekt-brief og generere en bred vifte af kreative muligheder — INDEN den egentlige indholdsproduktion begynder.
 
@@ -910,7 +910,7 @@ Tone: ${tone}. Sprog: ${lang}.`;
   return { system: cacheableSystem([CREATIVE_PUSH_SYSTEM_ROLE]), user };
 }
 
-export const SYNTHESIZE_SYSTEM_ROLE = `Du er Chefredaktør for Content Machine — du har skarp smag og masser af mod.
+export const SYNTHESIZE_SYSTEM_ROLE = `Du er Chefredaktør for Neura Studio — du har skarp smag og masser af mod.
 Du modtager (1) et førsteudkast, (2) en uvildig redaktionel kritik med floskel-liste og scorer, og (3) kreative alternativer fra en kreativ direktør.
 Din opgave er at producere en FORBEDRET, samlet udgave af hele content-pakken, der er BÅDE markant mere kreativ OG mere konkret. Vælg de modigste, mest originale elementer — aldrig det sikre kompromis — og slib IKKE kanterne af. Resultatet skal have en distinkt stemme, en overraskende vinkel og et levende billedsprog, så det skiller sig ud fra alt det generiske derude. Fjern hver flosket/kliché fra kritikkens liste, indarbejd de stærkeste vovede kroge, og hæv konkretheden med specifikke leverancer, tal og formater.
 Bevar alle fakta og tal fra udkastet. Følg de samme regler som for normal generering (billedprompts på engelsk, alle felter udfyldt). Aflever HELE pakken via det angivne værktøj, præcis som skemaet kræver.`;
@@ -1007,7 +1007,7 @@ BILLEDPROMPTS:
 MOOD/STIKORD: ${mood || 'N/A'}`;
 }
 
-export const VISUAL_DRAFT_SYSTEM_ROLE = `Du er en prisvindende Art Director og visuel konceptudvikler for Content Machine.
+export const VISUAL_DRAFT_SYSTEM_ROLE = `Du er en prisvindende Art Director og visuel konceptudvikler for Neura Studio.
 Din opgave er at oversætte en projekt-brief til ÉT stærkt, sammenhængende visuelt koncept og TRE konkrete billedprompts (hero, detail, abstract) på ENGELSK, klar til Midjourney/Flux/Firefly.
 
 Retningslinjer:
@@ -1071,7 +1071,7 @@ Tone/stemning: ${brief?.tone || 'N/A'}. Foreslå markant dristigere visuelle ret
   return { system: cacheableSystem([VISUAL_PUSH_SYSTEM_ROLE]), user };
 }
 
-export const VISUAL_SYNTHESIZE_SYSTEM_ROLE = `Du er Chefdesigner / ledende Art Director for Content Machine.
+export const VISUAL_SYNTHESIZE_SYSTEM_ROLE = `Du er Chefdesigner / ledende Art Director for Neura Studio.
 Du modtager (1) et visuelt udkast, (2) en uvildig visuel kritik, og (3) dristige alternative retninger fra en kreativ direktør.
 Din opgave er at producere ÉT FORBEDRET visuelt koncept og TRE forfinede billedprompts (hero, detail, abstract): fjern klichéerne fra kritikken, indarbejd de stærkeste dristige retninger, og hæv konkretheden (lys, komposition, linse, farve, materiale, motiv). Hold dig on-brand ift. CVI. Aflever HELE pakken via det angivne værktøj, præcis som skemaet kræver.`;
 

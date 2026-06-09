@@ -312,9 +312,9 @@ export default function App() {
             {/* BRANDING FOOTER */}
             <div className="py-4 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
               <span>
-                Content Machine by{' '}
+                Neura Studio by{' '}
                 <a href="https://www.larssohl.dk" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 transition-colors">larssohl.dk</a>
-                {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.16.0
+                {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.17.0
               </span>
               <div className="flex items-center space-x-4">
                 {lastUsage && <UsageBadge usage={lastUsage} />}

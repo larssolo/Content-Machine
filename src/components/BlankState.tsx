@@ -24,7 +24,7 @@ export function BlankState({ onLoadPreset, onGenerateAll }: BlankStateProps) {
       </div>
 
       <div className="max-w-md space-y-2">
-        <h3 className="font-display font-medium text-lg text-white">Content Machine klar</h3>
+        <h3 className="font-display font-medium text-lg text-white">Neura Studio klar</h3>
         <p className="text-xs text-slate-400 leading-relaxed">
           Indlæs et test-brief fra listen til venstre (Modaxo Move 2026 er klar som standard), redigér eventuelt værdierne, og tryk derefter på
           <span className="font-bold text-orange-400"> "Generér indhold" </span>

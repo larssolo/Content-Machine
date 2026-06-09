@@ -277,7 +277,7 @@ export function PrintView({ output, brief, printMode, generatedImages }: PrintVi
 
           {/* Footer print disclaimer */}
           <div className="mt-12 text-center text-slate-400 text-[11px] font-mono border-t border-slate-150 pt-4">
-            <span>Udarbejdet via Content Machine • larssohl.dk</span>
+            <span>Udarbejdet via Neura Studio • larssohl.dk</span>
           </div>
 
         </div>

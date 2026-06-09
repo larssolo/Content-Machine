@@ -80,7 +80,7 @@ export function buildDeckHtml(input: DeckInput): string {
     slide(
       '',
       `${logoHtml}
-      <p class="cover-client">${esc(brief.client || 'Content Machine')}${brief.project ? ` — ${esc(brief.project)}` : ''}</p>
+      <p class="cover-client">${esc(brief.client || 'Neura Studio')}${brief.project ? ` — ${esc(brief.project)}` : ''}</p>
       <h1 class="cover-tagline">${esc(territory.tagline || territory.bigIdea)}</h1>
       <p class="cover-name">${esc(territory.name)}</p>`,
       'cover',
@@ -310,7 +310,7 @@ export function buildDeckHtml(input: DeckInput): string {
     })();
   `.trim();
 
-  const title = `${brief.client || 'Content Machine'} — Pitch`;
+  const title = `${brief.client || 'Neura Studio'} — Pitch`;
 
   return `<!DOCTYPE html>
 <html lang="da">

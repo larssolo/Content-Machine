@@ -33,7 +33,7 @@ const evaluationItems = {
 
 export const generateTool: Anthropic.Tool = {
   name: 'submit_brand_surface_output',
-  description: 'Aflever hele Content Machine content-pakken som struktureret data.',
+  description: 'Aflever hele Neura Studio content-pakken som struktureret data.',
   input_schema: {
     type: 'object',
     properties: {

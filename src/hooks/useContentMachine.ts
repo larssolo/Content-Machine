@@ -556,7 +556,7 @@ export function useContentMachine() {
 
   const handleGenerateAll = async () => {
     if (!brief.client || !brief.project || !brief.description) {
-      setErrorMsg("Udfyld venligst mindst Kunde, Projekt og Hvad lavede vi for at køre Content Machine.");
+      setErrorMsg("Udfyld venligst mindst Kunde, Projekt og Hvad lavede vi for at køre Neura Studio.");
       return;
     }
     if (deepMode) {
