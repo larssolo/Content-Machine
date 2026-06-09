@@ -73,7 +73,7 @@ function StepRow({ step, isGenerating }: { step: Step; isGenerating: boolean; ke
 
   if (interactive) {
     return (
-      <button type="button" data-status={step.status} onClick={step.onClick} disabled={isGenerating} className={className}>
+      <button type="button" data-status={step.status} onClick={step.onClick} disabled={isGenerating || step.busy} className={className}>
         {inner}
       </button>
     );
@@ -120,7 +120,7 @@ export function ProcessStepper(props: ProcessStepperProps) {
         type="button"
         onClick={onGenerateAll}
         disabled={isGenerating}
-        className={`w-full mt-1 py-3.5 px-4 rounded-xl font-display font-bold text-sm text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-sm ${
+        className={`w-full mt-1 py-3.5 px-4 rounded-xl font-display font-bold text-sm text-white flex items-center justify-center gap-2 transition-all select-none active:scale-[0.98] shadow-sm ${
           isGenerating ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-brand-orange-600 hover:bg-brand-orange-500 cursor-pointer'
         }`}
       >

@@ -55,4 +55,11 @@ describe('ProcessStepper', () => {
     fireEvent.click(screen.getByText('Omni-channel matrix'));
     expect(onGenerateChannelMatrix).not.toHaveBeenCalled();
   });
+
+  it('does not fire a step handler while that step is busy', () => {
+    const onCulturalScan = vi.fn();
+    render(<ProcessStepper {...baseProps} isScanning={true} onCulturalScan={onCulturalScan} />);
+    fireEvent.click(screen.getByText('Skan kultur & marked'));
+    expect(onCulturalScan).not.toHaveBeenCalled();
+  });
 });
