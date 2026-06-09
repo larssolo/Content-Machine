@@ -10,6 +10,7 @@ import {
   Sparkles, Swords, Target, Trash2, UploadCloud, Users, Wallet,
 } from 'lucide-react';
 import { ProjectBrief, BrandSurfaceOutput, PresetBrief } from '../types';
+import { ProcessStepper } from './ProcessStepper';
 
 interface BriefFormProps {
   brief: ProjectBrief;
@@ -44,6 +45,9 @@ interface BriefFormProps {
   handleGenerateBigIdea: () => void;
   isGeneratingCampaign: boolean;
   hasSelectedTerritory: boolean;
+  hasPressureTest: boolean;
+  hasChannelMatrix: boolean;
+  hasEffectiveness: boolean;
   handleGenerateChannelMatrix: () => void;
   isGeneratingMatrix: boolean;
   handleGenerateEffectiveness: () => void;
@@ -63,6 +67,7 @@ export function BriefForm({
   handleCulturalScan, isScanning, hasCulturalIntel,
   handleGenerateStrategy, isGeneratingStrategy, hasStrategy,
   handleGenerateBigIdea, isGeneratingCampaign, hasSelectedTerritory,
+  hasPressureTest, hasChannelMatrix, hasEffectiveness,
   handleGenerateChannelMatrix, isGeneratingMatrix,
   handleGenerateEffectiveness, isGeneratingEffectiveness,
   errorMsg, generationStep,
@@ -498,231 +503,90 @@ export function BriefForm({
               </div>
             </div>
 
-            {/* DEEP MODE TOGGLE (REDAKTIONSMØDE) */}
-            <button
-              type="button"
-              onClick={() => setDeepMode(v => !v)}
-              disabled={isGenerating}
-              aria-pressed={deepMode}
-              className={`w-full flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg border transition-all text-left ${
-                deepMode
-                  ? 'bg-brand-orange-600/10 border-brand-orange-500/40'
-                  : 'bg-slate-900 border-slate-800 hover:border-slate-700'
-              } ${isGenerating ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-              title="Lader flere AI-roller kritisere og forbedre hinanden for et mere gennemarbejdet resultat"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <Users className={`w-4 h-4 shrink-0 ${deepMode ? 'text-brand-orange-500' : 'text-slate-500'}`} />
-                <div className="min-w-0">
-                  <span className="block text-[11px] font-mono font-bold text-slate-200">Dyb tilstand · Redaktionsmøde</span>
-                  <span className="block text-[11px] text-slate-500 leading-tight truncate">Flere AI-roller forbedrer hinanden (langsommere, dyrere)</span>
-                </div>
-              </div>
-              <span className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${deepMode ? 'bg-brand-orange-500' : 'bg-slate-700'}`}>
-                <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${deepMode ? 'translate-x-4' : ''}`} />
-              </span>
-            </button>
+            {/* PROCES-STEPPER (funnel i rækkefølge) */}
+            <ProcessStepper
+              isGenerating={isGenerating}
+              deepMode={deepMode}
+              generationStep={generationStep}
+              isScanning={isScanning}
+              isGeneratingStrategy={isGeneratingStrategy}
+              isGeneratingCampaign={isGeneratingCampaign}
+              isGeneratingMatrix={isGeneratingMatrix}
+              isGeneratingEffectiveness={isGeneratingEffectiveness}
+              hasCulturalIntel={hasCulturalIntel}
+              hasStrategy={hasStrategy}
+              hasSelectedTerritory={hasSelectedTerritory}
+              hasPressureTest={hasPressureTest}
+              hasChannelMatrix={hasChannelMatrix}
+              hasEffectiveness={hasEffectiveness}
+              onCulturalScan={handleCulturalScan}
+              onGenerateStrategy={handleGenerateStrategy}
+              onGenerateBigIdea={handleGenerateBigIdea}
+              onGenerateChannelMatrix={handleGenerateChannelMatrix}
+              onGenerateEffectiveness={handleGenerateEffectiveness}
+              onGenerateAll={handleGenerateAll}
+            />
 
-            {/* CULTURAL ANTENNA BUTTON */}
-            <button
-              type="button"
-              onClick={handleCulturalScan}
-              disabled={isGenerating || isScanning}
-              className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-amber-600/15 to-orange-600/10 border border-amber-500/40 hover:border-amber-400/60 hover:from-amber-600/25 text-amber-100 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-              title="Scan kulturen, konkurrenter og aktuelle trends via websøgning — grounder strategien i virkeligheden"
-            >
-              {isScanning ? (
-                <>
-                  <Loader2 className="w-4 h-4 text-amber-300 animate-spin shrink-0" />
-                  <span>Scanner kultur & marked...</span>
-                </>
-              ) : (
-                <>
-                  <Radio className="w-4 h-4 text-amber-300 shrink-0" />
-                  <span>Skan kultur & marked</span>
-                </>
-              )}
-            </button>
+            {/* VÆRKTØJER */}
+            <div className="space-y-2">
+              <span className="block text-[11px] font-mono font-bold tracking-wider uppercase text-slate-400">Værktøjer</span>
 
-            {/* ACTIVE CULTURAL INTEL INDICATOR */}
-            {hasCulturalIntel && (
-              <div className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/25 text-[11px] font-mono text-amber-200">
-                <Radio className="w-3 h-3 text-amber-300 shrink-0" />
-                <span>Strategi-fundamentet bygger på live kulturel scanning</span>
-              </div>
-            )}
+              <button
+                type="button"
+                onClick={handleBrainstorm}
+                disabled={isGenerating || isBrainstorming}
+                className="w-full py-2.5 px-4 rounded-lg border border-slate-800 bg-slate-900 text-slate-200 hover:border-slate-700 hover:text-white font-display font-semibold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                title="Generer kreative idéer og vinkler for dette brief — uden at forpligte sig til fuld generering"
+              >
+                {isBrainstorming
+                  ? <Loader2 className="w-4 h-4 text-brand-orange-400 animate-spin shrink-0" />
+                  : <Lightbulb className="w-4 h-4 text-brand-orange-400 shrink-0" />}
+                <span>{isBrainstorming ? 'Brainstormer idéer...' : 'Brainstorm kreative idéer'}</span>
+              </button>
 
-            {/* STRATEGY FOUNDATION BUTTON (Strategi-fundament) */}
-            <button
-              type="button"
-              onClick={handleGenerateStrategy}
-              disabled={isGenerating || isGeneratingStrategy}
-              className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-sky-600/15 to-cyan-600/10 border border-sky-500/40 hover:border-sky-400/60 hover:from-sky-600/25 text-sky-100 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-              title="Destillér briefet til et strategisk fundament (indsigt, spænding, løfte) — fundamentet fodrer Den Store Idé"
-            >
-              {isGeneratingStrategy ? (
-                <>
-                  <Loader2 className="w-4 h-4 text-sky-300 animate-spin shrink-0" />
-                  <span>Bygger strategi-fundament...</span>
-                </>
-              ) : (
-                <>
-                  <Compass className="w-4 h-4 text-sky-300 shrink-0" />
-                  <span>Byg Strategi-fundament</span>
-                </>
-              )}
-            </button>
+              <button
+                type="button"
+                onClick={handleVisualDevelop}
+                disabled={isGenerating || isVisualDeveloping}
+                className="w-full py-2.5 px-4 rounded-lg border border-slate-800 bg-slate-900 text-slate-200 hover:border-slate-700 hover:text-white font-display font-semibold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                title="Lad art director-redaktionen udvikle de visuelle idéer og billedprompts ud fra briefet"
+              >
+                <Palette className="w-4 h-4 text-brand-orange-400 shrink-0" />
+                <span>Visuel udvikling · Redaktion</span>
+              </button>
 
-            {/* BIG IDEA BUTTON (Den Store Idé) */}
-            <button
-              type="button"
-              onClick={handleGenerateBigIdea}
-              disabled={isGenerating || isGeneratingCampaign}
-              className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-violet-600/15 to-brand-orange-600/10 border border-violet-500/40 hover:border-violet-400/60 hover:from-violet-600/25 text-violet-100 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-              title={hasStrategy
-                ? 'Udvikl tre kampagne-platforme oven på det strategiske fundament — vælg én, og alt indhold bygger på den'
-                : 'Udvikl tre konkurrerende kampagne-platforme (kreative ruter) — vælg én, og alt indhold bygger på den'}
-            >
-              {isGeneratingCampaign ? (
-                <>
-                  <Loader2 className="w-4 h-4 text-violet-300 animate-spin shrink-0" />
-                  <span>Udvikler kampagne-platforme...</span>
-                </>
-              ) : (
-                <>
-                  <Rocket className="w-4 h-4 text-violet-300 shrink-0" />
-                  <span>Find Den Store Idé</span>
-                </>
-              )}
-            </button>
+              <button
+                type="button"
+                onClick={() => setDeepMode(v => !v)}
+                disabled={isGenerating}
+                aria-pressed={deepMode}
+                className={`w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg border transition-all text-left ${
+                  deepMode ? 'bg-brand-orange-600/10 border-brand-orange-500/40' : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                } ${isGenerating ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+                title="Lader flere AI-roller kritisere og forbedre hinanden for et mere gennemarbejdet resultat"
+              >
+                <span className="flex items-center gap-2.5 min-w-0">
+                  <Users className={`w-4 h-4 shrink-0 ${deepMode ? 'text-brand-orange-500' : 'text-slate-500'}`} />
+                  <span className="min-w-0 text-left">
+                    <span className="block text-[11px] font-mono font-bold text-slate-200">Dyb tilstand · Redaktionsmøde</span>
+                    <span className="block text-[11px] text-slate-500 leading-tight truncate">Flere AI-roller forbedrer hinanden (langsommere, dyrere)</span>
+                  </span>
+                </span>
+                <span className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${deepMode ? 'bg-brand-orange-500' : 'bg-slate-700'}`}>
+                  <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${deepMode ? 'translate-x-4' : ''}`} />
+                </span>
+              </button>
 
-            {/* ACTIVE STRATEGY INDICATOR */}
-            {hasStrategy && (
-              <div className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-sky-500/10 border border-sky-500/25 text-[11px] font-mono text-sky-200">
-                <Compass className="w-3 h-3 text-sky-300 shrink-0" />
-                <span>Den Store Idé bygger på dit strategi-fundament</span>
-              </div>
-            )}
-
-            {/* BRAINSTORM BUTTON */}
-            <button
-              type="button"
-              onClick={handleBrainstorm}
-              disabled={isGenerating || isBrainstorming}
-              className="w-full py-2.5 px-4 rounded-lg bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 text-amber-200 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-              title="Generer kreative idéer og vinkler for dette brief — uden at forpligte sig til fuld generering"
-            >
-              {isBrainstorming ? (
-                <>
-                  <Loader2 className="w-4 h-4 text-amber-300 animate-spin shrink-0" />
-                  <span>Brainstormer idéer...</span>
-                </>
-              ) : (
-                <>
-                  <Lightbulb className="w-4 h-4 text-amber-400 shrink-0" />
-                  <span>Brainstorm kreative idéer</span>
-                </>
-              )}
-            </button>
-
-            {/* ACTIVE CAMPAIGN PLATFORM INDICATOR + OMNI-CHANNEL SCALING */}
-            {hasSelectedTerritory && (
-              <div className="space-y-2">
-                <div className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-violet-500/10 border border-violet-500/25 text-[11px] font-mono text-violet-200">
-                  <Rocket className="w-3 h-3 text-violet-300 shrink-0" />
-                  <span>Genererer på den valgte kampagne-platform</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleGenerateChannelMatrix}
-                  disabled={isGenerating || isGeneratingMatrix}
-                  className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-emerald-600/15 to-teal-600/10 border border-emerald-500/40 hover:border-emerald-400/60 hover:from-emerald-600/25 text-emerald-100 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-                  title="Skalér den valgte store idé til en produktionsklar eksekvering pr. kanal (film, OOH, radio, social, aktivering, PR)"
-                >
-                  {isGeneratingMatrix ? (
-                    <>
-                      <Loader2 className="w-4 h-4 text-emerald-300 animate-spin shrink-0" />
-                      <span>Skalerer til alle kanaler...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Layers className="w-4 h-4 text-emerald-300 shrink-0" />
-                      <span>Skalér til omni-channel matrix</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleGenerateEffectiveness}
-                  disabled={isGenerating || isGeneratingEffectiveness}
-                  className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-indigo-600/15 to-blue-600/10 border border-indigo-500/40 hover:border-indigo-400/60 hover:from-indigo-600/25 text-indigo-100 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-                  title="Byg et effekt-lag: mål-hierarki, KPI'er, kort/lang-balance og måleplan — så kampagnen kan sælges på effekt"
-                >
-                  {isGeneratingEffectiveness ? (
-                    <>
-                      <Loader2 className="w-4 h-4 text-indigo-300 animate-spin shrink-0" />
-                      <span>Bygger effekt-lag...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Gauge className="w-4 h-4 text-indigo-300 shrink-0" />
-                      <span>Byg effekt-lag (KPI & måling)</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
-
-            {/* GENERATE ENGINE BUTTON (TRIGGER ALL) */}
-            <button
-              onClick={handleGenerateAll}
-              disabled={isGenerating}
-              id="generate_all_btn"
-              className={`w-full py-3.5 px-4 rounded-xl font-display font-bold text-sm text-white flex items-center justify-center space-x-2 transition-all relative overflow-hidden group select-none shadow-sm ${
-                isGenerating
-                  ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-750'
-                  : 'bg-brand-orange-600 hover:bg-brand-orange-500 active:scale-[0.98] cursor-pointer'
-              }`}
-            >
-              {isGenerating ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                  <span>{generationStep || "Arbejder..."}</span>
-                </>
-              ) : deepMode ? (
-                <>
-                  <Users className="w-5 h-5 text-white" />
-                  <span>Kør redaktionsmøde</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-5 h-5 text-white" />
-                  <span>Generér indhold</span>
-                </>
-              )}
-            </button>
-
-            {/* VISUAL DEVELOPMENT BUTTON (visuel redaktion) */}
-            <button
-              type="button"
-              onClick={handleVisualDevelop}
-              disabled={isGenerating || isVisualDeveloping}
-              className="w-full py-2.5 px-4 rounded-lg bg-violet-600/10 border border-violet-500/40 hover:bg-violet-600/20 text-violet-200 hover:text-white font-display font-semibold text-xs flex items-center justify-center space-x-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-              title="Lad art director-redaktionen udvikle de visuelle idéer og billedprompts ud fra briefet"
-            >
-              <Palette className="w-4 h-4 text-violet-300 shrink-0" />
-              <span>Visuel udvikling · Redaktion</span>
-            </button>
-
-            {/* PIN TO PRESETS BUTTON */}
-            <button
-              onClick={handlePinCurrentBrief}
-              className="w-full py-2.5 px-4 rounded-lg bg-slate-900 border border-slate-800 hover:border-brand-orange-500/30 hover:bg-slate-850 text-slate-350 hover:text-white font-mono text-xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer"
-              title="Pin dette brief til dine genveje/presets"
-            >
-              <Pin className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-              <span>PIN JOB TIL GENVEJE & PRESETS</span>
-            </button>
+              <button
+                type="button"
+                onClick={handlePinCurrentBrief}
+                className="w-full py-2.5 px-4 rounded-lg border border-slate-800 bg-slate-900 text-slate-350 hover:border-slate-700 hover:text-white font-mono text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                title="Pin dette brief til dine genveje/presets"
+              >
+                <Pin className="w-3.5 h-3.5 text-brand-orange-500 shrink-0" />
+                <span>PIN JOB TIL GENVEJE & PRESETS</span>
+              </button>
+            </div>
           </div>
 
           {/* BRAND VALUES / ANTI-SLOP POLICY ADVICE */}

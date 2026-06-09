@@ -168,6 +168,9 @@ export default function App() {
             handleGenerateBigIdea={handleGenerateBigIdea}
             isGeneratingCampaign={isGeneratingCampaign}
             hasSelectedTerritory={!!selectedTerritory}
+            hasPressureTest={!!pressureTest}
+            hasChannelMatrix={!!channelMatrix}
+            hasEffectiveness={!!effectiveness}
             handleGenerateChannelMatrix={handleGenerateChannelMatrix}
             isGeneratingMatrix={isGeneratingMatrix}
             handleGenerateEffectiveness={handleGenerateEffectiveness}
