@@ -49,6 +49,8 @@ import { runIdeaDeliberation } from './server/ai/deliberateIdea';
 import { getImageProvider } from './server/image/provider';
 import { generateLogoSvg } from './server/image/recraftVector';
 import { generateVideo } from './server/video/kling';
+import { generateSpeech } from './server/audio/tts';
+import { generateAvatar } from './server/video/fabric';
 
 async function startServer() {
   const app = express();
@@ -706,6 +708,36 @@ async function startServer() {
     } catch (error: any) {
       console.error('Fejl under video-generering:', error);
       res.status(500).json({ error: error.message || 'Kunne ikke generere video. Kontroller din API konfiguration.' });
+    }
+  });
+
+  // Tale-generering via Gemini TTS (fal.ai)
+  app.post('/api/generate-speech', async (req, res) => {
+    try {
+      const { prompt, voice, styleInstructions, temperature } = req.body;
+      if (!prompt) {
+        return res.status(400).json({ error: 'Tekst (prompt) er påkrævet.' });
+      }
+      const { audioUrl } = await generateSpeech({ prompt, voice, styleInstructions, temperature });
+      res.json({ audioUrl });
+    } catch (error: any) {
+      console.error('Fejl under tale-generering:', error);
+      res.status(500).json({ error: error.message || 'Kunne ikke generere tale. Kontroller din API konfiguration.' });
+    }
+  });
+
+  // Avatar-generering (talking-head) via VEED Fabric (fal.ai)
+  app.post('/api/generate-avatar', async (req, res) => {
+    try {
+      const { imageUrl, audioUrl, resolution } = req.body;
+      if (!imageUrl || !audioUrl) {
+        return res.status(400).json({ error: 'Både et billede og en lyd er påkrævet.' });
+      }
+      const { videoUrl } = await generateAvatar({ imageUrl, audioUrl, resolution });
+      res.json({ videoUrl });
+    } catch (error: any) {
+      console.error('Fejl under avatar-generering:', error);
+      res.status(500).json({ error: error.message || 'Kunne ikke generere avatar. Kontroller din API konfiguration.' });
     }
   });
 
