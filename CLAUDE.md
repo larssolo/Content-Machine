@@ -164,7 +164,9 @@ All routes are defined in `server.ts`. Prompt builders live in `server/ai/prompt
 | `POST /api/visual-deep` | Yes (SSE) | Visual art direction deliberation |
 | `POST /api/generate-logo` | No | Logo (SVG + raster via Recraft) |
 | `POST /api/logo-prompt` | No | Logo prompt optimisation |
-| `POST /api/generate-image` | No | Hero/detail/abstract image gen |
+| `POST /api/generate-image` | No | Hero/detail/abstract/custom image gen (Flux / Nano Banana Pro / GPT Image 2) |
+| `POST /api/image-prompt` | No | Image prompt optimisation (translate/refine) |
+| `POST /api/generate-video` | No | Video (Kling 2.5 Turbo Pro image-to-video) |
 | `GET  /api/health` | No | Health check |
 
 **SSE streaming format** for streaming endpoints:

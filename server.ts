@@ -699,7 +699,9 @@ async function startServer() {
       if (!prompt || !imageUrl) {
         return res.status(400).json({ error: 'Både prompt og et inputbillede er påkrævet.' });
       }
-      const { videoUrl } = await generateVideo({ imageUrl, prompt, negativePrompt, duration, cfgScale, tailImageUrl });
+      const safeDuration = duration === '10' ? '10' : '5';
+      const safeCfgScale = Math.min(1, Math.max(0, Number(cfgScale)) || 0.5);
+      const { videoUrl } = await generateVideo({ imageUrl, prompt, negativePrompt, duration: safeDuration, cfgScale: safeCfgScale, tailImageUrl });
       res.json({ videoUrl });
     } catch (error: any) {
       console.error('Fejl under video-generering:', error);
