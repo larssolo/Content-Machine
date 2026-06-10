@@ -29,3 +29,31 @@ describe('falProvider', () => {
     await expect(falProvider.generate({ prompt: 'x', aspectRatio: '16:9' })).rejects.toThrow(/FAL_KEY/);
   });
 });
+
+describe('buildFalRequest', () => {
+  it('mapper flux til flux-pro med image_size-preset', async () => {
+    const { buildFalRequest } = await import('./fal');
+    const r = buildFalRequest('flux', 'a cat', '1:1');
+    expect(r.id).toBe('fal-ai/flux-pro/v1.1');
+    expect(r.input.image_size).toBe('square_hd');
+  });
+  it('mapper nano-banana-pro med aspect_ratio + resolution', async () => {
+    const { buildFalRequest } = await import('./fal');
+    const r = buildFalRequest('nano-banana-pro', 'a cat', '16:9');
+    expect(r.id).toBe('fal-ai/nano-banana-pro');
+    expect(r.input.aspect_ratio).toBe('16:9');
+    expect(r.input.resolution).toBe('2K');
+  });
+  it('mapper gpt-image-2 med image_size-preset + quality', async () => {
+    const { buildFalRequest } = await import('./fal');
+    const r = buildFalRequest('gpt-image-2', 'a cat', '4:3');
+    expect(r.id).toBe('fal-ai/gpt-image-2');
+    expect(r.input.image_size).toBe('landscape_4_3');
+    expect(r.input.quality).toBe('high');
+  });
+  it('falder tilbage til flux ved ukendt model', async () => {
+    const { buildFalRequest } = await import('./fal');
+    const r = buildFalRequest('ukendt' as any, 'a cat', '1:1');
+    expect(r.id).toBe('fal-ai/flux-pro/v1.1');
+  });
+});

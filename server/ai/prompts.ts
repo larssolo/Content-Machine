@@ -821,6 +821,43 @@ Aflever den færdige engelske logo-prompt via værktøjet.`;
 }
 
 // ---------------------------------------------------------------------------
+// /api/image-prompt — AI-optimeret billed-prompt (oversæt / forfin)
+// ---------------------------------------------------------------------------
+
+export const IMAGE_PROMPT_SYSTEM_ROLE = `Du er en erfaren art director og prompt-ingeniør for Neura Studio.
+Du skriver skarpe, konkrete billed-prompts på ENGELSK til tekst-til-billede-modeller (Flux, Nano Banana, GPT Image).
+Beskriv motiv, komposition, lys, stemning, kamera/linse og stil. Vær konkret og visuel. Ingen tekst/bogstaver i billedet medmindre brugeren beder om det. Returnér kun selve prompten via værktøjet.`;
+
+export function buildImagePrompt(
+  brief: Brief,
+  currentPrompt: string,
+  mode: 'translate' | 'refine',
+): { system: Anthropic.TextBlockParam[]; user: string } {
+  const task =
+    mode === 'translate'
+      ? `Konvertér nedenstående input til én skarp, engelsk billed-prompt. Inddrag relevant kontekst fra briefet hvor det giver mening.`
+      : `Forfin og skærp nedenstående eksisterende billed-prompt: gør komposition, lys og stil mere konkret — bevar den oprindelige idé, men løft kvaliteten.`;
+
+  const user = `PROJEKT KONTEKST:
+- Kunde: ${brief.client || 'N/A'}
+- Projekt: ${brief.project || 'N/A'}
+- Hvad handler det om: ${brief.description || 'N/A'}
+- Målgruppe: ${brief.audience || 'N/A'}
+- Tone/stemning: ${brief.tone || 'N/A'}
+
+INPUT (${mode === 'translate' ? 'rå beskrivelse der skal oversættes' : 'eksisterende prompt der skal forfines'}):
+"""
+${currentPrompt || '(tom — byg en passende billed-prompt ud fra konteksten ovenfor)'}
+"""
+
+OPGAVE:
+${task}
+Aflever den færdige engelske billed-prompt via værktøjet.`;
+
+  return { system: cacheableSystem([IMAGE_PROMPT_SYSTEM_ROLE]), user };
+}
+
+// ---------------------------------------------------------------------------
 // /api/brainstorm — kreativ idé-eksplosion før produktionsstart
 // ---------------------------------------------------------------------------
 

@@ -24,6 +24,7 @@ import {
   buildEffectiveness,
   type Territory,
   buildLogoPrompt,
+  buildImagePrompt,
   ANALYZE_CVI_SYSTEM_ROLE,
   cacheableSystem,
 } from './server/ai/prompts';
@@ -39,6 +40,7 @@ import {
   channelMatrixTool,
   effectivenessTool,
   logoPromptTool,
+  imagePromptTool,
 } from './server/ai/schemas';
 import { runDeliberation } from './server/ai/deliberate';
 import { runVisualDeliberation } from './server/ai/deliberateVisual';
@@ -618,6 +620,31 @@ async function startServer() {
     }
   });
 
+  // Optimér/oversæt en billed-prompt via AI (oversæt til engelsk / forfin)
+  app.post('/api/image-prompt', async (req, res) => {
+    try {
+      const { brief, currentPrompt, mode } = req.body;
+      const safeMode = mode === 'refine' ? 'refine' : 'translate';
+      if (safeMode === 'refine' && !currentPrompt?.trim()) {
+        return res.status(400).json({ error: 'En eksisterende prompt er påkrævet for forfining.' });
+      }
+
+      const { system, user } = buildImagePrompt(brief || {}, currentPrompt || '', safeMode);
+      const parsed = await generateStructured<{ prompt: string }>({
+        system,
+        userContent: [{ type: 'text', text: user }],
+        tool: imagePromptTool,
+        model: config.fastModel,
+        maxTokens: 1024,
+      });
+
+      res.json({ prompt: (parsed.prompt || '').trim() });
+    } catch (error: any) {
+      console.error('Fejl under billed-prompt optimering:', error);
+      res.status(500).json({ error: error.message || 'Kunne ikke optimere billed-prompten.' });
+    }
+  });
+
   // Logo generator via Recraft V4 Pro text-to-vector (SVG output)
   app.post('/api/generate-logo', async (req, res) => {
     try {
@@ -642,14 +669,17 @@ async function startServer() {
   // Generate image from prompt via the configured image provider (default: Flux/fal.ai)
   app.post('/api/generate-image', async (req, res) => {
     try {
-      const { prompt, aspectRatio } = req.body;
+      const { prompt, aspectRatio, model } = req.body;
       if (!prompt) {
         return res.status(400).json({ error: 'Prompt er påkrævet.' });
       }
+      const allowed = ['flux', 'nano-banana-pro', 'gpt-image-2'];
+      const safeModel = allowed.includes(model) ? model : 'flux';
 
       const { imageUrl } = await getImageProvider().generate({
         prompt,
         aspectRatio: aspectRatio || '16:9',
+        model: safeModel,
       });
 
       res.json({ imageUrl });

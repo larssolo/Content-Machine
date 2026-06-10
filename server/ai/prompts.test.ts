@@ -17,6 +17,7 @@ import {
   briefIntakeText,
   refineInstruction,
   cacheableSystem,
+  buildImagePrompt,
 } from './prompts';
 
 const sampleTerritory = {
@@ -408,5 +409,23 @@ describe('briefIntakeText (rigere brief-intake)', () => {
   it('is omitted from prompts when the brief has no intake data', () => {
     const { user } = buildStrategy({ client: 'Acme' });
     expect(user).not.toContain('STRATEGISK INTAKE');
+  });
+});
+
+describe('buildImagePrompt', () => {
+  const brief: any = { client: 'Modaxo', project: 'Move 2026', description: 'mobility', audience: 'byer', tone: 'modig' };
+
+  it('translate-mode beder om en engelsk billed-prompt og inkluderer brief-kontekst', () => {
+    const { system, user } = buildImagePrompt(brief, 'en blå bil i regn', 'translate');
+    expect(system.length).toBeGreaterThan(0);
+    expect(user).toContain('Modaxo');
+    expect(user).toContain('en blå bil i regn');
+    expect(user.toLowerCase()).toContain('engelsk');
+  });
+
+  it('refine-mode skærper den eksisterende prompt', () => {
+    const { user } = buildImagePrompt(brief, 'a blue car', 'refine');
+    expect(user).toContain('a blue car');
+    expect(user.toLowerCase()).toContain('forfin');
   });
 });

@@ -5,9 +5,12 @@
 
 import { config } from '../ai/config';
 
+export type ImageModel = 'flux' | 'nano-banana-pro' | 'gpt-image-2';
+
 export interface ImageRequest {
   prompt: string;
   aspectRatio: string;
+  model?: ImageModel;
 }
 
 export interface ImageProvider {

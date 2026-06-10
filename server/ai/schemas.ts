@@ -910,6 +910,23 @@ export const logoPromptTool: Anthropic.Tool = {
   },
 };
 
+// --- /api/image-prompt -------------------------------------------------------
+
+export const imagePromptTool: Anthropic.Tool = {
+  name: 'submit_image_prompt',
+  description: 'Aflever den optimerede engelske billed-prompt som struktureret data.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      prompt: {
+        type: 'string',
+        description: 'Den færdige, optimerede billed-prompt på ENGELSK. Konkret om motiv, komposition, lys, stemning og stil.',
+      },
+    },
+    required: ['prompt'],
+  },
+};
+
 // --- /api/brainstorm ---------------------------------------------------------
 
 export const brainstormTool: Anthropic.Tool = {

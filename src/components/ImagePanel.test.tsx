@@ -7,13 +7,13 @@ const baseImage = { url: '', loading: false, error: null, aspectRatio: '1:1' };
 
 describe('ImagePanel', () => {
   it('renders the prompt textarea', () => {
-    render(<ImagePanel image={baseImage} onGenerate={() => {}} onAspectChange={() => {}} />);
+    render(<ImagePanel image={baseImage} onGenerate={() => {}} onAspectChange={() => {}} onOptimize={() => Promise.resolve(null)} isOptimizing={false} />);
     expect(screen.getByPlaceholderText('Beskriv billedet du vil generere…')).toBeTruthy();
   });
 
   it('disables the generate button and does not call onGenerate when the prompt is empty', () => {
     const onGenerate = vi.fn();
-    render(<ImagePanel image={baseImage} onGenerate={onGenerate} onAspectChange={() => {}} />);
+    render(<ImagePanel image={baseImage} onGenerate={onGenerate} onAspectChange={() => {}} onOptimize={() => Promise.resolve(null)} isOptimizing={false} />);
     const button = screen.getByText('Generer billede').closest('button') as HTMLButtonElement;
     expect(button.disabled).toBe(true);
     fireEvent.click(button);
@@ -22,9 +22,44 @@ describe('ImagePanel', () => {
 
   it('calls onGenerate with the typed prompt', () => {
     const onGenerate = vi.fn();
-    render(<ImagePanel image={baseImage} onGenerate={onGenerate} onAspectChange={() => {}} />);
+    render(<ImagePanel image={baseImage} onGenerate={onGenerate} onAspectChange={() => {}} onOptimize={() => Promise.resolve(null)} isOptimizing={false} />);
     fireEvent.change(screen.getByPlaceholderText('Beskriv billedet du vil generere…'), { target: { value: 'en rød kat' } });
     fireEvent.click(screen.getByText('Generer billede'));
-    expect(onGenerate).toHaveBeenCalledWith('en rød kat');
+    expect(onGenerate).toHaveBeenCalledWith('en rød kat', 'flux');
+  });
+
+  it('genererer med den valgte model', () => {
+    const onGenerate = vi.fn();
+    render(<ImagePanel image={baseImage} onGenerate={onGenerate} onAspectChange={() => {}} onOptimize={() => Promise.resolve(null)} isOptimizing={false} />);
+    fireEvent.change(screen.getByPlaceholderText('Beskriv billedet du vil generere…'), { target: { value: 'a cat' } });
+    fireEvent.click(screen.getByText('Nano Banana Pro'));
+    fireEvent.click(screen.getByText('Generer billede'));
+    expect(onGenerate).toHaveBeenCalledWith('a cat', 'nano-banana-pro');
+  });
+
+  it('kalder onOptimize med refine-mode når Forfin klikkes', async () => {
+    const onOptimize = vi.fn().mockResolvedValue(null);
+    render(<ImagePanel image={baseImage} onGenerate={() => {}} onAspectChange={() => {}} onOptimize={onOptimize} isOptimizing={false} />);
+    fireEvent.change(screen.getByPlaceholderText('Beskriv billedet du vil generere…'), { target: { value: 'a cat' } });
+    fireEvent.click(screen.getByText('Forfin gennem AI'));
+    expect(onOptimize).toHaveBeenCalledWith('a cat', 'refine');
+  });
+
+  it('skriver det optimerede resultat tilbage i textarea', async () => {
+    const onOptimize = vi.fn().mockResolvedValue('a refined english prompt');
+    render(<ImagePanel image={baseImage} onGenerate={() => {}} onAspectChange={() => {}} onOptimize={onOptimize} isOptimizing={false} />);
+    const ta = screen.getByPlaceholderText('Beskriv billedet du vil generere…') as HTMLTextAreaElement;
+    fireEvent.change(ta, { target: { value: 'en kat' } });
+    fireEvent.click(screen.getByText('Oversæt til engelsk'));
+    await screen.findByDisplayValue('a refined english prompt');
+    expect(ta.value).toBe('a refined english prompt');
+  });
+
+  it('kalder onOptimize med translate-mode når Oversæt klikkes', async () => {
+    const onOptimize = vi.fn().mockResolvedValue('a translated prompt');
+    render(<ImagePanel image={baseImage} onGenerate={() => {}} onAspectChange={() => {}} onOptimize={onOptimize} isOptimizing={false} />);
+    fireEvent.change(screen.getByPlaceholderText('Beskriv billedet du vil generere…'), { target: { value: 'en blå bil' } });
+    fireEvent.click(screen.getByText('Oversæt til engelsk'));
+    expect(onOptimize).toHaveBeenCalledWith('en blå bil', 'translate');
   });
 });
