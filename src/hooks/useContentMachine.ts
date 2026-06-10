@@ -122,7 +122,7 @@ export function useContentMachine() {
   // --- Komponér domæne-hooks (afhængigheder gives ind; offentlig API er uændret) ---
   const { theme, setTheme } = useTheme();
   const { copiedKey, handleCopyToClipboard } = useClipboard();
-  const { generatedImages, setGeneratedImages, handleGenerateImage, handleAspectChange } = useImageGeneration();
+  const { generatedImages, setGeneratedImages, handleGenerateImage, handleAspectChange, isOptimizingImagePrompt, handleOptimizeImagePrompt } = useImageGeneration();
   const {
     externalText, setExternalText, humanizerResult, setHumanizerResult,
     isHumanizing, handleHumanizeText,
@@ -1104,6 +1104,8 @@ export function useContentMachine() {
     printMode,
     // Images
     generatedImages,
+    isOptimizingImagePrompt,
+    handleOptimizeImagePrompt,
     // Theme
     theme, setTheme,
     // Presets

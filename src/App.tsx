@@ -91,6 +91,7 @@ export default function App() {
     handleUndoRefine,
     handleGenerateImage,
     handleAspectChange,
+    isOptimizingImagePrompt, handleOptimizeImagePrompt,
     handleExecuteTerminalCommand,
   } = useContentMachine();
 
@@ -105,7 +106,8 @@ export default function App() {
             isGenerating || isRefining || isAnalyzing || isVisualDeveloping || isHumanizing ||
             isAnalyzingCvi || isBrainstorming || isScanning || isGeneratingStrategy ||
             isGeneratingCampaign || isSharpening || isGeneratingMatrix ||
-            isGeneratingEffectiveness || isGeneratingLogo || isOptimizingLogoPrompt
+            isGeneratingEffectiveness || isGeneratingLogo || isOptimizingLogoPrompt ||
+            isOptimizingImagePrompt
           }
           title={
             isVisualDeveloping ? 'Visuel udvikling' :
@@ -120,6 +122,7 @@ export default function App() {
             isGeneratingEffectiveness ? 'Effekt-lag' :
             isGeneratingLogo ? 'Logo' :
             isOptimizingLogoPrompt ? 'Logo-prompt' :
+            isOptimizingImagePrompt ? 'Optimerer billed-prompt' :
             isRefining ? 'Forfiner' :
             isAnalyzing ? 'Analyserer' :
             deepMode ? 'Redaktionsmøde' : 'Genererer'
@@ -321,6 +324,8 @@ export default function App() {
                 image={generatedImages.custom}
                 onGenerate={(p) => handleGenerateImage('custom', p)}
                 onAspectChange={(r) => handleAspectChange('custom', r)}
+                onOptimize={(p, mode) => handleOptimizeImagePrompt(brief, p, mode)}
+                isOptimizing={isOptimizingImagePrompt}
               />
 
               <LogoPanel
