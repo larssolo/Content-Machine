@@ -167,6 +167,8 @@ All routes are defined in `server.ts`. Prompt builders live in `server/ai/prompt
 | `POST /api/generate-image` | No | Hero/detail/abstract/custom image gen (Flux / Nano Banana Pro / GPT Image 2) |
 | `POST /api/image-prompt` | No | Image prompt optimisation (translate/refine) |
 | `POST /api/generate-video` | No | Video (Kling 2.5 Turbo Pro image-to-video) |
+| `POST /api/generate-speech` | No | Tale/TTS (Gemini 3.1 Flash TTS) |
+| `POST /api/generate-avatar` | No | Avatar/talking-head (VEED Fabric 1.0) |
 | `GET  /api/health` | No | Health check |
 
 **SSE streaming format** for streaming endpoints:
