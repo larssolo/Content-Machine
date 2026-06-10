@@ -7,6 +7,15 @@ import { useState } from 'react';
 import { Languages, Loader2, Wand2 } from 'lucide-react';
 import { ImageGenCard, type ImageGenState } from './ImageGenCard';
 
+const MODELS: Array<{ id: string; label: string }> = [
+  { id: 'flux', label: 'Flux 1.1 Pro' },
+  { id: 'nano-banana-pro', label: 'Nano Banana Pro' },
+  { id: 'gpt-image-2', label: 'GPT Image 2' },
+];
+
+const OPTIMIZE_BTN_CLS =
+  'flex-1 py-2 px-3 rounded-lg border border-slate-800 bg-slate-900 text-slate-200 hover:border-slate-700 hover:text-white font-mono text-[11px] flex items-center justify-center gap-1.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer';
+
 interface ImagePanelProps {
   image: ImageGenState;
   onGenerate: (prompt: string, model: string) => void;
@@ -16,11 +25,6 @@ interface ImagePanelProps {
 }
 
 export function ImagePanel({ image, onGenerate, onAspectChange, onOptimize, isOptimizing }: ImagePanelProps) {
-  const MODELS: Array<{ id: string; label: string }> = [
-    { id: 'flux', label: 'Flux 1.1 Pro' },
-    { id: 'nano-banana-pro', label: 'Nano Banana Pro' },
-    { id: 'gpt-image-2', label: 'GPT Image 2' },
-  ];
   const [model, setModel] = useState('flux');
   const [prompt, setPrompt] = useState('');
   const [copied, setCopied] = useState(false);
@@ -53,33 +57,26 @@ export function ImagePanel({ image, onGenerate, onAspectChange, onOptimize, isOp
       />
 
       <div className="flex gap-2">
-        {(() => {
-          const optimizeBtnCls = "flex-1 py-2 px-3 rounded-lg border border-slate-800 bg-slate-900 text-slate-200 hover:border-slate-700 hover:text-white font-mono text-[11px] flex items-center justify-center gap-1.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer";
-          return (
-            <>
-              <button
-                type="button"
-                onClick={() => runOptimize('translate')}
-                disabled={!trimmed || isOptimizing}
-                className={optimizeBtnCls}
-                title="Oversæt og omdan dit input til en optimeret engelsk billed-prompt"
-              >
-                {isOptimizing ? <Loader2 className="w-3.5 h-3.5 text-brand-orange-400 shrink-0 animate-spin" /> : <Languages className="w-3.5 h-3.5 text-brand-orange-400 shrink-0" />}
-                <span>Oversæt til engelsk</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => runOptimize('refine')}
-                disabled={!trimmed || isOptimizing}
-                className={optimizeBtnCls}
-                title="Forfin den eksisterende prompt gennem AI"
-              >
-                {isOptimizing ? <Loader2 className="w-3.5 h-3.5 text-brand-orange-400 shrink-0 animate-spin" /> : <Wand2 className="w-3.5 h-3.5 text-brand-orange-400 shrink-0" />}
-                <span>Forfin gennem AI</span>
-              </button>
-            </>
-          );
-        })()}
+        <button
+          type="button"
+          onClick={() => runOptimize('translate')}
+          disabled={!trimmed || isOptimizing}
+          className={OPTIMIZE_BTN_CLS}
+          title="Oversæt og omdan dit input til en optimeret engelsk billed-prompt"
+        >
+          {isOptimizing ? <Loader2 className="w-3.5 h-3.5 text-brand-orange-400 shrink-0 animate-spin" /> : <Languages className="w-3.5 h-3.5 text-brand-orange-400 shrink-0" />}
+          <span>Oversæt til engelsk</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => runOptimize('refine')}
+          disabled={!trimmed || isOptimizing}
+          className={OPTIMIZE_BTN_CLS}
+          title="Forfin den eksisterende prompt gennem AI"
+        >
+          {isOptimizing ? <Loader2 className="w-3.5 h-3.5 text-brand-orange-400 shrink-0 animate-spin" /> : <Wand2 className="w-3.5 h-3.5 text-brand-orange-400 shrink-0" />}
+          <span>Forfin gennem AI</span>
+        </button>
       </div>
 
       <div className="space-y-1.5">
@@ -89,6 +86,7 @@ export function ImagePanel({ image, onGenerate, onAspectChange, onOptimize, isOp
             <button
               key={m.id}
               type="button"
+              aria-pressed={model === m.id}
               onClick={() => setModel(m.id)}
               className={`flex-1 py-1.5 px-2 rounded-lg border text-[11px] font-mono transition-all ${
                 model === m.id
