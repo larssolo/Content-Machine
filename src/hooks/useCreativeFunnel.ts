@@ -288,7 +288,7 @@ export function useCreativeFunnel({ brief, setLastUsage, setErrorMsg }: Creative
 
   return {
     // Kulturel antenne
-    culturalIntel, isScanning, handleCulturalScan, handleClearCulturalIntel,
+    culturalIntel, setCulturalIntel, isScanning, handleCulturalScan, handleClearCulturalIntel,
     // Strategi-fundament
     strategy, setStrategy,
     isGeneratingStrategy, handleGenerateStrategy, handleClearStrategy,
@@ -303,7 +303,7 @@ export function useCreativeFunnel({ brief, setLastUsage, setErrorMsg }: Creative
     channelMatrix, setChannelMatrix,
     isGeneratingMatrix, handleGenerateChannelMatrix, handleClearChannelMatrix,
     // Effekt-lag
-    effectiveness, isGeneratingEffectiveness,
+    effectiveness, setEffectiveness, isGeneratingEffectiveness,
     handleGenerateEffectiveness, handleClearEffectiveness,
   };
 }
