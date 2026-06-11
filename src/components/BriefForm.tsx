@@ -44,6 +44,7 @@ interface BriefFormProps {
   hasStrategy: boolean;
   handleGenerateBigIdea: () => void;
   isGeneratingCampaign: boolean;
+  hasCampaignPlatform: boolean;
   hasSelectedTerritory: boolean;
   hasPressureTest: boolean;
   hasChannelMatrix: boolean;
@@ -68,7 +69,7 @@ export function BriefForm({
   handleGenerateAll, handleVisualDevelop, handleBrainstorm, isBrainstorming,
   handleCulturalScan, isScanning, hasCulturalIntel,
   handleGenerateStrategy, isGeneratingStrategy, hasStrategy,
-  handleGenerateBigIdea, isGeneratingCampaign, hasSelectedTerritory,
+  handleGenerateBigIdea, isGeneratingCampaign, hasCampaignPlatform, hasSelectedTerritory,
   hasPressureTest, hasChannelMatrix, hasEffectiveness,
   handleGenerateChannelMatrix, isGeneratingMatrix,
   handleGenerateEffectiveness, isGeneratingEffectiveness,
@@ -518,6 +519,7 @@ export function BriefForm({
               isGeneratingEffectiveness={isGeneratingEffectiveness}
               hasCulturalIntel={hasCulturalIntel}
               hasStrategy={hasStrategy}
+              hasCampaignPlatform={hasCampaignPlatform}
               hasSelectedTerritory={hasSelectedTerritory}
               hasPressureTest={hasPressureTest}
               hasChannelMatrix={hasChannelMatrix}

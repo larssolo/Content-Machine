@@ -187,6 +187,7 @@ export default function App() {
             hasStrategy={!!strategy}
             handleGenerateBigIdea={handleGenerateBigIdea}
             isGeneratingCampaign={isGeneratingCampaign}
+            hasCampaignPlatform={!!campaignPlatform}
             hasSelectedTerritory={!!selectedTerritory}
             hasPressureTest={!!pressureTest}
             hasChannelMatrix={!!channelMatrix}

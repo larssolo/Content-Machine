@@ -19,6 +19,7 @@ interface ProcessStepperProps {
   isGeneratingEffectiveness: boolean;
   hasCulturalIntel: boolean;
   hasStrategy: boolean;
+  hasCampaignPlatform: boolean;
   hasSelectedTerritory: boolean;
   hasPressureTest: boolean;
   hasChannelMatrix: boolean;
@@ -88,7 +89,7 @@ export function ProcessStepper(props: ProcessStepperProps) {
     isGenerating, deepMode, generationStep,
     isScanning, isGeneratingStrategy, isGeneratingCampaign,
     isGeneratingMatrix, isGeneratingEffectiveness,
-    hasCulturalIntel, hasStrategy, hasSelectedTerritory,
+    hasCulturalIntel, hasStrategy, hasCampaignPlatform, hasSelectedTerritory,
     hasPressureTest, hasChannelMatrix, hasEffectiveness,
     isSharpening, onSharpenIdea,
     onCulturalScan, onGenerateStrategy, onGenerateBigIdea,
@@ -104,7 +105,7 @@ export function ProcessStepper(props: ProcessStepperProps) {
     { n: 2, title: 'Byg strategi-fundament', hint: 'Indsigt · spænding · løfte', Icon: Compass,
       status: hasStrategy ? 'done' : 'ready', busy: isGeneratingStrategy, onClick: onGenerateStrategy },
     { n: 3, title: 'Find Den Store Idé', hint: 'Tre kampagne-platforme', Icon: Rocket,
-      status: hasSelectedTerritory ? 'done' : 'ready', busy: isGeneratingCampaign, onClick: onGenerateBigIdea },
+      status: hasCampaignPlatform ? 'done' : 'ready', busy: isGeneratingCampaign, onClick: onGenerateBigIdea },
     { n: 4, title: 'Skærp idé', hint: hasSelectedTerritory ? 'Pressure-test af den valgte idé' : 'Kræver en valgt idé', Icon: Swords,
       status: hasPressureTest ? 'done' : hasSelectedTerritory ? 'ready' : 'locked', busy: isSharpening, onClick: onSharpenIdea },
     { n: 5, title: 'Omni-channel matrix', hint: hasSelectedTerritory ? 'Skalér til alle kanaler' : 'Kræver en valgt idé', Icon: Layers,

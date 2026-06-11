@@ -7,7 +7,7 @@ const baseProps = {
   isGenerating: false, deepMode: false, generationStep: '',
   isScanning: false, isGeneratingStrategy: false, isGeneratingCampaign: false,
   isGeneratingMatrix: false, isGeneratingEffectiveness: false,
-  hasCulturalIntel: false, hasStrategy: false, hasSelectedTerritory: false,
+  hasCulturalIntel: false, hasStrategy: false, hasCampaignPlatform: false, hasSelectedTerritory: false,
   hasPressureTest: false, hasChannelMatrix: false, hasEffectiveness: false,
   isSharpening: false, onSharpenIdea: () => {},
   onCulturalScan: () => {}, onGenerateStrategy: () => {}, onGenerateBigIdea: () => {},
