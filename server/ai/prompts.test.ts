@@ -18,6 +18,8 @@ import {
   refineInstruction,
   cacheableSystem,
   buildImagePrompt,
+  BUREAU_RUBRIC,
+  GENERATE_SYSTEM_ROLE,
 } from './prompts';
 
 const sampleTerritory = {
@@ -130,7 +132,7 @@ describe('buildGenerate', () => {
   it('includes the static role and the brief fields', () => {
     const { system, user } = buildGenerate(baseBrief);
     expect(system).toHaveLength(1);
-    expect(system[0].text).toContain('Neura Studio Produktionsassistent');
+    expect(system[0].text).toContain('Senior Tekstforfatter');
     expect(user).toContain('Acme');
     expect(user).toContain('Launch');
     expect(user).toContain('Dansk');
@@ -342,7 +344,7 @@ describe('buildSynthesize', () => {
     const { system, user } = buildSynthesize(draft, critique, creative, { client: 'Acme', project: 'Launch', language: 'Dansk' });
     const systemText = system.map((b) => b.text).join('\n');
     expect(systemText).toContain('Chefredaktør');
-    expect(systemText).toContain('Produktionsassistent'); // GENERATE_SYSTEM_ROLE inherited
+    expect(systemText).toContain('Senior Tekstforfatter'); // GENERATE_SYSTEM_ROLE inherited
     expect(user).toContain('FØRSTEUDKAST');
     expect(user).toContain('REDAKTIONEL KRITIK');
     expect(user).toContain('KREATIVE ALTERNATIVER');
@@ -427,5 +429,29 @@ describe('buildImagePrompt', () => {
     const { user } = buildImagePrompt(brief, 'a blue car', 'refine');
     expect(user).toContain('a blue car');
     expect(user.toLowerCase()).toContain('forfin');
+  });
+});
+
+describe('BUREAU_RUBRIC', () => {
+  it('is a non-empty string', () => {
+    expect(typeof BUREAU_RUBRIC).toBe('string');
+    expect(BUREAU_RUBRIC.length).toBeGreaterThan(50);
+  });
+
+  it('contains all four criteria keywords', () => {
+    expect(BUREAU_RUBRIC).toContain('Skarphed');
+    expect(BUREAU_RUBRIC).toContain('Distinktivitet');
+    expect(BUREAU_RUBRIC).toContain('Bevisbyrde');
+    expect(BUREAU_RUBRIC).toContain('Dansk idiomatik');
+  });
+});
+
+describe('GENERATE_SYSTEM_ROLE', () => {
+  it('does not mention Produktionsassistent (legacy persona)', () => {
+    expect(GENERATE_SYSTEM_ROLE).not.toContain('Produktionsassistent');
+  });
+
+  it('references bureau rubric criteria', () => {
+    expect(GENERATE_SYSTEM_ROLE).toContain('Skarphed');
   });
 });
