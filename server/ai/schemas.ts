@@ -1110,3 +1110,72 @@ export const visualDirectionsTool: Anthropic.Tool = {
     required: ['boldVisuals', 'lightingAndColor', 'compositions'],
   },
 };
+
+// --- /api/critique -----------------------------------------------------------
+
+export const critiqueTool: Anthropic.Tool = {
+  name: 'submit_critique',
+  description: 'Aflever en intern bureau-kritik af et kreativt artefakt.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      verdict: {
+        type: 'string',
+        enum: ['approved', 'revise'],
+        description: '"approved": artefaktet holder mål. "revise": skal revideres med de angivne noter.',
+      },
+      rationale: {
+        type: 'string',
+        description: 'Kort, konkret begrundelse for dommen (2-4 sætninger).',
+      },
+      revisionNotes: {
+        type: 'array',
+        items: { type: 'string' },
+        description: 'Præcise revisionspunkter — tomme ved "approved". Hvert punkt er handlingsanvisende.',
+      },
+    },
+    required: ['verdict', 'rationale', 'revisionNotes'],
+  } as any,
+};
+
+// --- /api/pitch --------------------------------------------------------------
+
+export const pitchTool: Anthropic.Tool = {
+  name: 'submit_pitch',
+  description: 'Aflever klientpræsentationsmaterialet: narrativ, talenoter og indvendingshåndtering.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      narrative: {
+        type: 'string',
+        description: 'Anbefalings-narrativ: situation → spænding → indsigt → idéen → beviset → planen → the ask. En sammenhængende salgsfortælling (300-500 ord).',
+      },
+      slideNotes: {
+        type: 'array',
+        description: 'Talenoter pr. slide med retorisk formål.',
+        items: {
+          type: 'object',
+          properties: {
+            slide: { type: 'string', description: 'Slide-titel (matcher eksisterende deck-slide).' },
+            note: { type: 'string', description: 'Hvad præsentøren siger på dette slide (2-4 sætninger).' },
+            rhetoricalPurpose: { type: 'string', description: 'Hvad dette slide skal opnå hos klienten.' },
+          },
+          required: ['slide', 'note', 'rhetoricalPurpose'],
+        },
+      },
+      objections: {
+        type: 'array',
+        description: '3-4 kritiske kundespørgsmål med skarpe svar.',
+        items: {
+          type: 'object',
+          properties: {
+            question: { type: 'string', description: 'Det spørgsmål klienten stiller.' },
+            answer: { type: 'string', description: 'Det overbevisende, konkrete svar (3-5 sætninger).' },
+          },
+          required: ['question', 'answer'],
+        },
+      },
+    },
+    required: ['narrative', 'slideNotes', 'objections'],
+  } as any,
+};

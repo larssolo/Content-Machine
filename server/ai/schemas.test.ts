@@ -12,6 +12,8 @@ import {
   visualConceptTool,
   visualCritiqueTool,
   visualDirectionsTool,
+  critiqueTool,
+  pitchTool,
 } from './schemas';
 
 describe('generateTool', () => {
@@ -202,5 +204,34 @@ describe('visual tools', () => {
       'lightingAndColor',
       'compositions',
     ]);
+  });
+});
+
+describe('critiqueTool', () => {
+  it('has required fields: verdict, rationale, revisionNotes', () => {
+    const props = critiqueTool.input_schema.properties as Record<string, any>;
+    expect(props).toHaveProperty('verdict');
+    expect(props).toHaveProperty('rationale');
+    expect(props).toHaveProperty('revisionNotes');
+    expect(critiqueTool.input_schema.required).toContain('verdict');
+    expect(critiqueTool.input_schema.required).toContain('rationale');
+    expect(critiqueTool.input_schema.required).toContain('revisionNotes');
+  });
+
+  it('verdict is enum with approved and revise', () => {
+    const props = critiqueTool.input_schema.properties as Record<string, any>;
+    expect(props.verdict.enum).toEqual(['approved', 'revise']);
+  });
+});
+
+describe('pitchTool', () => {
+  it('has required fields: narrative, slideNotes, objections', () => {
+    const props = pitchTool.input_schema.properties as Record<string, any>;
+    expect(props).toHaveProperty('narrative');
+    expect(props).toHaveProperty('slideNotes');
+    expect(props).toHaveProperty('objections');
+    expect(pitchTool.input_schema.required).toContain('narrative');
+    expect(pitchTool.input_schema.required).toContain('slideNotes');
+    expect(pitchTool.input_schema.required).toContain('objections');
   });
 });

@@ -346,3 +346,49 @@ export interface VisualDevResult {
   synthesisTruncated?: boolean;
 }
 
+// ---------------------------------------------------------------------------
+// Bureau-mode typer
+// ---------------------------------------------------------------------------
+
+export interface CritiqueResult {
+  verdict: 'approved' | 'revise';
+  rationale: string;
+  revisionNotes: string[];
+}
+
+export type BureauStageStatus =
+  | 'idle'
+  | 'working'
+  | 'critiquing'
+  | 'revising'
+  | 'done'
+  | 'error'
+  | 'skipped';
+
+export interface BureauStageState {
+  id: string;
+  role: string;
+  title: string;
+  status: BureauStageStatus;
+  streamText: string;
+  error?: string;
+  critiqueVerdict?: 'approved' | 'revise';
+}
+
+export interface PitchSlideNote {
+  slide: string;
+  note: string;
+  rhetoricalPurpose: string;
+}
+
+export interface PitchObjection {
+  question: string;
+  answer: string;
+}
+
+export interface PitchResult {
+  narrative: string;
+  slideNotes: PitchSlideNote[];
+  objections: PitchObjection[];
+}
+
