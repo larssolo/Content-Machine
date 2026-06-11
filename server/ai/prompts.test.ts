@@ -20,6 +20,8 @@ import {
   buildImagePrompt,
   BUREAU_RUBRIC,
   GENERATE_SYSTEM_ROLE,
+  buildCritique,
+  buildPitch,
 } from './prompts';
 
 const sampleTerritory = {
@@ -453,5 +455,57 @@ describe('GENERATE_SYSTEM_ROLE', () => {
 
   it('references bureau rubric criteria', () => {
     expect(GENERATE_SYSTEM_ROLE).toContain('Skarphed');
+  });
+});
+
+describe('buildCritique', () => {
+  it('includes the critiquing role in system', () => {
+    const { system, user } = buildCritique({
+      role: 'Chefstrateg',
+      artifact: 'Den Store Idé: "Alt begynder med...',
+      context: 'Strategisk fundament: ...',
+      language: 'Dansk',
+    });
+    const systemText = system.map((b) => b.text).join('\n');
+    expect(systemText).toContain('Chefstrateg');
+    expect(user).toContain('Den Store Idé');
+  });
+
+  it('includes BUREAU_RUBRIC criteria in system', () => {
+    const { system } = buildCritique({
+      role: 'Kreativ Direktør',
+      artifact: 'Copy-pakke...',
+      context: '',
+      language: 'Dansk',
+    });
+    const systemText = system.map((b) => b.text).join('\n');
+    expect(systemText).toContain('Skarphed');
+  });
+
+  it('does not crash with empty context', () => {
+    expect(() =>
+      buildCritique({ role: 'Kreativ Direktør', artifact: 'x', context: '', language: 'Dansk' }),
+    ).not.toThrow();
+  });
+});
+
+describe('buildPitch', () => {
+  it('includes Pitch role in system', () => {
+    const { system } = buildPitch({ brief: { client: 'Acme' } as any });
+    const systemText = system.map((b) => b.text).join('\n');
+    expect(systemText).toContain('Pitch');
+  });
+
+  it('includes brief client name in user prompt', () => {
+    const { user } = buildPitch({ brief: { client: 'Acme', project: 'Test' } as any });
+    expect(user).toContain('Acme');
+  });
+
+  it('injects strategy context when provided', () => {
+    const { user } = buildPitch({
+      brief: { client: 'Acme' } as any,
+      strategy: { singleMindedProposition: 'Vi gør det enkelt.', audienceTruth: 'De er overset.' },
+    });
+    expect(user).toContain('Vi gør det enkelt.');
   });
 });

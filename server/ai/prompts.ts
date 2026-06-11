@@ -1160,3 +1160,98 @@ Producér ÉT forbedret visuelt koncept + TRE forfinede engelske billedprompts v
     user,
   };
 }
+
+// ---------------------------------------------------------------------------
+// /api/critique — intern bureau-kritik af et kreativt artefakt
+// ---------------------------------------------------------------------------
+
+export interface CritiqueInput {
+  role: string;
+  artifact: string;
+  context: string;
+  language: string;
+}
+
+export function buildCritique(input: CritiqueInput): {
+  system: Anthropic.TextBlockParam[];
+  user: string;
+} {
+  const systemRole = `Du er ${input.role} i et prisvindende reklamebureau, og du leder en intern overlevering.
+
+Du modtager et kreativt artefakt produceret af et andet bureau-led. Din opgave er at vurdere om det holder mål — ikke at rose, men at sikre bureau-kvalitet.
+
+${BUREAU_RUBRIC}
+
+Vurder artefaktet brutalt ærligt mod bureau-rubrikken. Kom frem til en klar dom:
+- "approved": artefaktet holder alle fire krav — gå videre.
+- "revise": ét eller flere krav er brudt — angiv præcis hvad der skal ændres.
+
+Vær konkret og handlingsanvisende. Ingen høflig ros. En kritik der ikke finder fejl er ubrugelig. Aflever via det angivne værktøj.`;
+
+  const user = `${input.context ? `KONTEKST:\n${input.context}\n\n` : ''}ARTEFAKT TIL VURDERING:
+"""
+${input.artifact}
+"""
+
+Vurder artefaktet mod bureau-rubrikken og aflever din dom. Skriv på ${input.language || 'Dansk'}.`;
+
+  return { system: cacheableSystem([systemRole]), user };
+}
+
+// ---------------------------------------------------------------------------
+// /api/pitch — Pitch-producent: anbefalings-narrativ, talenoter, indvendinger
+// ---------------------------------------------------------------------------
+
+export interface PitchInput {
+  brief: Brief;
+  strategy?: StrategyFoundation | null;
+  bigIdea?: ChosenIdea | null;
+  channelMatrixSummary?: string;
+  effectivenessSummary?: string;
+  language?: string;
+}
+
+export function buildPitch(input: PitchInput): {
+  system: Anthropic.TextBlockParam[];
+  user: string;
+} {
+  const { brief, strategy, bigIdea, channelMatrixSummary, effectivenessSummary } = input;
+  const lang = input.language || brief.language || 'Dansk';
+
+  const systemRole = `Du er Pitch-producent og Client Director i et prisvindende reklamebureau.
+
+Du har gennemkørt den fulde bureau-motor: analyse, strategi, stor idé, konceptudvikling og effekt-lag. Nu skal du omsætte alt det arbejde til én overbevisende klientpræsentation.
+
+Din opgave er at levere TRE ting:
+
+1. ANBEFALINGS-NARRATIV — en salgsfortælling, ikke en opsummering:
+   Situation → Spænding → Indsigt → Idéen → Beviset → Planen → The Ask.
+   Hvert led bygger på det forrige. Det skal føles som en åbenbaring, ikke en PowerPoint-præsentation.
+
+2. TALENOTER PR. SLIDE — hvad præsentøren siger, ikke hvad sliden viser:
+   Hvert note skal have et klart retorisk formål (fx "skab erkendelse", "byg troværdighed", "lukker commitmentet").
+
+3. INDVENDINGSHÅNDTERING — de 3-4 spørgsmål klienten VIL stille, med skarpe svar:
+   Ingen blød undvigelse. Mød indvendingen direkte, konkret og overbevisende.
+
+${BUREAU_RUBRIC}
+
+Skriv som en der har vundet pitchen. Aflever via det angivne værktøj.`;
+
+  const strategyBlock = strategy ? `\n${strategyContextText(strategy)}\n` : '';
+  const ideaBlock = bigIdea ? `\n${campaignContextText(bigIdea)}\n` : '';
+  const matrixBlock = channelMatrixSummary ? `\nKANAL-MATRIX (sammenfatning):\n${channelMatrixSummary}\n` : '';
+  const effectBlock = effectivenessSummary ? `\nEFFEKT-LAG (sammenfatning):\n${effectivenessSummary}\n` : '';
+  const intake = briefIntakeText(brief);
+
+  const user = `PROJEKT BRIEF:
+- Kunde: ${brief.client || 'N/A'}
+- Projekt: ${brief.project || 'N/A'}
+- Beskrivelse: ${brief.description || 'N/A'}
+- Målgruppe: ${brief.audience || 'N/A'}
+- Kanaler: ${(brief.channels || []).join(', ') || 'N/A'}
+${intake ? `\n${intake}\n` : ''}${strategyBlock}${ideaBlock}${matrixBlock}${effectBlock}
+Byg nu klientpræsentationsmaterielet: anbefalings-narrativ, talenoter pr. slide og indvendingshåndtering. Aflever via værktøjet. Skriv på ${lang}.`;
+
+  return { system: cacheableSystem([systemRole, cviSectionText(brief)]), user };
+}
