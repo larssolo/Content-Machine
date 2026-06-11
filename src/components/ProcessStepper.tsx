@@ -36,6 +36,7 @@ interface ProcessStepperProps {
   onToggleBureauMode: () => void;
   onRunBureau: () => void;
   isBureauRunning: boolean;
+  onToggleDeepMode: () => void;
 }
 
 interface Step {
@@ -98,7 +99,7 @@ export function ProcessStepper(props: ProcessStepperProps) {
     isSharpening, onSharpenIdea,
     onCulturalScan, onGenerateStrategy, onGenerateBigIdea,
     onGenerateChannelMatrix, onGenerateEffectiveness, onGenerateAll,
-    bureauModeActive, onToggleBureauMode, onRunBureau, isBureauRunning,
+    bureauModeActive, onToggleBureauMode, onRunBureau, isBureauRunning, onToggleDeepMode,
   } = props;
 
   const territoryStatus = (done: boolean): StepStatus =>
@@ -203,6 +204,28 @@ export function ProcessStepper(props: ProcessStepperProps) {
           </button>
         )}
       </div>
+
+      <button
+        type="button"
+        onClick={onToggleDeepMode}
+        disabled={isGenerating}
+        aria-pressed={deepMode}
+        className={`w-full flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border transition-all text-left ${
+          deepMode ? 'bg-brand-orange-600/10 border-brand-orange-500/40' : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+        } ${isGenerating ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+        title="Lader flere AI-roller kritisere og forbedre hinanden for et mere gennemarbejdet resultat"
+      >
+        <span className="flex items-center gap-2.5 min-w-0">
+          <Users className={`w-4 h-4 shrink-0 ${deepMode ? 'text-brand-orange-500' : 'text-slate-500'}`} />
+          <span className="min-w-0 text-left">
+            <span className="block text-xs font-display font-semibold text-slate-200">Dyb tilstand · Redaktionsmøde</span>
+            <span className="block text-[11px] text-slate-500 leading-tight">Flere AI-roller forbedrer hinanden (langsommere, dyrere)</span>
+          </span>
+        </span>
+        <span className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${deepMode ? 'bg-brand-orange-500' : 'bg-slate-700'}`}>
+          <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${deepMode ? 'translate-x-4' : ''}`} />
+        </span>
+      </button>
     </div>
   );
 }

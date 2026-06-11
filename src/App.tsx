@@ -202,6 +202,7 @@ export default function App() {
             onToggleBureauMode={() => setBureauModeActive(!bureauModeActive)}
             onRunBureau={runBureau}
             isBureauRunning={isBureauRunning}
+            onToggleDeepMode={() => setDeepMode(v => !v)}
             errorMsg={errorMsg}
             generationStep={generationStep}
           />
