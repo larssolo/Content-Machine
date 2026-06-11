@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
-import { ProjectBrief, BrandSurfaceOutput, PresetBrief, ToneAnalysis, VisualDevResult, UsageInfo, BrainstormResult } from '../types';
+import { ProjectBrief, BrandSurfaceOutput, PresetBrief, ToneAnalysis, VisualDevResult, UsageInfo, BrainstormResult, PitchResult } from '../types';
 import { buildMarkdown, downloadTextFile, slugify } from '../lib/exportMarkdown';
 import { downloadHtmlFile } from '../lib/exportHtml';
 import { downloadDeckFile } from '../lib/exportDeck';
@@ -20,6 +20,7 @@ import { useAvatarGeneration } from './useAvatarGeneration';
 import { useHumanizer } from './useHumanizer';
 import { useLogo } from './useLogo';
 import { useCreativeFunnel } from './useCreativeFunnel';
+import { useBureauMode } from './useBureauMode';
 
 export const PRESETS: PresetBrief[] = [
   {
@@ -154,15 +155,28 @@ export function useContentMachine() {
     isOptimizingLogoPrompt, handleOptimizeLogoPrompt,
   } = useLogo({ brief, setErrorMsg });
   const {
-    culturalIntel, isScanning, handleCulturalScan, handleClearCulturalIntel,
+    culturalIntel, setCulturalIntel, isScanning, handleCulturalScan, handleClearCulturalIntel,
     strategy, setStrategy, isGeneratingStrategy, handleGenerateStrategy, handleClearStrategy,
     campaignPlatform, setCampaignPlatform, isGeneratingCampaign, handleGenerateBigIdea,
     selectedTerritory, handleSelectTerritory, handleClearTerritory,
     pressureTest, isSharpening, sharpeningTarget,
     handleSharpenIdea, handleAdoptSharpened, handleClearPressureTest,
     channelMatrix, setChannelMatrix, isGeneratingMatrix, handleGenerateChannelMatrix, handleClearChannelMatrix,
-    effectiveness, isGeneratingEffectiveness, handleGenerateEffectiveness, handleClearEffectiveness,
+    effectiveness, setEffectiveness, isGeneratingEffectiveness, handleGenerateEffectiveness, handleClearEffectiveness,
   } = useCreativeFunnel({ brief, setLastUsage, setErrorMsg });
+
+  const bureau = useBureauMode({
+    brief,
+    setLastUsage,
+    setErrorMsg,
+    setCulturalIntel,
+    setStrategy,
+    setCampaignPlatform,
+    handleSelectTerritory,
+    setChannelMatrix,
+    setEffectiveness,
+    setOutput,
+  });
 
   const [customPresets, setCustomPresets] = useState<PresetBrief[]>(() => {
     const local = localStorage.getItem('brand_surface_presets');
@@ -1067,6 +1081,16 @@ export function useContentMachine() {
     // Effekt-lag
     effectiveness, isGeneratingEffectiveness,
     handleGenerateEffectiveness, handleClearEffectiveness,
+    // Bureau-mode
+    bureauModeActive: bureau.bureauModeActive,
+    setBureauModeActive: bureau.setBureauModeActive,
+    bureauStages: bureau.stages,
+    isBureauRunning: bureau.isRunning,
+    runBureau: bureau.runBureau,
+    abortBureau: bureau.abortBureau,
+    pitchResult: bureau.pitchResult,
+    isGeneratingPitch: bureau.isGeneratingPitch,
+    handleGeneratePitch: bureau.handleGeneratePitch,
     // Logo
     logoResult, setLogoResult,
     isGeneratingLogo,
