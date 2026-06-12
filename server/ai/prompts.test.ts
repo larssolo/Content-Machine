@@ -22,6 +22,8 @@ import {
   GENERATE_SYSTEM_ROLE,
   buildCritique,
   buildPitch,
+  buildCodeDepartment,
+  CODE_DEPARTMENT_SYSTEM_ROLE,
 } from './prompts';
 
 const sampleTerritory = {
@@ -507,5 +509,46 @@ describe('buildPitch', () => {
       strategy: { singleMindedProposition: 'Vi gør det enkelt.', audienceTruth: 'De er overset.' },
     });
     expect(user).toContain('Vi gør det enkelt.');
+  });
+});
+
+describe('buildCodeDepartment', () => {
+  it('includes Creative Technologist role and anti-generic rules in system', () => {
+    const { system } = buildCodeDepartment({ brief: { client: 'Acme' } as any, target: 'website' });
+    const systemText = system.map((b) => b.text).join('\n');
+    expect(systemText).toContain('Creative Technologist');
+    expect(systemText).toContain('ANTI-GENERIC');
+  });
+
+  it('maps target type into the user prompt', () => {
+    const { user } = buildCodeDepartment({ brief: { client: 'Acme' } as any, target: 'game' });
+    expect(user).toContain('browser-based game');
+  });
+
+  it('includes brief client and extra notes in user prompt', () => {
+    const { user } = buildCodeDepartment({
+      brief: { client: 'Acme', project: 'Kampagne' } as any,
+      target: 'landing',
+      extraNotes: 'mørk og filmisk',
+    });
+    expect(user).toContain('Acme');
+    expect(user).toContain('mørk og filmisk');
+  });
+
+  it('injects strategy and big idea context when provided', () => {
+    const { user } = buildCodeDepartment({
+      brief: { client: 'Acme' } as any,
+      target: 'app',
+      strategy: { singleMindedProposition: 'Vi gør det enkelt.', audienceTruth: 'De er overset.' },
+      bigIdea: { name: 'Ruten', bigIdea: 'Den store tanke', tagline: 'Kort og godt' } as any,
+    });
+    expect(user).toContain('Vi gør det enkelt.');
+    expect(user).toContain('Den store tanke');
+  });
+
+  it('system role demands an English markdown prompt with design system sections', () => {
+    expect(CODE_DEPARTMENT_SYSTEM_ROLE).toContain('ENGELSK');
+    expect(CODE_DEPARTMENT_SYSTEM_ROLE).toContain('DESIGN SYSTEM');
+    expect(CODE_DEPARTMENT_SYSTEM_ROLE).toContain('MOTION');
   });
 });

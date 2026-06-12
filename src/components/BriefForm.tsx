@@ -5,7 +5,7 @@
 
 import { Dispatch, SetStateAction, ChangeEvent } from 'react';
 import {
-  AlertTriangle, Check, ChevronRight, Compass, FileText, Fingerprint,
+  AlertTriangle, Check, ChevronRight, Code2, Compass, FileText, Fingerprint,
   Lightbulb, Loader2, Palette, Pin, RotateCcw, ShieldCheck,
   Swords, Target, Trash2, UploadCloud, Users, Wallet,
 } from 'lucide-react';
@@ -60,6 +60,8 @@ interface BriefFormProps {
   onRunBureau: () => void;
   isBureauRunning: boolean;
   onToggleDeepMode: () => void;
+  codeDeptOpen: boolean;
+  onToggleCodeDept: () => void;
   errorMsg: string | null;
   generationStep: string;
 }
@@ -80,6 +82,7 @@ export function BriefForm({
   handleGenerateEffectiveness, isGeneratingEffectiveness,
   isSharpening, onSharpenIdea,
   bureauModeActive, onToggleBureauMode, onRunBureau, isBureauRunning, onToggleDeepMode,
+  codeDeptOpen, onToggleCodeDept,
   errorMsg, generationStep,
 }: BriefFormProps) {
   return (
@@ -573,6 +576,20 @@ export function BriefForm({
                 <span>Visuel udvikling · Redaktion</span>
               </button>
 
+              <button
+                type="button"
+                onClick={onToggleCodeDept}
+                disabled={isGenerating}
+                className={`w-full py-2.5 px-4 rounded-lg border font-display font-semibold text-xs flex items-center justify-center gap-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer ${
+                  codeDeptOpen
+                    ? 'border-emerald-500/40 bg-emerald-600/10 text-emerald-300'
+                    : 'border-slate-800 bg-slate-900 text-slate-200 hover:border-slate-700 hover:text-white'
+                }`}
+                title="Code Department omsætter kampagnens idé til en prisvindende Claude Code-prompt — apps, hjemmesider, landing pages og spil"
+              >
+                <Code2 className={`w-4 h-4 shrink-0 ${codeDeptOpen ? 'text-emerald-400' : 'text-brand-orange-400'}`} />
+                <span>Code Department · Vibe Code</span>
+              </button>
 
               <button
                 type="button"

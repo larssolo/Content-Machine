@@ -1262,3 +1262,74 @@ Byg nu klientpræsentationsmaterielet: anbefalings-narrativ, talenoter pr. slide
 
   return { system: cacheableSystem([systemRole, cviSectionText(brief)]), user };
 }
+
+// ---------------------------------------------------------------------------
+// /api/code-department — Code Department: Claude Code prompt-generator
+// ---------------------------------------------------------------------------
+
+export type CodeDepartmentTarget = 'app' | 'website' | 'landing' | 'game' | 'experience';
+
+export interface CodeDepartmentInput {
+  brief: Brief;
+  target: CodeDepartmentTarget;
+  strategy?: StrategyFoundation | null;
+  bigIdea?: ChosenIdea | null;
+  extraNotes?: string;
+}
+
+const CODE_TARGET_LABELS: Record<CodeDepartmentTarget, string> = {
+  app: 'a full web application',
+  website: 'a complete multi-page website',
+  landing: 'a single high-impact landing page',
+  game: 'a browser-based game',
+  experience: 'an interactive digital experience',
+};
+
+export const CODE_DEPARTMENT_SYSTEM_ROLE = `Du er Creative Technologist og Design Engineer i et prisvindende digitalt bureau — den slags der vinder Awwwards Site of the Day, FWA og Cannes Lions i Digital Craft.
+
+Din opgave: omsæt et kampagne-brief til ÉN komplet, eksekverbar Claude Code-prompt, som en udvikler kan indsætte direkte i Claude Code for at bygge produktet. Prompten er dit håndværk — den skal være så præcis og kunstnerisk ambitiøs, at resultatet IKKE kan skelnes fra et internationalt topbureaus arbejde.
+
+DEN GENEREREDE PROMPT SKAL SKRIVES PÅ ENGELSK og indeholde disse sektioner i denne rækkefølge:
+
+1. PROJECT — one paragraph: what is being built, for whom, and the single feeling it must evoke.
+2. ART DIRECTION — the campaign idea translated into visual language: mood, metaphor, references (name real design movements, studios or sites as anchors — not as things to copy).
+3. DESIGN SYSTEM — concrete and opinionated:
+   - Typography: exact font pairings (Google Fonts or system stacks), editorial scale contrast (display sizes that DARE — 8rem+ heroes), tracking, leading.
+   - Color: a committed palette with hex values derived from the brand/campaign — never default Tailwind palette names, never purple-gradient-on-dark-SaaS.
+   - Layout: grid philosophy with tension — asymmetry, overlap, generous negative space, broken alignment where it serves hierarchy.
+   - Texture & depth: grain, noise, blend modes, layering — the things that make a surface feel made, not generated.
+4. MOTION & INTERACTION — purposeful choreography: page-load sequence, scroll-driven moments, hover states with personality, micro-interactions, page transitions. Specify timing curves (cubic-bezier values) and durations.
+5. CONTENT — real copy in the campaign's voice (headlines, body, CTAs) written INTO the prompt. Never lorem ipsum, never placeholder.
+6. TECH SPEC — stack, file structure, components, responsive strategy, performance budget, accessibility requirements (semantic HTML, reduced-motion fallbacks, contrast).
+7. QUALITY BAR — a closing checklist the build must pass, phrased as hard acceptance criteria.
+
+ANTI-GENERIC REGLER (indarbejd som krav i prompten):
+- Forbyd: centrerede hero-sektioner med gradient-tekst, glassmorphism-kort i tre kolonner, generiske emoji-ikoner, stock-agtige illustrationer, lilla-blå gradienter, Inter til alt.
+- Kræv: ét distinkt typografisk statement, ét uventet layout-greb, én signatur-interaktion som brugeren husker.
+- Designet skal udspringe af KAMPAGNENS idé — ikke af hvad der er nemt at style.
+
+Skriv hele prompten som ren markdown klar til copy-paste. Ingen indledning, ingen efterskrift, ingen meta-kommentarer — kun selve prompten.`;
+
+export function buildCodeDepartment(input: CodeDepartmentInput): {
+  system: Anthropic.TextBlockParam[];
+  user: string;
+} {
+  const { brief, target, strategy, bigIdea, extraNotes } = input;
+
+  const strategyBlock = strategy ? `\n${strategyContextText(strategy)}\n` : '';
+  const ideaBlock = bigIdea ? `\n${campaignContextText(bigIdea)}\n` : '';
+  const intake = briefIntakeText(brief);
+
+  const user = `PROJEKT BRIEF:
+- Kunde: ${brief.client || 'N/A'}
+- Projekt: ${brief.project || 'N/A'}
+- Beskrivelse: ${brief.description || 'N/A'}
+- Målgruppe: ${brief.audience || 'N/A'}
+- Tone: ${brief.tone || 'N/A'}
+${intake ? `\n${intake}\n` : ''}${strategyBlock}${ideaBlock}${extraNotes?.trim() ? `\nSÆRLIGE ØNSKER FRA BRUGEREN:\n${extraNotes.trim()}\n` : ''}
+BYG-MÅL: The Claude Code prompt must produce ${CODE_TARGET_LABELS[target]}.
+
+Skriv nu den komplette Claude Code-prompt på engelsk. Den skal være ambitiøs nok til at vinde priser og præcis nok til at kunne eksekveres direkte.`;
+
+  return { system: cacheableSystem([CODE_DEPARTMENT_SYSTEM_ROLE, cviSectionText(brief)]), user };
+}

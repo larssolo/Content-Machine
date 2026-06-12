@@ -18,6 +18,7 @@ import { AvatarPanel } from './components/AvatarPanel';
 import { FunnelPanels } from './components/FunnelPanels';
 import { BureauFloor } from './components/BureauFloor';
 import { PitchPanel } from './components/PitchPanel';
+import { CodeDepartmentPanel } from './components/CodeDepartmentPanel';
 import { BlankState } from './components/BlankState';
 import { OutputWorkspace } from './components/OutputWorkspace';
 import { useContentMachine, PRESETS } from './hooks/useContentMachine';
@@ -65,6 +66,11 @@ export default function App() {
     pitchResult,
     isGeneratingPitch,
     handleGeneratePitch,
+    codeDeptOpen, setCodeDeptOpen,
+    codeTarget, setCodeTarget,
+    codeNotes, setCodeNotes,
+    codePrompt, isGeneratingCode,
+    handleGenerateCodePrompt, abortCodePrompt,
     selectedTerritory, handleSelectTerritory, handleClearTerritory,
     pressureTest, isSharpening, sharpeningTarget,
     handleSharpenIdea, handleAdoptSharpened, handleClearPressureTest,
@@ -203,6 +209,8 @@ export default function App() {
             onRunBureau={runBureau}
             isBureauRunning={isBureauRunning}
             onToggleDeepMode={() => setDeepMode(v => !v)}
+            codeDeptOpen={codeDeptOpen}
+            onToggleCodeDept={() => setCodeDeptOpen(!codeDeptOpen)}
             errorMsg={errorMsg}
             generationStep={generationStep}
           />
@@ -215,6 +223,22 @@ export default function App() {
                 isRunning={isBureauRunning}
                 onRun={runBureau}
                 onAbort={abortBureau}
+              />
+            </div>
+          )}
+
+          {/* CODE DEPARTMENT */}
+          {codeDeptOpen && (
+            <div className="lg:col-span-12">
+              <CodeDepartmentPanel
+                target={codeTarget}
+                setTarget={setCodeTarget}
+                notes={codeNotes}
+                setNotes={setCodeNotes}
+                codePrompt={codePrompt}
+                isGenerating={isGeneratingCode}
+                onGenerate={handleGenerateCodePrompt}
+                onAbort={abortCodePrompt}
               />
             </div>
           )}
@@ -414,7 +438,7 @@ export default function App() {
               <span>
                 Neura Studio by{' '}
                 <a href="https://www.larssohl.dk" target="_blank" rel="noopener noreferrer" className="text-orange-400 hover:text-orange-300 transition-colors">larssohl.dk</a>
-                {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.23.0
+                {' '}&amp; Claude Anthropic &copy; 2026 &middot; v1.24.0
               </span>
               <div className="flex items-center space-x-4">
                 {lastUsage && <UsageBadge usage={lastUsage} />}

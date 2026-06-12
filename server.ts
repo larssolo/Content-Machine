@@ -27,6 +27,7 @@ import {
   buildImagePrompt,
   buildCritique,
   buildPitch,
+  buildCodeDepartment,
   ANALYZE_CVI_SYSTEM_ROLE,
   cacheableSystem,
 } from './server/ai/prompts';
@@ -527,6 +528,64 @@ async function startServer() {
     } catch (error: any) {
       console.error('Fejl under pitch-generering:', error);
       res.status(500).json({ error: error.message || 'Kunne ikke generere pitch-materialet.' });
+    }
+  });
+
+  // Code Department: generér en prisvindende Claude Code-prompt (streaming via SSE)
+  app.post('/api/code-department', async (req, res) => {
+    try {
+      const { brief, target, strategy, bigIdea, extraNotes } = req.body;
+      if (!brief) {
+        return res.status(400).json({ error: 'Brief er påkrævet.' });
+      }
+      const validTargets = ['app', 'website', 'landing', 'game', 'experience'];
+      if (!target || !validTargets.includes(target)) {
+        return res.status(400).json({ error: 'Vælg et gyldigt byg-mål (app, website, landing, game eller experience).' });
+      }
+
+      const { system, user } = buildCodeDepartment({
+        brief,
+        target,
+        strategy: strategy || null,
+        bigIdea: bigIdea || null,
+        extraNotes: extraNotes || '',
+      });
+
+      res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
+      res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no');
+      res.flushHeaders?.();
+
+      const stream = anthropic.messages.stream({
+        model: config.creativeModel,
+        max_tokens: 8192,
+        system,
+        messages: [{ role: 'user', content: user }],
+      });
+
+      let full = '';
+      stream.on('text', (delta) => {
+        full += delta;
+        res.write(`data: ${JSON.stringify({ delta })}\n\n`);
+      });
+
+      const final = await stream.finalMessage();
+      const usage = final.usage
+        ? { inputTokens: final.usage.input_tokens, outputTokens: final.usage.output_tokens }
+        : null;
+
+      res.write(`data: ${JSON.stringify({ done: true, codePrompt: full.trim(), _usage: usage })}\n\n`);
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (error: any) {
+      console.error('Fejl under code-department-generering:', error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: error.message || 'Kunne ikke generere Claude Code-prompten.' });
+      } else {
+        res.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
+        res.end();
+      }
     }
   });
 

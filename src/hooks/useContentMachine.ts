@@ -21,6 +21,7 @@ import { useHumanizer } from './useHumanizer';
 import { useLogo } from './useLogo';
 import { useCreativeFunnel } from './useCreativeFunnel';
 import { useBureauMode } from './useBureauMode';
+import { useCodeDepartment } from './useCodeDepartment';
 
 export const PRESETS: PresetBrief[] = [
   {
@@ -180,6 +181,14 @@ export function useContentMachine() {
     setEffectiveness,
     effectiveness,
     setOutput,
+  });
+
+  const codeDept = useCodeDepartment({
+    brief,
+    strategy,
+    selectedTerritory,
+    setLastUsage,
+    setErrorMsg,
   });
 
   const [customPresets, setCustomPresets] = useState<PresetBrief[]>(() => {
@@ -1096,6 +1105,17 @@ export function useContentMachine() {
     pitchResult: bureau.pitchResult,
     isGeneratingPitch: bureau.isGeneratingPitch,
     handleGeneratePitch: bureau.handleGeneratePitch,
+    // Code Department
+    codeDeptOpen: codeDept.codeDeptOpen,
+    setCodeDeptOpen: codeDept.setCodeDeptOpen,
+    codeTarget: codeDept.codeTarget,
+    setCodeTarget: codeDept.setCodeTarget,
+    codeNotes: codeDept.codeNotes,
+    setCodeNotes: codeDept.setCodeNotes,
+    codePrompt: codeDept.codePrompt,
+    isGeneratingCode: codeDept.isGeneratingCode,
+    handleGenerateCodePrompt: codeDept.handleGenerateCodePrompt,
+    abortCodePrompt: codeDept.abortCodePrompt,
     // Logo
     logoResult, setLogoResult,
     isGeneratingLogo,

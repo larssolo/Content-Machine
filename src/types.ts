@@ -392,3 +392,5 @@ export interface PitchResult {
   objections: PitchObjection[];
 }
 
+
+export type CodeDepartmentTarget = 'app' | 'website' | 'landing' | 'game' | 'experience';
