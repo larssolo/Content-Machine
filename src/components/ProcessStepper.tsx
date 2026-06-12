@@ -205,7 +205,7 @@ export function ProcessStepper(props: ProcessStepperProps) {
         )}
       </div>
 
-      <button
+      {!bureauModeActive && <button
         type="button"
         onClick={onToggleDeepMode}
         disabled={isGenerating}
@@ -225,7 +225,7 @@ export function ProcessStepper(props: ProcessStepperProps) {
         <span className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${deepMode ? 'bg-brand-orange-500' : 'bg-slate-700'}`}>
           <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${deepMode ? 'translate-x-4' : ''}`} />
         </span>
-      </button>
+      </button>}
     </div>
   );
 }
